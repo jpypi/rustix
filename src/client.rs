@@ -1,0 +1,291 @@
+#![allow(dead_code)]
+use std::io::Read;
+use std::collections::HashMap;
+
+use reqwest;
+use reqwest::{Url, Response};
+use reqwest::header::{ContentType};
+use reqwest::Error as ReqwestErr;
+use serde_json;
+use reqwest::Method;
+
+use errors::*;
+use matrix_types::*;
+
+
+pub enum HTTPVerb{
+    GET,
+    POST,
+    PUT,
+}
+
+pub struct MatrixClient {
+    base_url: String,
+    encoding: String,
+
+    access_token: Option<String>,
+    device_id: Option<String>,
+    user_id: Option<String>,
+
+    transaction_id: u64,
+}
+
+
+impl MatrixClient {
+    pub fn new(base_url: &str) -> Self {
+        MatrixClient {
+            base_url: String::from(base_url),
+            encoding: String::from("utf-8"),
+            access_token: None,
+            device_id: None,
+            user_id: None,
+            transaction_id: 0,
+        }
+    }
+
+    fn get_transaction_id(&mut self) -> u64 {
+        self.transaction_id += 1;
+
+        self.transaction_id
+    }
+
+    pub fn query(&self,
+             method: Method,
+             path: &str,
+             params: Option<&HashMap<&str, &str>>,
+             data: Option<&HashMap<&str, &str>>) -> Result<Response, ReqwestErr> {
+        //use self::HTTPVerb::*;
+
+        let client = reqwest::Client::new().unwrap();
+
+        // Concat the path to the base url and constant string
+        let mut uri = self.base_url.clone();
+        uri += "/_matrix/client/r0";
+        uri += path;
+
+        let url = match params {
+            // TODO: an unwrap ok here?
+            Some(v) => Url::parse_with_params(&uri, v).unwrap().into_string(),
+            None => uri
+        };
+
+        let nothing = HashMap::new();
+
+        let mut builder = client.request(method.clone(), &url)?;
+
+        let request = match method {
+            Method::Post | Method::Put => {
+                builder.header(ContentType::json())
+                       .json(data.unwrap_or(&nothing)).unwrap()
+            },
+            _ => &mut builder,
+        };
+
+        request.send()
+
+            /*
+        match method {
+            Method::Get => {
+                client.get(&url)?.send()
+            },
+            POST => {
+                client.post(&url)?
+                      .header(ContentType::json())
+                      .json(data.unwrap_or(&nothing)).unwrap().send()
+            }
+            PUT => {
+                client.put(&url)?
+                      .header(ContentType::json())
+                      .json(data.unwrap_or(&nothing)).unwrap().send()
+            }
+        }
+        */
+    }
+
+    pub fn auth_query(&self,
+                  method: Method,
+                  path: &str,
+                  params: Option<HashMap<&str, &str>>,
+                  data: Option<&HashMap<&str, &str>>) -> Result<Response, RustixError> {
+
+        use errors::RustixError::*;
+
+        let mut real_params = match params {
+            Some(v) => v,
+            None => HashMap::new(),
+        };
+
+        match self.access_token {
+            Some(ref v) => {
+                real_params.insert("access_token", v);
+                match self.query(method, path, Some(&real_params), data) {
+                    Ok(r) => Ok(r),
+                    Err(e) => Err(Reqwest(e)),
+                }
+            },
+            None => {
+                Err(Generic("User must be authenticated first."))
+            },
+        }
+    }
+
+    pub fn get(&self, path: &str,
+               params: Option<&HashMap<&str, &str>>) -> Result<Response, ReqwestErr> {
+        self.query(Method::Get, path, params, None)
+    }
+
+    pub fn auth_get(&self, path: &str,
+                    params: Option<HashMap<&str, &str>>) -> Result<Response, RustixError> {
+        self.auth_query(Method::Get, path, params, Option::None)
+    }
+
+    pub fn login(&mut self, username: &str, password: &str) -> Result<(), String> {
+        let map = hashmap!{
+            "user"     => username,
+            "password" => password,
+            "type"     => "m.login.password",
+            "initial_device_display_name" => "rustix",
+        };
+
+        let mut content = String::new();
+
+        match self.query(Method::Post, "/login", Option::None, Some(&map)) {
+            Ok(mut resp) => {
+                resp.read_to_string(&mut content).unwrap();
+            },
+            Err(e) => {
+                return Err(e.to_string());
+            },
+        }
+
+        // Parse response into client state
+        match serde_json::from_str::<Init>(&content) {
+            Ok(v) => {
+                self.user_id = Some(v.user_id);
+                self.access_token = Some(v.access_token);
+                self.device_id = Some(v.device_id);
+
+                Ok(())
+            },
+            Err(e) => Err(e.to_string())
+        }
+    }
+
+    pub fn sync(&self, since: Option<&str>) -> Result<MatrixSync, RustixError>{
+        let mut params = HashMap::new();
+        if let Some(v) = since {
+            params.insert("since", v);
+        }
+
+        let mut content = String::new();
+
+        match self.auth_get("/sync", Some(params)) {
+            Ok(mut resp) => {
+                resp.read_to_string(&mut content).unwrap();
+                match serde_json::from_str(&content) {
+                    Ok(v) => Ok(v),
+                    Err(e) => {
+                        //println!("{}", content);
+                        panic!("was an error syncing {:?}", e);
+                    },
+                }
+            },
+            Err(e) => Err(e)
+        }
+    }
+
+    //TODO: Validate this
+    pub fn get_public_rooms(&self) -> Result<PublicRooms, RustixError> {
+        let params = hashmap! {
+            "from" => "",
+            "dir"  => "f"
+        };
+
+        let mut content = String::new();
+        match self.auth_get("/publicRooms", Some(params)) {
+            Ok(mut resp) => {
+                resp.read_to_string(&mut content).unwrap();
+                match serde_json::from_str(&content) {
+                    Ok(v) => Ok(v),
+                    Err(e) => {
+                        println!("{}", content);
+                        panic!("{:?}", e);
+                    }
+                }
+            },
+            Err(v) => Err(v),
+        }
+    }
+
+    pub fn get_public_room_id(&self, name: &str) -> Option<String> {
+        if let Ok(v) = self.get_public_rooms() {
+            for room in v.chunk {
+                if room.name == name {
+                    return Some(room.room_id.clone());
+                }
+            }
+        }
+
+        None
+    }
+
+    pub fn join(&self, room_id: &str) -> Result<Response, RustixError> {
+        self.auth_query(Method::Post,
+                        &format!("/join/{}", room_id),
+                        None, None)
+    }
+
+    pub fn leave(&self, room_id: &str) -> Result<Response, RustixError> {
+        self.auth_query(Method::Post,
+                        &format!("/rooms/{}/leave", room_id),
+                        None, None)
+    }
+
+    pub fn set_display_name(&self, name: &str) -> Result<Response, RustixError> {
+        let data = hashmap! {
+            "displayname" => name,
+        };
+
+        let path = format!("/profile/{}/displayname",
+                           self.user_id.as_ref().expect("Must be logged in"));
+        self.auth_query(Method::Put, &path, None, Some(&data))
+    }
+
+    pub fn send(&mut self,
+                room_id: &str,
+                event_type: &str,
+                data: Option<&HashMap<&str, &str>>) -> Result<Response, RustixError> {
+        let path = format!("/rooms/{}/send/{}/{}", room_id, event_type,
+                           self.get_transaction_id());
+
+        self.auth_query(Method::Put, &path, None, data)
+    }
+
+    pub fn send_msg(&mut self, room_id: &str, message: &str) -> Result<Response, RustixError> {
+        let data = hashmap! {
+            "msgtype" => "m.text",
+            "body"    => message,
+        };
+
+        self.send(room_id, "m.room.message", Some(&data))
+    }
+
+    /*
+    pub fn indicate_typing(&self, room_id: &str, length: Option<u32>) -> Result<Response, RustixError> {
+        let mut data = HashMap::new();
+        data.insert("typing", serde_json::Value::Bool(true));
+        let v = match length {
+            Some(i) => i,
+            None => 1000,
+        };
+
+
+        data.insert("timeout", serde_json::Value::from(v));
+
+        let path = format!("/rooms/{}/typing/{}", room_id,
+                           self.user_id.as_ref().expect("Must be logged in"));
+        self.auth_query(HTTPVerb::PUT, &path, None, Some(&data))
+    }
+    */
+
+}
