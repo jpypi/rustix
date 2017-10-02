@@ -21,7 +21,7 @@ impl Node for Echo {
     fn register_child(&mut self, name: &str) {
     }
 
-    fn handle(&self, bot: &Bot, event: &Event) {
+    fn handle(&mut self, bot: &Bot, event: &Event) {
         self.propagate_event(bot, event);
     }
 }
