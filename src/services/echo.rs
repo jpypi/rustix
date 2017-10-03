@@ -22,14 +22,13 @@ impl<'a> Node<'a> for Echo<'a> {
     }
 
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
-        let r = "!tEQUhDXnBDAeqCAgJk:cclub.cs.wmich.edu";
         let revent = event.raw_event;
 
         if revent.type_ == "m.room.message" && revent.content["msgtype"] == "m.text" {
             let body = &revent.content["body"].as_str().unwrap();
             let sender = &revent.sender;
             if body.starts_with("echo ") {
-                bot.reply(&event, "HEY I'M MR. MESEEKS LOOK AT ME!");
+                bot.reply(&event, &body[5..]);
             }
 
             println!("<{}> | {}", sender, body);
