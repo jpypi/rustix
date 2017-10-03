@@ -3,10 +3,11 @@ extern crate rustix;
 use std::io::Read;
 use std::fs::File;
 
+use rustix::bot;
 use rustix::client::MatrixClient;
 use rustix::services::echo::*;
 use rustix::services::self_filter::*;
-use rustix::bot;
+use rustix::services::upvote::*;
 
 
 fn main() {
@@ -25,6 +26,7 @@ fn main() {
 
     b.register_service("self_filter", Box::new(SelfFilter::new()));
     b.register_service("echo", Box::new(Echo::new()));
+    b.register_service("upvote_tracker", Box::new(UpvoteTracker::new()));
 
     b.run();
 }
