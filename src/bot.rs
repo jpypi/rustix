@@ -35,8 +35,10 @@ impl<'a, 'b> Bot<'a, 'b> {
     }
 
     pub fn join(&self, room_id: &str) -> Result<Response, RustixError>{
-        //self.rooms.borrow_mut().push(room_id);
+        println!("Joining room with id: {}", &room_id);
         self.client.borrow().join(room_id)
+
+        //self.rooms.borrow_mut().push(room_id);
     }
 
     pub fn say(&self, room_id: &str, message: &str) -> Result<Response, RustixError> {
@@ -77,16 +79,9 @@ impl<'a, 'b> Bot<'a, 'b> {
     }
 
     pub fn run(&mut self) {
-        let monitor_room;
-        match self.client.borrow().get_public_room_id("test") {
-            Some(room_id) => {
-                self.join(&room_id);
-                println!("Room id: {}", &room_id);
-                monitor_room = room_id;
-            },
-            None => panic!(),
-        };
+        let monitor_room = self.client.borrow().get_public_room_id("test").unwrap();
 
+        self.join(&monitor_room);
         self.say(&monitor_room, "Hello world from rust!");
 
 
@@ -108,19 +103,14 @@ impl<'a, 'b> Bot<'a, 'b> {
                 continue;
             }
 
-                /*
-                if let Ok(x) = serde_json::to_string_pretty(&res.rooms.join) {
-                    println!("{}", x);
+            if let Some(room) = sync_data.rooms.join.get(&monitor_room) {
+                for event in &room.timeline.events {
+                    self.propagate_event(event);
                 }
-                */
-                if let Some(room) = sync_data.rooms.join.get(&monitor_room) {
-                    for event in &room.timeline.events {
-                        self.propagate_event(event);
-                    }
-                }
+            }
 
 
-                next_batch = sync_data.next_batch;
+            next_batch = sync_data.next_batch;
         }
     }
 }
@@ -147,3 +137,9 @@ pub trait Node<'a> {
 
     fn on_exit(&self) { }
 }
+
+
+/*
+if let Ok(x) = serde_json::to_string_pretty(&res.rooms.join) {
+    println!("{}", x);
+} */
