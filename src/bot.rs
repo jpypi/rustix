@@ -21,7 +21,7 @@ pub struct Bot <'a, 'b> {
     root_services: Vec<&'a str>,
     all_services: HashMap<&'a str, RefCell<Box<Node<'a>>>>,
 
-    //rooms: RefCell<Vec<&'a str>>,
+    rooms: RefCell<Vec<String>>,
 }
 
 impl<'a, 'b> Bot<'a, 'b> {
@@ -30,15 +30,14 @@ impl<'a, 'b> Bot<'a, 'b> {
             client: RefCell::new(client),
             root_services: Vec::new(),
             all_services: HashMap::new(),
-            //rooms: RefCell::new(Vec::new()),
+            rooms: RefCell::new(Vec::new()),
         }
     }
 
     pub fn join(&self, room_id: &str) -> Result<Response, RustixError>{
-        println!("Joining room with id: {}", &room_id);
-        self.client.borrow().join(room_id)
+        self.rooms.borrow_mut().push(room_id.clone().to_string());
 
-        //self.rooms.borrow_mut().push(room_id);
+        self.client.borrow().join(room_id)
     }
 
     pub fn say(&self, room_id: &str, message: &str) -> Result<Response, RustixError> {
@@ -88,32 +87,26 @@ impl<'a, 'b> Bot<'a, 'b> {
     }
 
     pub fn run(&mut self) {
-        let monitor_room = self.client.borrow().get_public_room_id("test").unwrap();
-
-        self.join(&monitor_room);
-        self.say(&monitor_room, "Hello world from rust!");
-
-
-        if let Some(rid) = self.client.borrow().get_public_room_id("#geeks") {
-            self.join(&rid);
+        let initial_rooms = vec!["test", "test2", "#geeks"];
+        for room in initial_rooms {
+            if let Some(rid) = self.client.borrow().get_public_room_id(room) {
+                println!("Joining {} id: {}", &room, &rid);
+                self.join(&rid);
+            }
         }
 
         let mut next_batch: String = self.client.borrow().sync(None).unwrap().next_batch;
 
         loop {
-            let sync_data;
-            if let Ok(res) = self.client.borrow().sync(Some(&next_batch)) {
-                sync_data = res;
-            } else {
-                continue;
-            }
+            let sync_data = self.client.borrow().sync(Some(&next_batch)).unwrap();
 
-            if let Some(room) = sync_data.rooms.join.get(&monitor_room) {
-                for raw_event in &room.timeline.events {
-                    self.propagate_event(
-                        &RoomEvent{room_id: &monitor_room,
-                                   raw_event}
-                    );
+            for room_id in self.rooms.borrow().iter() {
+                if let Some(room) = sync_data.rooms.join.get(room_id) {
+                    for raw_event in &room.timeline.events {
+                        self.propagate_event(
+                            &RoomEvent{room_id, raw_event}
+                        );
+                    }
                 }
             }
 
