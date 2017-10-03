@@ -5,16 +5,7 @@ use std::fs::File;
 
 use rustix::client::MatrixClient;
 use rustix::services::*;
-
-
-
-/*
-fn get_room_events(data: MatrixSync, room_id: &str) {
-    for (k,v) in data.rooms.join {
-        println!("{} => {:?}", k, v);
-    }
-}
-*/
+use rustix::bot;
 
 
 fn main() {
@@ -29,8 +20,9 @@ fn main() {
 
     m.set_display_name("rustix");
 
-    let mut b = rustix::bot::Bot::new(&mut m);
+    let mut b = bot::Bot::new(&mut m);
 
+    b.register_service("self_filter", Box::new(SelfFilter::new()));
     b.register_service("echo", Box::new(Echo::new()));
 
     b.run();

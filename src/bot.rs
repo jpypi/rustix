@@ -7,16 +7,25 @@ use errors::*;
 use client::MatrixClient;
 use matrix_types::Event;
 
-pub struct Bot <'a> {
-    client: RefCell<&'a mut MatrixClient>,
+
+pub struct BotEvent<'a> {
+    user_bot_power: u32,
+    room: &'a str,
+    raw_event: Event,
+}
+
+
+
+pub struct Bot <'a, 'b> {
+    client: RefCell<&'b mut MatrixClient>,
     root_services: Vec<&'a str>,
-    all_services: HashMap<&'a str, RefCell<Box<Node>>>,
+    all_services: HashMap<&'a str, RefCell<Box<Node<'a>>>>,
 
     //rooms: RefCell<Vec<&'a str>>,
 }
 
-impl <'a> Bot<'a> {
-    pub fn new(client: &'a mut MatrixClient) -> Self{
+impl<'a, 'b> Bot<'a, 'b> {
+    pub fn new(client: &'b mut MatrixClient) -> Self{
         Bot {
             client: RefCell::new(client),
             root_services: Vec::new(),
@@ -27,7 +36,7 @@ impl <'a> Bot<'a> {
 
     pub fn join(&self, room_id: &str) -> Result<Response, RustixError>{
         //self.rooms.borrow_mut().push(room_id);
-        self.client.borrow_mut().join(room_id)
+        self.client.borrow().join(room_id)
     }
 
     pub fn say(&self, room_id: &str, message: &str) -> Result<Response, RustixError> {
@@ -45,7 +54,7 @@ impl <'a> Bot<'a> {
     }
     */
 
-    pub fn register_service(&mut self, name: &'a str, service: Box<Node>) {
+    pub fn register_service(&mut self, name: &'a str, service: Box<Node<'a>>) {
         match service.parent() {
             Some(p) => {
                 self.all_services.get_mut(p).unwrap().borrow_mut().register_child(name)
@@ -56,7 +65,7 @@ impl <'a> Bot<'a> {
         self.all_services.insert(name, RefCell::new(service));
     }
 
-    pub fn get_service(&self, name: &str) -> RefMut<Box<Node>> {
+    pub fn get_service(&self, name: &str) -> RefMut<Box<Node<'a>>> {
         self.all_services.get(name).unwrap().borrow_mut()
     }
 
@@ -73,11 +82,13 @@ impl <'a> Bot<'a> {
             Some(room_id) => {
                 self.join(&room_id);
                 println!("Room id: {}", &room_id);
-                self.say(&room_id, "Hello world from rust!");
                 monitor_room = room_id;
             },
             None => panic!(),
         };
+
+        self.say(&monitor_room, "Hello world from rust!");
+
 
         if let Some(rid) = self.client.borrow().get_public_room_id("#geeks") {
             self.join(&rid);
@@ -90,41 +101,37 @@ impl <'a> Bot<'a> {
         }
 
         loop {
+            let sync_data;
             if let Ok(res) = self.client.borrow().sync(Some(&next_batch)) {
+                sync_data = res;
+            } else {
+                continue;
+            }
+
                 /*
                 if let Ok(x) = serde_json::to_string_pretty(&res.rooms.join) {
                     println!("{}", x);
                 }
                 */
-                match res.rooms.join.get(&monitor_room) {
-                    Some(room) => {
-                        for event in &room.timeline.events {
-                            if event.type_ == "m.room.message" {
-                                if event.content["msgtype"] == "m.text" {
-                                    let sender = &event.sender;
-                                    let body = &event.content["body"].as_str().unwrap();
-
-                                    println!("<{}> | {}", sender, body);
-                                }
-                            }
-                        }
-                    },
-                    None => (),
+                if let Some(room) = sync_data.rooms.join.get(&monitor_room) {
+                    for event in &room.timeline.events {
+                        self.propagate_event(event);
+                    }
                 }
 
 
-                next_batch = res.next_batch;
-            }
+                next_batch = sync_data.next_batch;
         }
     }
 }
 
-pub trait Node {
+
+pub trait Node<'a> {
     fn parent(&self) -> Option<&str>;
 
-    fn children(&self) -> Vec<&str>;
+    fn children(&self) -> &Vec<&'a str>;
 
-    fn register_child(&mut self, name: &str);
+    fn register_child(&mut self, name: &'a str);
 
     fn propagate_event(&self, bot: &Bot, event: &Event) {
         for child in self.children() {
