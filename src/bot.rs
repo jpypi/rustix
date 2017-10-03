@@ -56,13 +56,15 @@ impl<'a, 'b> Bot<'a, 'b> {
     }
     */
 
-    pub fn register_service(&mut self, name: &'a str, service: Box<Node<'a>>) {
+    pub fn register_service(&mut self, name: &'a str, mut service: Box<Node<'a>>) {
         match service.parent() {
             Some(p) => {
                 self.all_services.get_mut(p).unwrap().borrow_mut().register_child(name)
             },
             None => self.root_services.push(name),
         };
+
+        service.on_load();
 
         self.all_services.insert(name, RefCell::new(service));
     }
@@ -89,11 +91,7 @@ impl<'a, 'b> Bot<'a, 'b> {
             self.join(&rid);
         }
 
-        let mut next_batch;
-        match self.client.borrow().sync(None) {
-            Ok(res) => next_batch = res.next_batch,
-            Err(e) => panic!(e),
-        }
+        let mut next_batch: String = self.client.borrow().sync(None).unwrap().next_batch;
 
         loop {
             let sync_data;
