@@ -59,7 +59,7 @@ pub struct Events {
     pub prev_batch: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[allow(dead_code)]
 pub struct Event {
     pub content: Value,

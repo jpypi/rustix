@@ -72,7 +72,7 @@ impl<'a, 'b> Bot<'a, 'b> {
     pub fn propagate_event(&self, event: &Event) {
         for service in &self.root_services {
             self.all_services.get(service).unwrap()
-                .borrow_mut().handle(self, event);
+                .borrow_mut().handle(self, event.clone());
         }
     }
 
@@ -133,13 +133,13 @@ pub trait Node<'a> {
 
     fn register_child(&mut self, name: &'a str);
 
-    fn propagate_event(&self, bot: &Bot, event: &Event) {
+    fn propagate_event(&self, bot: &Bot, event: Event) {
         for child in self.children() {
-            bot.get_service(child).handle(bot, event);
+            bot.get_service(child).handle(bot, event.clone());
         }
     }
 
-    fn handle(&mut self, bot: &Bot, event: &Event) {
+    fn handle(&mut self, bot: &Bot, event: Event) {
         self.propagate_event(bot, event);
     }
 

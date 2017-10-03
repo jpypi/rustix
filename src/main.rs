@@ -4,7 +4,8 @@ use std::io::Read;
 use std::fs::File;
 
 use rustix::client::MatrixClient;
-use rustix::services::*;
+use rustix::services::echo::*;
+use rustix::services::self_filter::*;
 use rustix::bot;
 
 
