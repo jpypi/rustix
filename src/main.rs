@@ -17,9 +17,7 @@ fn main() {
     let mut f = File::open("auth").expect("auth file not found");
     f.read_to_string(&mut password).expect("something went wrong reading file");
 
-    let r = m.login("rustix", password.trim());
-    println!("{:?}", r);
-
+    m.login("rustix", password.trim()).expect("login failed!");
     m.set_display_name("rustix");
 
     let mut b = bot::Bot::new(&mut m);
