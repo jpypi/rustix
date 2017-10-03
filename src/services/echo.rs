@@ -1,5 +1,4 @@
-use ::matrix_types::Event;
-use ::bot::{Bot, Node};
+use ::bot::{Bot, Node, RoomEvent};
 
 pub struct Echo<'a> {
     children: Vec<&'a str>
@@ -14,28 +13,26 @@ impl<'a> Echo<'a> {
 }
 
 impl<'a> Node<'a> for Echo<'a> {
-    fn parent(&self) -> Option<&str> {
-        Some("self_filter")
-    }
-
-    fn children(&self) -> &Vec<&'a str> {
-        &self.children
+    fn children(&self) -> Option<&Vec<&'a str>> {
+        Some(&self.children)
     }
 
     fn register_child(&mut self, name: &'a str) {
+        self.children.push(name);
     }
 
-    fn handle(&mut self, bot: &Bot, event: Event) {
+    fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         let r = "!tEQUhDXnBDAeqCAgJk:cclub.cs.wmich.edu";
+        let revent = event.raw_event;
 
-        if event.type_ == "m.room.message" {
-            if event.content["msgtype"] == "m.text" {
-                bot.say(r, "HEY MR. MESEEKS");
-                let sender = &event.sender;
-                let body = &event.content["body"].as_str().unwrap();
-
-                println!("<{}> | {}", sender, body);
+        if revent.type_ == "m.room.message" && revent.content["msgtype"] == "m.text" {
+            let body = &revent.content["body"].as_str().unwrap();
+            let sender = &revent.sender;
+            if body.starts_with("echo ") {
+                bot.reply(&event, "HEY I'M MR. MESEEKS LOOK AT ME!");
             }
+
+            println!("<{}> | {}", sender, body);
         }
 
         self.propagate_event(bot, event);

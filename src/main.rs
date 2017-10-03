@@ -24,9 +24,9 @@ fn main() {
 
     let mut b = bot::Bot::new(&mut m);
 
-    b.register_service("self_filter", Box::new(SelfFilter::new()));
-    b.register_service("echo", Box::new(Echo::new()));
-    b.register_service("upvote_tracker", Box::new(UpvoteTracker::new()));
+    let sf = b.register_service("self_filter", None, Box::new(SelfFilter::new()));
+    b.register_service("echo", sf, Box::new(Echo::new()));
+    b.register_service("upvote_tracker", sf, Box::new(UpvoteTracker::new()));
 
     b.run();
 }

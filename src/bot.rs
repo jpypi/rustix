@@ -8,10 +8,10 @@ use client::MatrixClient;
 use matrix_types::Event;
 
 
-pub struct BotEvent<'a> {
-    user_bot_power: u32,
-    room: &'a str,
-    raw_event: Event,
+#[derive(Clone)]
+pub struct RoomEvent<'a> {
+    pub room_id: &'a str,
+    pub raw_event: &'a Event,
 }
 
 
@@ -45,10 +45,11 @@ impl<'a, 'b> Bot<'a, 'b> {
         self.client.borrow_mut().send_msg(room_id, message)
     }
 
-    /*
-    pub fn reply(&self, event: Event, message: &str) {
+    pub fn reply(&self, event: &RoomEvent, message: &str) -> Result<Response, RustixError> {
+        self.say(event.room_id, message)
     }
 
+    /*
     pub fn action(&self, room_id: &str, action: &str) {
     }
 
@@ -56,10 +57,14 @@ impl<'a, 'b> Bot<'a, 'b> {
     }
     */
 
-    pub fn register_service(&mut self, name: &'a str, mut service: Box<Node<'a>>) {
-        match service.parent() {
+    pub fn register_service(&mut self,
+                            name: &'a str,
+                            parent: Option<&'a str>,
+                            mut service: Box<Node<'a>>) -> Option<&'a str> {
+        match parent {
             Some(p) => {
-                self.all_services.get_mut(p).unwrap().borrow_mut().register_child(name)
+                self.all_services.get_mut(p).expect("Invalid parent node")
+                    .borrow_mut().register_child(name)
             },
             None => self.root_services.push(name),
         };
@@ -67,13 +72,15 @@ impl<'a, 'b> Bot<'a, 'b> {
         service.on_load();
 
         self.all_services.insert(name, RefCell::new(service));
+
+        Some(name)
     }
 
     pub fn get_service(&self, name: &str) -> RefMut<Box<Node<'a>>> {
         self.all_services.get(name).unwrap().borrow_mut()
     }
 
-    pub fn propagate_event(&self, event: &Event) {
+    pub fn propagate_event(&self, event: &RoomEvent) {
         for service in &self.root_services {
             self.all_services.get(service).unwrap()
                 .borrow_mut().handle(self, event.clone());
@@ -102,8 +109,11 @@ impl<'a, 'b> Bot<'a, 'b> {
             }
 
             if let Some(room) = sync_data.rooms.join.get(&monitor_room) {
-                for event in &room.timeline.events {
-                    self.propagate_event(event);
+                for raw_event in &room.timeline.events {
+                    self.propagate_event(
+                        &RoomEvent{room_id: &monitor_room,
+                                   raw_event}
+                    );
                 }
             }
 
@@ -115,19 +125,22 @@ impl<'a, 'b> Bot<'a, 'b> {
 
 
 pub trait Node<'a> {
-    fn parent(&self) -> Option<&str>;
+    fn children(&self) -> Option<&Vec<&'a str>> {
+        None
+    }
 
-    fn children(&self) -> &Vec<&'a str>;
+    fn register_child(&mut self, name: &'a str) {
+    }
 
-    fn register_child(&mut self, name: &'a str);
-
-    fn propagate_event(&self, bot: &Bot, event: Event) {
-        for child in self.children() {
-            bot.get_service(child).handle(bot, event.clone());
+    fn propagate_event(&self, bot: &Bot, event: RoomEvent) {
+        if let Some(children) = self.children() {
+            for child in children {
+                bot.get_service(child).handle(bot, event.clone());
+            }
         }
     }
 
-    fn handle(&mut self, bot: &Bot, event: Event) {
+    fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         self.propagate_event(bot, event);
     }
 

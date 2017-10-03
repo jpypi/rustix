@@ -1,5 +1,4 @@
-use matrix_types::Event;
-use bot::{Bot, Node};
+use bot::{Bot, Node, RoomEvent};
 
 pub struct SelfFilter<'a> {
     children: Vec<&'a str>,
@@ -14,22 +13,19 @@ impl<'a> SelfFilter<'a> {
 }
 
 impl<'a> Node<'a> for SelfFilter<'a> {
-    fn parent(&self) -> Option<&'static str> {
-        None
-    }
-
-    fn children(&self) -> &Vec<&'a str> {
-        &self.children
+    fn children(&self) -> Option<&Vec<&'a str>> {
+        Some(&self.children)
     }
 
     fn register_child(&mut self, name: &'a str) {
         self.children.push(name);
     }
 
-    fn handle(&mut self, bot: &Bot, event: Event) {
-        if event.type_ == "m.room.message" &&
-           event.content["msgtype"] == "m.text" &&
-           event.sender != "@rustix:cclub.cs.wmich.edu" {
+    fn handle(&mut self, bot: &Bot, event: RoomEvent) {
+        let revent = event.raw_event;
+        if revent.type_ == "m.room.message" &&
+           revent.content["msgtype"] == "m.text" &&
+           revent.sender != "@rustix:cclub.cs.wmich.edu" {
 
             self.propagate_event(bot, event);
         }

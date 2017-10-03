@@ -1,33 +1,19 @@
 use regex::Regex;
 
-use matrix_types::Event;
-use bot::{Bot, Node};
+use bot::{Bot, Node, RoomEvent};
 
-pub struct UpvoteTracker<'a> {
-    children: Vec<&'a str>,
+pub struct UpvoteTracker {
 }
 
-impl<'a> UpvoteTracker<'a> {
+impl UpvoteTracker {
     pub fn new() -> Self {
-        Self {
-            children: Vec::new(),
-        }
+        Self {}
     }
 }
 
-impl<'a> Node<'a> for UpvoteTracker<'a> {
-    fn parent(&self) -> Option<&'static str> {
-        Some("self_filter")
-    }
-
-    fn children(&self) -> &Vec<&'a str> {
-        &self.children
-    }
-
-    fn register_child(&mut self, name: &'a str) {
-    }
-
-    fn handle(&mut self, bot: &Bot, event: Event) {
+impl<'a> Node<'a> for UpvoteTracker {
+    fn handle(&mut self, bot: &Bot, event: RoomEvent) {
+        let event = event.raw_event;
         if event.type_ == "m.room.message" &&
             event.content["msgtype"] == "m.text" {
             let re = Regex::new(r"([^ ]+|\(.+?\))\+\+").unwrap();
