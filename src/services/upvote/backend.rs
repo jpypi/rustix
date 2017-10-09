@@ -30,22 +30,21 @@ impl Backend {
         use super::schema::{users, voteables, votes};
 
         use super::schema::users::dsl as us;
-        let user: User = match us::users.filter(us::user_id.eq(user)).load(&self.connection) {
-            Ok(mut u) => u.pop().unwrap(),
-            Err(_) => {
+        let mut res: Vec<User> = us::users.filter(us::user_id.eq(user)).load(&self.connection).unwrap();
+        let user = match res.len() {
+            0 => {
                 let new_user = NewUser { user_id: user };
                 diesel::insert(&new_user).into(users::table)
                     .get_result(&self.connection)
                     .expect("Error creating new user")
-            }
+            },
+            _ => res.pop().unwrap(),
         };
 
-        println!("User id: {}", user.id);
-
         use super::schema::voteables::dsl::*;
-        let mut voteable: Voteable = match voteables.filter(value.eq(entity)).load(&self.connection) {
-            Ok(mut v) => v.pop().unwrap(),
-            Err(_) => {
+        let mut res: Vec<Voteable> = voteables.filter(value.eq(entity)).load(&self.connection).unwrap();
+        let mut voteable= match res.len() {
+            0 => {
                 let new_voteable = NewVoteable {
                     value: entity,
                     total_up: 0,
@@ -55,7 +54,9 @@ impl Backend {
                 diesel::insert(&new_voteable).into(voteables::table)
                     .get_result(&self.connection)
                     .expect("Error creating new voteable")
-            }
+            },
+
+            _ => res.pop().unwrap(),
         };
 
         voteable.total_up += up;
@@ -63,11 +64,11 @@ impl Backend {
         voteable.save_changes::<Voteable>(&self.connection);
 
         use super::schema::votes::dsl as vts;
-        let mut vote: Vote = match vts::votes.filter(vts::user_id.eq(user.id))
-                                         .filter(vts::voteable_id.eq(voteable.id))
-                                         .load(&self.connection) {
-            Ok(mut v) => v.pop().unwrap(),
-            Err(_) => {
+        let mut res: Vec<Vote> = vts::votes.filter(vts::user_id.eq(user.id))
+                                           .filter(vts::voteable_id.eq(voteable.id))
+                                           .load(&self.connection).unwrap();
+        let mut vote = match res.len() {
+            0 => {
                 let new_vote = NewVote{
                     user_id: user.id,
                     voteable_id: voteable.id,
@@ -78,7 +79,8 @@ impl Backend {
                 diesel::insert(&new_vote).into(votes::table)
                     .get_result(&self.connection)
                     .expect("Error creating new vote")
-            }
+            },
+            _ => res.pop().unwrap(),
         };
 
         vote.up += up;
