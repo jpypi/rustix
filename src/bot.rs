@@ -15,7 +15,6 @@ pub struct RoomEvent<'a> {
 }
 
 
-
 pub struct Bot <'a, 'b> {
     client: RefCell<&'b mut MatrixClient>,
     root_services: Vec<&'a str>,
