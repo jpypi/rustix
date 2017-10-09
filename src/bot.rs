@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::{thread, time};
 use std::cell::{RefCell, RefMut};
 
 use reqwest::{Response};
@@ -96,6 +97,8 @@ impl<'a, 'b> Bot<'a, 'b> {
 
         let mut next_batch: String = self.client.borrow().sync(None).unwrap().next_batch;
 
+        let delay = time::Duration::from_millis(800);
+
         loop {
             let sync_data = self.client.borrow().sync(Some(&next_batch)).unwrap();
 
@@ -109,8 +112,8 @@ impl<'a, 'b> Bot<'a, 'b> {
                 }
             }
 
-
             next_batch = sync_data.next_batch;
+            thread::sleep(delay);
         }
     }
 }
