@@ -3,3 +3,4 @@ auth
 /target/
 **/*.rs.bk
 *.swp
+.env
