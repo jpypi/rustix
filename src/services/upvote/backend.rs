@@ -29,8 +29,11 @@ impl Backend {
     pub fn vote(&self, user: &str, entity: &str, up: i32, down: i32) {
         use super::schema::{users, voteables, votes};
 
+        let entity = &entity.to_lowercase();
+
         use super::schema::users::dsl as us;
-        let mut res: Vec<User> = us::users.filter(us::user_id.eq(user)).load(&self.connection).unwrap();
+        let mut res: Vec<User> = us::users.filter(us::user_id.eq(user))
+                                          .load(&self.connection).unwrap();
         let user = match res.len() {
             0 => {
                 let new_user = NewUser { user_id: user };
@@ -42,7 +45,8 @@ impl Backend {
         };
 
         use super::schema::voteables::dsl::*;
-        let mut res: Vec<Voteable> = voteables.filter(value.eq(entity)).load(&self.connection).unwrap();
+        let mut res: Vec<Voteable> = voteables.filter(value.eq(entity))
+                                              .load(&self.connection).unwrap();
         let mut voteable= match res.len() {
             0 => {
                 let new_voteable = NewVoteable {
@@ -91,7 +95,10 @@ impl Backend {
     pub fn get_upvotes(&self, entity: &str) -> Option<Voteable> {
         use super::schema::voteables::dsl::*;
 
-        let mut res = voteables.filter(value.eq(entity)).load(&self.connection).unwrap();
+        let entity = &entity.to_lowercase();
+
+        let mut res = voteables.filter(value.eq(entity))
+                               .load(&self.connection).unwrap();
         match res.len() {
             0 => None,
             _ => Some(res.pop().unwrap()),
