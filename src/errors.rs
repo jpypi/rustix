@@ -2,7 +2,7 @@ use reqwest::Error as ReqwestErr;
 
 #[derive(Debug)]
 pub enum RustixError {
-    Generic(&'static str),
+    Generic(String),
     Reqwest(ReqwestErr)
 }
 

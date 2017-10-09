@@ -124,7 +124,7 @@ impl MatrixClient {
                 }
             },
             None => {
-                Err(Generic("User must be authenticated first."))
+                Err(Generic("User must be authenticated first.".to_string()))
             },
         }
     }
@@ -186,7 +186,8 @@ impl MatrixClient {
                     Ok(v) => Ok(v),
                     Err(e) => {
                         //println!("{}", content);
-                        panic!("was an error syncing {:?}", e);
+                        let err = format!("problem syncing: {:?}", e);
+                        Err(RustixError::Generic(err))
                     },
                 }
             },
