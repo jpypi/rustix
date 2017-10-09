@@ -36,9 +36,9 @@ pub struct MatrixSync {
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(dead_code)]
 pub struct Rooms {
-    pub invite: HashMap<String, Room>,
+    pub invite: HashMap<String, InviteRoom>,
     pub join: HashMap<String, Room>,
-    pub leave: HashMap<String, Room>,
+    //pub leave: HashMap<String, Room>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -53,6 +53,18 @@ pub struct Room {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(dead_code)]
+pub struct InviteRoom {
+    invite_state: InviteEvents,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[allow(dead_code)]
+pub struct InviteEvents {
+    events: Vec<Event>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct Events {
     pub events: Vec<Event>,
     pub limited: Option<bool>,
@@ -63,14 +75,14 @@ pub struct Events {
 #[allow(dead_code)]
 pub struct Event {
     pub content: Value,
-    pub event_id: String,
+    pub event_id: Option<String>,
     //membership: String,
-    pub origin_server_ts: u64,
+    pub origin_server_ts: Option<u64>,
     pub sender: String,
     //state_key: String,
     #[serde(rename="type")]
     pub type_: String,
-    pub unsigned: Value
+    pub unsigned: Option<Value>
 }
 
 
