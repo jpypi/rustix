@@ -88,12 +88,13 @@ impl Backend {
         vote.save_changes::<Vote>(&self.connection);
     }
 
-    pub fn get_upvotes(&self, entity: &str) -> Result<Voteable, DieselErr> {
+    pub fn get_upvotes(&self, entity: &str) -> Option<Voteable> {
         use super::schema::voteables::dsl::*;
 
-        match voteables.filter(value.eq(entity)).load(&self.connection) {
-            Ok(mut v) => Ok(v.pop().unwrap()),
-            Err(e) => Err(e),
+        let mut res = voteables.filter(value.eq(entity)).load(&self.connection).unwrap();
+        match res.len() {
+            0 => None,
+            _ => Some(res.pop().unwrap()),
         }
     }
 }
