@@ -8,6 +8,7 @@ use rustix::client::MatrixClient;
 use rustix::services::echo::*;
 use rustix::services::self_filter::*;
 use rustix::services::upvote::*;
+use rustix::services::timecube::Timecube;
 
 
 fn main() {
@@ -26,6 +27,7 @@ fn main() {
     b.register_service("echo", sf, Box::new(Echo::new()));
     let sk = b.register_service("show_karma", sf, Box::new(show_karma::ShowKarma::new()));
     b.register_service("upvote_tracker", sk, Box::new(UpvoteTracker::new()));
+    b.register_service("timecube", sf, Box::new(Timecube::new()));
 
     b.run();
 }
