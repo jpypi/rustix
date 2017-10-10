@@ -42,9 +42,12 @@ impl<'a> Node<'a> for ShowKarma<'a> {
                 if let Some(k) = self.vote_db.get_upvotes(query) {
                     let positive = (k.total_up as f32/(k.total_up+k.total_down) as f32)*100.0;
                     let total = k.total_up - k.total_down;
-                    let response = format!("{} has {} karma (+{}/-{}) {:.2}% like it",
+                    let response = format!("Karma for '{}': Net karma: {} (+{}/-{}; {:.1}% like it)",
                         query, total, k.total_up, k.total_down, positive
                     );
+                    bot.reply(&event, &response);
+                } else {
+                    let response = format!("Karma for '{}': Net karma: 0 (+0/-0 0% like it)", query);
                     bot.reply(&event, &response);
                 }
             }
