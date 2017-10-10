@@ -5,7 +5,8 @@ makes the http requests to a matrix server using the reqwest library.
 
 # Running
 
-First, you must create a file called `.env` which contains a database url to a PostgreSLQ database. It should look something like this:
+First, you must create a file called `.env` which contains a database url to a
+PostgreSLQ database. It should look something like this:
 ```
 DATABASE_URL=user:password//localhost/rustix
 ```
