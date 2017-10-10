@@ -92,6 +92,8 @@ impl<'a, 'b> Bot<'a, 'b> {
             if let Some(rid) = self.client.borrow().get_public_room_id(room) {
                 println!("Joining {} id: {}", &room, &rid);
                 self.join(&rid);
+            } else {
+                println!("Could not join room {}", &room);
             }
         }
 
@@ -100,19 +102,25 @@ impl<'a, 'b> Bot<'a, 'b> {
         let delay = time::Duration::from_millis(800);
 
         loop {
-            let sync_data = self.client.borrow().sync(Some(&next_batch)).unwrap();
+            // TODO: NLL May let this extra temp variable die
+            let sync = self.client.borrow().sync(Some(&next_batch));
 
-            for room_id in self.rooms.borrow().iter() {
-                if let Some(room) = sync_data.rooms.join.get(room_id) {
-                    for raw_event in &room.timeline.events {
-                        self.propagate_event(
-                            &RoomEvent{room_id, raw_event}
-                        );
+            if let Ok(sync_data) = sync {
+                for room_id in self.rooms.borrow().iter() {
+                    if let Some(room) = sync_data.rooms.join.get(room_id) {
+                        for raw_event in &room.timeline.events {
+                            self.propagate_event(
+                                &RoomEvent{room_id, raw_event}
+                            );
+                        }
                     }
                 }
+
+                next_batch = sync_data.next_batch;
+            } else {
+                println!("Had a sync timeout.");
             }
 
-            next_batch = sync_data.next_batch;
             thread::sleep(delay);
         }
     }
