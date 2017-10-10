@@ -24,8 +24,8 @@ fn main() {
 
     let sf = b.register_service("self_filter", None, Box::new(SelfFilter::new()));
     b.register_service("echo", sf, Box::new(Echo::new()));
-    b.register_service("upvote_tracker", sf, Box::new(UpvoteTracker::new()));
-    b.register_service("show_karma", sf, Box::new(show_karma::ShowKarma::new()));
+    let sk = b.register_service("show_karma", sf, Box::new(show_karma::ShowKarma::new()));
+    b.register_service("upvote_tracker", sk, Box::new(UpvoteTracker::new()));
 
     b.run();
 }
