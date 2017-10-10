@@ -3,6 +3,18 @@
 Rustix is a matrix bot written in rust. No matrix library is used, this simply
 makes the http requests to a matrix server using the reqwest library.
 
+# Running
+
+First, you must create a file called `.env` which contains a database url to a PostgreSLQ database. It should look something like this:
+```
+DATABASE_URL=user:password//localhost/rustix
+```
+
+Next, run the database migrations and comple+run rustix!
+```
+$ diesel migration run
+$ cargo run
+```
 
 # Architecture
 
