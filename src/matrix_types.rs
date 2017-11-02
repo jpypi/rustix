@@ -63,7 +63,7 @@ pub struct InviteEvents {
     events: Vec<Event>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[allow(dead_code)]
 pub struct Events {
     pub events: Vec<Event>,

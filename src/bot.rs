@@ -12,7 +12,7 @@ use matrix_types::Event;
 #[derive(Clone)]
 pub struct RoomEvent<'a> {
     pub room_id: &'a str,
-    pub raw_event: &'a Event,
+    pub raw_event: Event,
 }
 
 
@@ -110,7 +110,7 @@ impl<'a, 'b> Bot<'a, 'b> {
                     if let Some(room) = sync_data.rooms.join.get(room_id) {
                         for raw_event in &room.timeline.events {
                             self.propagate_event(
-                                &RoomEvent{room_id, raw_event}
+                                &RoomEvent{room_id, raw_event: raw_event.clone()}
                             );
                         }
                     }
@@ -135,7 +135,7 @@ pub trait Node<'a> {
     fn register_child(&mut self, name: &'a str) {
     }
 
-    fn propagate_event(&self, bot: &Bot, event: RoomEvent) {
+    fn propagate_event(&self, bot: &Bot, event: &RoomEvent) {
         if let Some(children) = self.children() {
             for child in children {
                 bot.get_service(child).handle(bot, event.clone());
@@ -144,7 +144,7 @@ pub trait Node<'a> {
     }
 
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
-        self.propagate_event(bot, event);
+        self.propagate_event(bot, &event);
     }
 
     fn on_load(&mut self) { }

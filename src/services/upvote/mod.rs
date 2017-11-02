@@ -34,6 +34,11 @@ impl<'a> Node<'a> for UpvoteTracker {
             event.content["msgtype"] == "m.text" {
             let body = event.content["body"].as_str().unwrap();
 
+            // Don't upvote based off anything that is a command to the bot
+            if body.starts_with("!") {
+                return;
+            }
+
             let mut votes: HashMap<String, VoteCount> = HashMap::new();
 
             let re = Regex::new(r"([^ ]+|\(.+?\))(\+\+|--)").unwrap();

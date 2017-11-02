@@ -9,6 +9,7 @@ use rustix::services::echo::*;
 use rustix::services::self_filter::*;
 use rustix::services::upvote::*;
 use rustix::services::timecube::Timecube;
+use rustix::services::prefix::Prefix;
 
 
 fn main() {
@@ -24,10 +25,12 @@ fn main() {
     let mut b = bot::Bot::new(&mut m);
 
     let sf = b.register_service("self_filter", None, Box::new(SelfFilter::new()));
-    b.register_service("echo", sf, Box::new(Echo::new()));
-    let sk = b.register_service("show_karma", sf, Box::new(show_karma::ShowKarma::new()));
-    b.register_service("upvote_tracker", sk, Box::new(UpvoteTracker::new()));
-    b.register_service("timecube", sf, Box::new(Timecube::new()));
+    let pf = b.register_service("prefix", sf, Box::new(Prefix::new()));
+    b.register_service("echo", pf, Box::new(Echo::new()));
+
+    let sk = b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
+    b.register_service("upvote_tracker", sf, Box::new(UpvoteTracker::new()));
+    b.register_service("timecube", pf, Box::new(Timecube::new()));
 
     b.run();
 }

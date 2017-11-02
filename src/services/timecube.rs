@@ -20,7 +20,7 @@ impl Timecube {
 
 impl<'a> Node<'a> for Timecube {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
-        let revent = event.raw_event;
+        let revent = &event.raw_event;
         if revent.type_ == "m.room.message" &&
            revent.content["msgtype"] == "m.text" &&
            revent.sender != "@rustix:cclub.cs.wmich.edu" {

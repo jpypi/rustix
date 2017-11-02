@@ -22,12 +22,12 @@ impl<'a> Node<'a> for SelfFilter<'a> {
     }
 
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
-        let revent = event.raw_event;
+        let revent = &event.raw_event;
         if revent.type_ == "m.room.message" &&
            revent.content["msgtype"] == "m.text" &&
            revent.sender != "@rustix:cclub.cs.wmich.edu" {
 
-            self.propagate_event(bot, event);
+            self.propagate_event(bot, &event);
         }
     }
 }

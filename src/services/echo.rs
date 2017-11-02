@@ -22,7 +22,7 @@ impl<'a> Node<'a> for Echo<'a> {
     }
 
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
-        let revent = event.raw_event;
+        let revent = &event.raw_event;
 
         if revent.type_ == "m.room.message" && revent.content["msgtype"] == "m.text" {
             let body = &revent.content["body"].as_str().unwrap();
@@ -34,6 +34,6 @@ impl<'a> Node<'a> for Echo<'a> {
             println!("<{}> | {}", sender, body);
         }
 
-        self.propagate_event(bot, event);
+        self.propagate_event(bot, &event);
     }
 }
