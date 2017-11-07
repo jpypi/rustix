@@ -20,7 +20,7 @@ fn main() {
     f.read_to_string(&mut password).expect("something went wrong reading file");
 
     m.login("rustix", password.trim()).expect("login failed!");
-    m.set_display_name("rustix");
+    m.set_display_name("rustix").unwrap();
 
     let mut b = bot::Bot::new(&mut m);
 
@@ -28,7 +28,7 @@ fn main() {
     let pf = b.register_service("prefix", sf, Box::new(Prefix::new()));
     b.register_service("echo", pf, Box::new(Echo::new()));
 
-    let sk = b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
+    b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
     b.register_service("upvote_tracker", sf, Box::new(UpvoteTracker::new()));
     b.register_service("timecube", pf, Box::new(Timecube::new()));
 

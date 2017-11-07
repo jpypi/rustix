@@ -2,7 +2,6 @@ use std::env;
 
 use dotenv::dotenv;
 use diesel;
-use diesel::result::Error as DieselErr;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 

@@ -1,7 +1,6 @@
 use std::fs::File;
 
 use rand;
-use rand::Rng;
 
 use bot::{Bot, Node, RoomEvent};
 use services::utils::reservoir_sample;
@@ -34,6 +33,7 @@ impl<'a> Node<'a> for Timecube {
                         bot.reply(&event, &line);
                     },
                     Err(e) => {
+                        println!("{:?}", e);
                         bot.reply(&event, "Error: problem with timecube file!");
                     }
                 };
