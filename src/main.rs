@@ -10,6 +10,7 @@ use rustix::services::self_filter::*;
 use rustix::services::upvote::*;
 use rustix::services::timecube::Timecube;
 use rustix::services::prefix::Prefix;
+use rustix::services::choose::Choose;
 
 
 fn main() {
@@ -27,6 +28,7 @@ fn main() {
     let sf = b.register_service("self_filter", None, Box::new(SelfFilter::new()));
     let pf = b.register_service("prefix", sf, Box::new(Prefix::new()));
     b.register_service("echo", pf, Box::new(Echo::new()));
+    b.register_service("choose", pf, Box::new(Choose::new()));
 
     b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
     b.register_service("upvote_tracker", sf, Box::new(UpvoteTracker::new()));
