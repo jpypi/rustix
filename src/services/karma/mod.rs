@@ -1,5 +1,4 @@
 mod backend;
-mod schema;
 mod models;
 pub mod show_karma;
 
@@ -10,11 +9,11 @@ use regex::Regex;
 use ::bot::{Bot, Node, RoomEvent};
 use self::backend::Backend;
 
-pub struct UpvoteTracker {
+pub struct KarmaTracker {
     vote_db: Backend,
 }
 
-impl UpvoteTracker {
+impl KarmaTracker {
     pub fn new() -> Self {
         Self {
             vote_db: Backend::new()
@@ -27,14 +26,14 @@ struct VoteCount {
     down: i32,
 }
 
-impl<'a> Node<'a> for UpvoteTracker {
+impl<'a> Node<'a> for KarmaTracker {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         let event = event.raw_event;
         if event.type_ == "m.room.message" &&
             event.content["msgtype"] == "m.text" {
             let body = event.content["body"].as_str().unwrap();
 
-            // Don't upvote based off anything that is a command to the bot
+            // Don't karma based off anything that is a command to the bot
             if body.starts_with("!") {
                 return;
             }

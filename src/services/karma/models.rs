@@ -1,4 +1,4 @@
-use super::schema::{users, voteables, votes};
+use ::services::schema::{users, voteables, votes};
 
 #[derive(Queryable)]
 #[derive(Identifiable)]

@@ -6,6 +6,7 @@ use diesel::prelude::*;
 use diesel::pg::PgConnection;
 
 use super::models::*;
+use ::services::schema;
 
 pub struct Backend {
     connection: PgConnection
@@ -26,11 +27,11 @@ impl Backend {
     }
 
     pub fn vote(&self, user: &str, entity: &str, up: i32, down: i32) {
-        use super::schema::{users, voteables, votes};
+        use self::schema::{users, voteables, votes};
 
         let entity = &entity.to_lowercase();
 
-        use super::schema::users::dsl as us;
+        use self::schema::users::dsl as us;
         let mut res: Vec<User> = us::users.filter(us::user_id.eq(user))
                                           .load(&self.connection).unwrap();
         let user = match res.len() {
@@ -43,7 +44,7 @@ impl Backend {
             _ => res.pop().unwrap(),
         };
 
-        use super::schema::voteables::dsl::*;
+        use self::schema::voteables::dsl::*;
         let mut res: Vec<Voteable> = voteables.filter(value.eq(entity))
                                               .load(&self.connection).unwrap();
         let mut voteable= match res.len() {
@@ -66,7 +67,7 @@ impl Backend {
         voteable.total_down += down;
         voteable.save_changes::<Voteable>(&self.connection);
 
-        use super::schema::votes::dsl as vts;
+        use ::services::schema::votes::dsl as vts;
         let mut res: Vec<Vote> = vts::votes.filter(vts::user_id.eq(user.id))
                                            .filter(vts::voteable_id.eq(voteable.id))
                                            .load(&self.connection).unwrap();
@@ -92,7 +93,7 @@ impl Backend {
     }
 
     pub fn get_upvotes(&self, entity: &str) -> Option<Voteable> {
-        use super::schema::voteables::dsl::*;
+        use self::schema::voteables::dsl::*;
 
         let entity = &entity.to_lowercase();
 
