@@ -12,6 +12,7 @@ use rustix::services::quote::*;
 use rustix::services::timecube::Timecube;
 use rustix::services::prefix::Prefix;
 use rustix::services::choose::Choose;
+use rustix::services::roulette::Roulette;
 
 
 fn main() {
@@ -35,6 +36,7 @@ fn main() {
     b.register_service("karma_tracker", sf, Box::new(KarmaTracker::new()));
 
     b.register_service("add_quote", pf, Box::new(add_quote::AddQuote::new()));
+    b.register_service("roulette", pf, Box::new(Roulette::new()));
 
     b.register_service("timecube", pf, Box::new(Timecube::new()));
 

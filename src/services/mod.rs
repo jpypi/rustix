@@ -5,5 +5,6 @@ pub mod timecube;
 pub mod prefix;
 pub mod choose;
 pub mod quote;
+pub mod roulette;
 mod utils;
 mod schema;
