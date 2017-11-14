@@ -91,7 +91,7 @@ impl<'a, 'b> Bot<'a, 'b> {
     }
 
     pub fn run(&mut self) {
-        let initial_rooms = vec!["test", "test2", "#geeks"];
+        let initial_rooms = vec!["test", "test2", "#geeks", "#random"];
         for room in initial_rooms {
             if let Some(rid) = self.client.borrow().get_public_room_id(room) {
                 println!("Joining {} id: {}", &room, &rid);
