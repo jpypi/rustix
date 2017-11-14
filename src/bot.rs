@@ -48,6 +48,10 @@ impl<'a, 'b> Bot<'a, 'b> {
         self.say(event.room_id, message)
     }
 
+    pub fn kick(&self, room_id: &str, user_id: &str, reason: Option<&str>) {
+        self.client.borrow().kick(room_id, user_id, reason);
+    }
+
     /*
     pub fn action(&self, room_id: &str, action: &str) {
     }

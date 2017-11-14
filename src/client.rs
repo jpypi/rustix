@@ -271,6 +271,20 @@ impl MatrixClient {
         self.send(room_id, "m.room.message", Some(&data))
     }
 
+    pub fn kick(&self, room_id: &str, user_id: &str, reason: Option<&str>) {
+        let path = format!("/rooms/{}/kick", room_id);
+
+        let mut data = hashmap! {
+            "user_id" => user_id,
+        };
+
+        if let Some(r) = reason {
+            data.insert("reason", r);
+        }
+
+        self.auth_query(Method::Post, &path, None, Some(&data)).unwrap();
+    }
+
     /*
     pub fn indicate_typing(&self, room_id: &str, length: Option<u32>) -> Result<Response, RustixError> {
         let mut data = HashMap::new();
