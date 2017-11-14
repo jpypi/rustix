@@ -8,6 +8,7 @@ use rustix::client::MatrixClient;
 use rustix::services::echo::*;
 use rustix::services::self_filter::*;
 use rustix::services::karma::*;
+use rustix::services::quote::*;
 use rustix::services::timecube::Timecube;
 use rustix::services::prefix::Prefix;
 use rustix::services::choose::Choose;
@@ -32,6 +33,8 @@ fn main() {
 
     b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
     b.register_service("karma_tracker", sf, Box::new(KarmaTracker::new()));
+
+    b.register_service("add_quote", pf, Box::new(add_quote::AddQuote::new()));
 
     b.register_service("timecube", pf, Box::new(Timecube::new()));
 
