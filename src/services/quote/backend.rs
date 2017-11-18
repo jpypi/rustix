@@ -1,6 +1,9 @@
 use std::env;
 use std::time::SystemTime;
 
+use rand;
+use rand::Rng;
+
 use dotenv::dotenv;
 use diesel;
 use diesel::prelude::*;
@@ -70,7 +73,29 @@ impl Backend {
                 Some((ures.pop().unwrap(), q))
             },
         }
-
     }
 
+    pub fn random_quote(&self) -> Option<(User, Quote)> {
+        use self::schema::quotes::dsl as qu;
+        use self::schema::users::dsl as us;
+
+        let mut rng = rand::thread_rng();
+        let offset = rng.gen_range(0, qu::quotes.count()
+                                                .load(&self.connection).unwrap()
+                                                .pop().unwrap());
+
+        // Try to query for a quote using a random offset
+        let mut qres: Vec<Quote> = qu::quotes.offset(offset).limit(1)
+                                   .load(&self.connection).unwrap();
+        match qres.len() {
+            0 => None,
+            _ => {
+                // Try to fetch user which created the quote
+                let q = qres.pop().unwrap();
+                let mut ures = us::users.filter(us::id.eq(q.quoter_id))
+                                        .load(&self.connection).unwrap();
+                Some((ures.pop().unwrap(), q))
+            },
+        }
+    }
 }

@@ -30,7 +30,7 @@ impl<'a> Node<'a> for AddQuote {
                 bot.reply(&event, &response);
             }
 
-            if body.starts_with("getquote ") {
+            else if body.starts_with("getquote ") {
                 let qid: i32 = (body[9..]).parse().unwrap();
                 if let Some((quoter, quote)) = self.quote_db.get_quote(qid) {
                     let datetime: DateTime<Local> = quote.time.into();
@@ -42,6 +42,20 @@ impl<'a> Node<'a> for AddQuote {
                     bot.reply(&event, &response);
                 } else {
                     bot.reply(&event, "No quote by that id was found");
+                }
+            }
+
+            else if body.starts_with("randquote") {
+                if let Some((quoter, quote)) = self.quote_db.random_quote() {
+                    let datetime: DateTime<Local> = quote.time.into();
+
+                    let response = format!("\"{}\" set by {} {}",
+                                           quote.value,
+                                           quoter.user_id,
+                                           datetime.format("on %Y-%m-%d at %T"));
+                    bot.reply(&event, &response);
+                } else {
+                    bot.reply(&event, "No quotes.");
                 }
             }
         }
