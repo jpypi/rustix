@@ -1,22 +1,19 @@
-use std::fs::File;
-
 use rand;
 use rand::Rng;
 
 use bot::{Bot, Node, RoomEvent};
-use services::utils::reservoir_sample;
 
-const size:usize = 6;
+const SIZE:usize = 6;
 
 pub struct Roulette {
-    rounds: [u8; size],
+    rounds: [u8; SIZE],
     state: u8,
 }
 
 impl Roulette {
     pub fn new() -> Self {
         let mut x = Self {
-            rounds: [0; size],
+            rounds: [0; SIZE],
             state: 0,
         };
 
@@ -26,21 +23,21 @@ impl Roulette {
     }
 
     fn fire(&mut self) -> bool {
-        self.state = (self.state + 1) % (size as u8);
+        self.state = (self.state + 1) % (SIZE as u8);
         self.rounds[self.state as usize] == 1
     }
 
     fn reset(&mut self) {
         let mut rng = rand::thread_rng();
         /*
-        for i in (0..size) {
+        for i in (0..SIZE) {
             self.rounds[i] = 0;
         }
         */
-        self.rounds = [0; size];
-        self.state = (size as u8) - 1;
+        self.rounds = [0; SIZE];
+        self.state = (SIZE as u8) - 1;
 
-        let i = rng.gen_range(0, size);
+        let i = rng.gen_range(0, SIZE);
         self.rounds[i] = 1;
     }
 }
