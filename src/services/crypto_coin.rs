@@ -37,67 +37,54 @@ impl<'a> Node<'a> for CryptoCoin {
 
 
 fn price_string(sym: &str) -> String {
-    let spot_price = price(sym, PriceType::Spot);
-    if spot_price < 0.0 {
-        format!("Could not fetch market data for: {}", sym)
-    } else {
-        let bid_price = price(sym, PriceType::Bid);
-        let ask_price = price(sym, PriceType::Ask);
-
-        format!("{} - Spot: ${}, Bid/Ask: ${}/{}",
-                sym, spot_price, bid_price, ask_price)
+    match get_ticker(&sym[..3]) {
+        Some(values) => {
+            format!("{} - Last Price: ${}, Bid/Ask: ${}/{}, Volume: {}", sym,
+                    values[TickerValue::LastPrice.value()],
+                    values[TickerValue::Bid.value()],
+                    values[TickerValue::Ask.value()],
+                    values[TickerValue::Volume.value()])
+        },
+        None => format!("Could not fetch market data for: {}", sym)
     }
 }
 
 
-fn price(sym: &str, price_type: PriceType) -> f32 {
-    let url = format!("https://api.coinbase.com/v2/prices/{}-USD/{}",
-                      sym, price_type.value());
+fn get_ticker(sym: &str) -> Option<Vec<f32>> {
+    let url = format!("https://api.bitfinex.com/v2/ticker/t{}USD", sym);
 
     let client = reqwest::Client::new().unwrap();
     match client.request(Method::Get, &url).unwrap().send() {
         Ok(mut resp) => {
             let mut content = String::new();
             resp.read_to_string(&mut content).unwrap();
-            match serde_json::from_str::<CBResponse>(&content) {
-                Ok(v) => {
-                    v.data.amount.parse().unwrap()
-                },
-                Err(_) => -1.0
+            match serde_json::from_str(&content) {
+                Ok(v) => Some(v),
+                Err(_) => None,
             }
         },
-        Err(_) => -1.0
+        Err(_) => None,
     }
 }
 
 
 #[allow(dead_code)]
-enum PriceType {
-    Spot,
-    Bid,
-    Ask,
+#[repr(usize)]
+enum TickerValue{
+    Bid,             // float  Price of last highest bid
+    BidSize,         // float  Size of the last highest bid
+    Ask,             // float  Price of last lowest ask
+    AskSize,         // float  Size of the last lowest ask
+    DailyChange,     // float  Amount that the last price has changed since yesterday
+    DailyChangePerc, // float  Amount that the price has changed expressed in percentage terms
+    LastPrice,       // float  Price of the last trade
+    Volume,          // float  Daily volume
+    High,            // float  Daily high
+    Low,             // float  Daily low
 }
 
-impl PriceType {
-    fn value(&self) -> &str {
-        match *self {
-            PriceType::Spot => "spot",
-            PriceType::Bid  => "sell",
-            PriceType::Ask  => "buy",
-        }
+impl TickerValue {
+    fn value(self) -> usize {
+        self as usize
     }
-}
-
-
-// These types are used for deserializing the Coin Base API
-
-#[derive(Serialize, Deserialize, Debug)]
-struct CBResponse {
-    data: Data,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Data {
-    amount: String,
-    currency: String,
 }
