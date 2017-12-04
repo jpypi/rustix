@@ -40,7 +40,7 @@ impl<'a> Node<'a> for KarmaTracker {
 
             let mut votes: HashMap<String, VoteCount> = HashMap::new();
 
-            let re = Regex::new(r"([^ ]+|\(.+?\))(\+\+|--)").unwrap();
+            let re = Regex::new(r"([^\- ]+|\(.+?\))(\+\+|--)").unwrap();
 
             for cap in re.captures_iter(body) {
                 let ent = cap[1].trim_matches(|c| c == '(' || c == ')').to_string();
