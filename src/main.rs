@@ -13,6 +13,7 @@ use rustix::services::timecube::Timecube;
 use rustix::services::prefix::Prefix;
 use rustix::services::choose::Choose;
 use rustix::services::roulette::Roulette;
+use rustix::services::crypto_coin::CryptoCoin;
 
 
 fn main() {
@@ -37,6 +38,8 @@ fn main() {
 
     b.register_service("add_quote", pf, Box::new(add_quote::AddQuote::new()));
     b.register_service("roulette", pf, Box::new(Roulette::new()));
+
+    b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
 
     b.register_service("timecube", pf, Box::new(Timecube::new()));
 

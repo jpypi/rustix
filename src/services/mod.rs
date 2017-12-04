@@ -6,5 +6,6 @@ pub mod prefix;
 pub mod choose;
 pub mod quote;
 pub mod roulette;
+pub mod crypto_coin;
 mod utils;
 mod schema;
