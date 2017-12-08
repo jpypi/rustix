@@ -1,12 +1,14 @@
 # About
 
 Rustix is a [matrix](https://matrix.org) bot/library/framework written in
-[rust](https://www.rust-lang.org/). No matrix library is used; instead, this
-project makes the http requests directly to a matrix server using the reqwest
+[rust](https://www.rust-lang.org/). No matrix library is used; this
+project makes http requests directly to a matrix server via the reqwest
 library.
 
 # Running
 
+To run rustix there must be an account with a password set up. The password (and
+nothing else) should be stored in a plain text file named `auth`.
 Rustix uses a database to keep quotes and track "karma" (e.g. rust++ or cabbage--)
 to record likes and dislikes in a channel. To set up the database,
 first, create a file called `.env` which contains a database url to a PostgreSLQ
@@ -14,6 +16,8 @@ database. It should look something like this:
 ```
 DATABASE_URL=user:password//localhost/rustix
 ```
+(Note: This assumes a database user has been set up and has proper permissions on
+the proper database.)
 
 Next, run the database migrations and comple+run rustix!
 ```
@@ -38,16 +42,18 @@ should be prefixed with a `!`).
 
 - addquote \<quote here\>
 - getquote \<quote number\>
+- randquote
 - roulette
 - choose \<item1\> \<item2\> ... \<itemN\>
 - echo \<string\>
 - karma \<entity\>
+- p \<crypto currency ticker\>
 - timecube
 
 # Note
 
-This is one of my first rust projects, so it would not be prudent to assume
-that it is entirely idiomatic and a good reference to learning style from.
-If you see something that could be improved (of which I'm sure there are many),
-by all means, please open an issue and/or PR! I open to feedback, and I'd love to
-make this better!
+This is one of my first rust projects, thus it would not be prudent to assume
+that it is entirely idiomatic and a good reference to learn style from.
+If you see something that could be improved (I'm sure there are many things that
+could be), by all means, please open an issue and/or PR! I open to feedback,
+and I'd love to improve this project!
