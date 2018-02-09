@@ -4,7 +4,7 @@ use std::cell::{RefCell, RefMut};
 
 use reqwest::{Response};
 
-use errors::*;
+use errors::Error;
 use client::MatrixClient;
 use matrix_types::Event;
 
@@ -34,17 +34,17 @@ impl<'a, 'b> Bot<'a, 'b> {
         }
     }
 
-    pub fn join(&self, room_id: &str) -> Result<Response, RustixError>{
+    pub fn join(&self, room_id: &str) -> Result<Response, Error>{
         self.rooms.borrow_mut().push(room_id.clone().to_string());
 
         self.client.borrow().join(room_id)
     }
 
-    pub fn say(&self, room_id: &str, message: &str) -> Result<Response, RustixError> {
+    pub fn say(&self, room_id: &str, message: &str) -> Result<Response, Error> {
         self.client.borrow_mut().send_msg(room_id, message)
     }
 
-    pub fn reply(&self, event: &RoomEvent, message: &str) -> Result<Response, RustixError> {
+    pub fn reply(&self, event: &RoomEvent, message: &str) -> Result<Response, Error> {
         self.say(event.room_id, message)
     }
 

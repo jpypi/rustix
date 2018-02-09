@@ -1,15 +1,15 @@
 #![allow(dead_code)]
+use std::{result};
 use std::io::Read;
 use std::collections::HashMap;
 
 use reqwest;
 use reqwest::{Url, Response};
 use reqwest::header::{ContentType};
-use reqwest::Error as ReqwestErr;
 use serde_json;
 use reqwest::Method;
 
-use errors::*;
+use errors::Error;
 use matrix_types::*;
 
 
@@ -29,6 +29,10 @@ pub struct MatrixClient {
 
     transaction_id: u64,
 }
+
+
+type Result<T> = result::Result<T, Error>;
+
 
 
 impl MatrixClient {
@@ -53,10 +57,10 @@ impl MatrixClient {
              method: Method,
              path: &str,
              params: Option<&HashMap<&str, &str>>,
-             data: Option<&HashMap<&str, &str>>) -> Result<Response, ReqwestErr> {
+             data: Option<&HashMap<&str, &str>>) -> Result<Response> {
         //use self::HTTPVerb::*;
 
-        let client = reqwest::Client::new().unwrap();
+        let client = reqwest::Client::new()?;
 
         // Concat the path to the base url and constant string
         let mut uri = self.base_url.clone();
@@ -76,12 +80,12 @@ impl MatrixClient {
         let request = match method {
             Method::Post | Method::Put => {
                 builder.header(ContentType::json())
-                       .json(data.unwrap_or(&nothing)).unwrap()
+                       .json(data.unwrap_or(&nothing))?
             },
             _ => &mut builder,
         };
 
-        request.send()
+        Ok(request.send()?)
 
             /*
         match method {
@@ -106,9 +110,7 @@ impl MatrixClient {
                   method: Method,
                   path: &str,
                   params: Option<HashMap<&str, &str>>,
-                  data: Option<&HashMap<&str, &str>>) -> Result<Response, RustixError> {
-
-        use errors::RustixError::*;
+                  data: Option<&HashMap<&str, &str>>) -> Result<Response> {
 
         let mut real_params = match params {
             Some(v) => v,
@@ -118,28 +120,25 @@ impl MatrixClient {
         match self.access_token {
             Some(ref v) => {
                 real_params.insert("access_token", v);
-                match self.query(method, path, Some(&real_params), data) {
-                    Ok(r) => Ok(r),
-                    Err(e) => Err(Reqwest(e)),
-                }
+                self.query(method, path, Some(&real_params), data)
             },
             None => {
-                Err(Generic("User must be authenticated first.".to_string()))
+                Err(Error::Generic("User must be authenticated first.".to_string()))
             },
         }
     }
 
     pub fn get(&self, path: &str,
-               params: Option<&HashMap<&str, &str>>) -> Result<Response, ReqwestErr> {
+               params: Option<&HashMap<&str, &str>>) -> Result<Response> {
         self.query(Method::Get, path, params, None)
     }
 
     pub fn auth_get(&self, path: &str,
-                    params: Option<HashMap<&str, &str>>) -> Result<Response, RustixError> {
+                    params: Option<HashMap<&str, &str>>) -> Result<Response> {
         self.auth_query(Method::Get, path, params, Option::None)
     }
 
-    pub fn login(&mut self, username: &str, password: &str) -> Result<(), String> {
+    pub fn login(&mut self, username: &str, password: &str) -> Result<()> {
         let map = hashmap!{
             "user"     => username,
             "password" => password,
@@ -149,14 +148,8 @@ impl MatrixClient {
 
         let mut content = String::new();
 
-        match self.query(Method::Post, "/login", Option::None, Some(&map)) {
-            Ok(mut resp) => {
-                resp.read_to_string(&mut content).unwrap();
-            },
-            Err(e) => {
-                return Err(e.to_string());
-            },
-        }
+        self.query(Method::Post, "/login", Option::None, Some(&map))?
+            .read_to_string(&mut content).unwrap();
 
         // Parse response into client state
         match serde_json::from_str::<Init>(&content) {
@@ -167,11 +160,11 @@ impl MatrixClient {
 
                 Ok(())
             },
-            Err(e) => Err(e.to_string())
+            Err(e) => Err(e.into())
         }
     }
 
-    pub fn sync(&self, since: Option<&str>) -> Result<MatrixSync, RustixError>{
+    pub fn sync(&self, since: Option<&str>) -> Result<MatrixSync>{
         let mut params = HashMap::new();
         if let Some(v) = since {
             params.insert("since", v);
@@ -187,16 +180,16 @@ impl MatrixClient {
                     Err(e) => {
                         //println!("{}", content);
                         let err = format!("problem syncing: {:?}", e);
-                        Err(RustixError::Generic(err))
+                        Err(err.into())
                     },
                 }
             },
-            Err(e) => Err(e)
+            Err(e) => Err(e.into())
         }
     }
 
     //TODO: Validate this
-    pub fn get_public_rooms(&self) -> Result<PublicRooms, RustixError> {
+    pub fn get_public_rooms(&self) -> Result<PublicRooms> {
         let params = hashmap! {
             "from" => "",
             "dir"  => "f"
@@ -230,19 +223,19 @@ impl MatrixClient {
         None
     }
 
-    pub fn join(&self, room_id: &str) -> Result<Response, RustixError> {
+    pub fn join(&self, room_id: &str) -> Result<Response> {
         self.auth_query(Method::Post,
                         &format!("/join/{}", room_id),
                         None, None)
     }
 
-    pub fn leave(&self, room_id: &str) -> Result<Response, RustixError> {
+    pub fn leave(&self, room_id: &str) -> Result<Response> {
         self.auth_query(Method::Post,
                         &format!("/rooms/{}/leave", room_id),
                         None, None)
     }
 
-    pub fn set_display_name(&self, name: &str) -> Result<Response, RustixError> {
+    pub fn set_display_name(&self, name: &str) -> Result<Response> {
         let data = hashmap! {
             "displayname" => name,
         };
@@ -255,14 +248,14 @@ impl MatrixClient {
     pub fn send(&mut self,
                 room_id: &str,
                 event_type: &str,
-                data: Option<&HashMap<&str, &str>>) -> Result<Response, RustixError> {
+                data: Option<&HashMap<&str, &str>>) -> Result<Response> {
         let path = format!("/rooms/{}/send/{}/{}", room_id, event_type,
                            self.get_transaction_id());
 
         self.auth_query(Method::Put, &path, None, data)
     }
 
-    pub fn send_msg(&mut self, room_id: &str, message: &str) -> Result<Response, RustixError> {
+    pub fn send_msg(&mut self, room_id: &str, message: &str) -> Result<Response> {
         let data = hashmap! {
             "msgtype" => "m.text",
             "body"    => message,
@@ -271,7 +264,7 @@ impl MatrixClient {
         self.send(room_id, "m.room.message", Some(&data))
     }
 
-    pub fn kick(&self, room_id: &str, user_id: &str, reason: Option<&str>) {
+    pub fn kick(&self, room_id: &str, user_id: &str, reason: Option<&str>) -> Result<Response> {
         let path = format!("/rooms/{}/kick", room_id);
 
         let mut data = hashmap! {
@@ -282,7 +275,7 @@ impl MatrixClient {
             data.insert("reason", r);
         }
 
-        self.auth_query(Method::Post, &path, None, Some(&data)).unwrap();
+        self.auth_query(Method::Post, &path, None, Some(&data))
     }
 
     /*
