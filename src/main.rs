@@ -43,5 +43,7 @@ fn main() {
 
     b.register_service("timecube", pf, Box::new(Timecube::new()));
 
-    b.run();
+    let initial_rooms = vec!["test", "test2", "#geeks", "#random", "#crypto"];
+
+    b.run(&initial_rooms);
 }
