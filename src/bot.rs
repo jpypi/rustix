@@ -108,20 +108,23 @@ impl<'a, 'b> Bot<'a, 'b> {
             // TODO: NLL May let this extra temp variable die
             let sync = self.client.borrow().sync(Some(&next_batch));
 
-            if let Ok(sync_data) = sync {
-                for room_id in self.rooms.borrow().iter() {
-                    if let Some(room) = sync_data.rooms.join.get(room_id) {
-                        for raw_event in &room.timeline.events {
-                            self.propagate_event(
-                                &RoomEvent{room_id, raw_event: raw_event.clone()}
-                            );
+            match sync {
+                Ok(sync_data) => {
+                    for room_id in self.rooms.borrow().iter() {
+                        if let Some(room) = sync_data.rooms.join.get(room_id) {
+                            for raw_event in &room.timeline.events {
+                                self.propagate_event(
+                                    &RoomEvent{room_id, raw_event: raw_event.clone()}
+                                );
+                            }
                         }
                     }
-                }
 
-                next_batch = sync_data.next_batch;
-            } else {
-                println!("Had a sync timeout.");
+                    next_batch = sync_data.next_batch;
+                },
+                Err(e) => {
+                    println!("Error: {:?}", e);
+                }
             }
 
             thread::sleep(delay);
