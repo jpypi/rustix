@@ -28,6 +28,7 @@ pub struct MatrixClient {
     user_id: Option<String>,
 
     transaction_id: u64,
+    client: reqwest::Client,
 }
 
 
@@ -44,6 +45,7 @@ impl MatrixClient {
             device_id: None,
             user_id: None,
             transaction_id: 0,
+            client: reqwest::Client::new().unwrap(),
         }
     }
 
@@ -58,9 +60,6 @@ impl MatrixClient {
              path: &str,
              params: Option<&HashMap<&str, &str>>,
              data: Option<&HashMap<&str, &str>>) -> Result<Response> {
-        //use self::HTTPVerb::*;
-
-        let client = reqwest::Client::new()?;
 
         // Concat the path to the base url and constant string
         let mut uri = self.base_url.clone();
@@ -75,7 +74,7 @@ impl MatrixClient {
 
         let nothing = HashMap::new();
 
-        let mut builder = client.request(method.clone(), &url)?;
+        let mut builder = self.client.request(method.clone(), &url)?;
 
         let request = match method {
             Method::Post | Method::Put => {
