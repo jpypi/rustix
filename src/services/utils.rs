@@ -2,7 +2,7 @@ use std::io::{BufReader, BufRead};
 use std::fs::File;
 use rand::Rng;
 
-const K: usize = 10;
+const K: usize = 5;
 
 pub fn reservoir_sample<R: Rng>(f: File, mut rng: R) -> String {
     let reader = BufReader::new(f);
