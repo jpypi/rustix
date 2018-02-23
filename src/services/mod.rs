@@ -1,11 +1,12 @@
 pub mod echo;
 pub mod self_filter;
 pub mod karma;
-pub mod timecube;
 pub mod prefix;
 pub mod choose;
 pub mod quote;
 pub mod roulette;
 pub mod crypto_coin;
+pub mod tryfile;
+
 mod utils;
 mod schema;

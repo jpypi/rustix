@@ -9,11 +9,11 @@ use rustix::services::echo::*;
 use rustix::services::self_filter::*;
 use rustix::services::karma::*;
 use rustix::services::quote::*;
-use rustix::services::timecube::Timecube;
 use rustix::services::prefix::Prefix;
 use rustix::services::choose::Choose;
 use rustix::services::roulette::Roulette;
 use rustix::services::crypto_coin::CryptoCoin;
+use rustix::services::tryfile::TryFile;
 
 
 fn main() {
@@ -38,10 +38,9 @@ fn main() {
 
     b.register_service("add_quote", pf, Box::new(add_quote::AddQuote::new()));
     b.register_service("roulette", pf, Box::new(Roulette::new()));
-
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
 
-    b.register_service("timecube", pf, Box::new(Timecube::new()));
+    b.register_service("try_file", pf, Box::new(TryFile::new()));
 
     let initial_rooms = vec!["test", "test2", "#geeks", "#random", "#crypto"];
 
