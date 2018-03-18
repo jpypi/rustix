@@ -111,7 +111,7 @@ impl<'a, 'b> Bot<'a, 'b> {
 
         let mut next_batch: String = self.client.borrow().sync(None).unwrap().next_batch;
 
-        let delay = time::Duration::from_millis(800);
+        let delay = time::Duration::from_millis(500);
 
         loop {
             // TODO: NLL May let this extra temp variable die
