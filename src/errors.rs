@@ -27,6 +27,12 @@ impl From<String> for Error {
     }
 }
 
+impl<'a> From<&'a str> for Error {
+    fn from(err: &str) -> Error {
+        Error::Generic(err.into())
+    }
+}
+
 /*
 impl RustixError {
     #[allow(dead_code)]
