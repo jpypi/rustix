@@ -49,6 +49,7 @@ prefixed with the default prefix: `!`.
 - karma \<entity\>
 - p \<crypto currency ticker\>
 - timecube
+- join \<public channel name\>
 
 # Note
 

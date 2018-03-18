@@ -40,6 +40,15 @@ impl<'a, 'b> Bot<'a, 'b> {
         self.client.borrow().join(room_id)
     }
 
+    pub fn join_public(&self, room_id: &str) -> Result<Response, Error>{
+        let pub_room = self.client.borrow().get_public_room_id(room_id);
+
+        match pub_room {
+            Some(id) => self.join(&id),
+            None => Err("Could not join invalid room.".into()),
+        }
+    }
+
     pub fn say(&self, room_id: &str, message: &str) -> Result<Response, Error> {
         self.client.borrow_mut().send_msg(room_id, message)
     }
@@ -110,7 +119,8 @@ impl<'a, 'b> Bot<'a, 'b> {
 
             match sync {
                 Ok(sync_data) => {
-                    for room_id in self.rooms.borrow().iter() {
+                    let rooms = self.rooms.borrow().clone();
+                    for room_id in rooms.iter() {
                         if let Some(room) = sync_data.rooms.join.get(room_id) {
                             for raw_event in &room.timeline.events {
                                 self.propagate_event(
