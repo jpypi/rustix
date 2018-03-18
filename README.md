@@ -48,8 +48,15 @@ prefixed with the default prefix: `!`.
 - echo \<string\>
 - karma \<entity\>
 - p \<crypto currency ticker\>
-- timecube
 - join \<public channel name\>
+
+There is also TryFile, which attempts to look for file named `___.txt` in the
+`var` folder in the current working directory and echo a random line from it.
+This allows for things like `!timecube` which will echo a random line from
+`var/timecube.txt`. If there is a name collision both things will happen, that
+is if one were to place a file named `randquote.txt` in `var`, both the
+randquote function will be executed and a random line from `randquote.txt` will
+be echoed.
 
 # Note
 
