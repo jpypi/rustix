@@ -32,12 +32,12 @@ fn main() {
     let sf = b.register_service("self_filter", None, Box::new(SelfFilter::new()));
     let pf = b.register_service("prefix", sf, Box::new(Prefix::new()));
     b.register_service("echo", pf, Box::new(Echo::new()));
-    b.register_service("choose", pf, Box::new(Choose::new()));
 
     b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
     b.register_service("karma_tracker", sf, Box::new(KarmaTracker::new()));
 
     b.register_service("add_quote", pf, Box::new(add_quote::AddQuote::new()));
+    b.register_service("choose", pf, Box::new(Choose::new()));
     b.register_service("roulette", pf, Box::new(Roulette::new()));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
     b.register_service("join", pf, Box::new(Join::new()));
