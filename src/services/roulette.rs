@@ -29,11 +29,7 @@ impl Roulette {
 
     fn reset(&mut self) {
         let mut rng = rand::thread_rng();
-        /*
-        for i in (0..SIZE) {
-            self.rounds[i] = 0;
-        }
-        */
+
         self.rounds = [0; SIZE];
         self.state = (SIZE as u8) - 1;
 
@@ -55,6 +51,7 @@ impl<'a> Node<'a> for Roulette {
 
                 match self.fire() {
                     true => {
+                        self.reset();
                         bot.kick(event.room_id, &revent.sender, Some("Bang!"));
                         bot.reply(&event, "bang!")
                     },
