@@ -45,7 +45,7 @@ impl MatrixClient {
             device_id: None,
             user_id: None,
             transaction_id: 0,
-            client: reqwest::Client::new().unwrap(),
+            client: reqwest::Client::new(),
         }
     }
 
@@ -74,12 +74,12 @@ impl MatrixClient {
 
         let nothing = HashMap::new();
 
-        let mut builder = self.client.request(method.clone(), &url)?;
+        let mut builder = self.client.request(method.clone(), &url);
 
         let request = match method {
             Method::Post | Method::Put => {
                 builder.header(ContentType::json())
-                       .json(data.unwrap_or(&nothing))?
+                       .json(data.unwrap_or(&nothing))
             },
             _ => &mut builder,
         };

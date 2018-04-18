@@ -53,8 +53,8 @@ fn price_string(sym: &str) -> String {
 fn get_ticker(sym: &str) -> Option<Vec<f32>> {
     let url = format!("https://api.bitfinex.com/v2/ticker/t{}USD", sym);
 
-    let client = reqwest::Client::new().unwrap();
-    match client.request(Method::Get, &url).unwrap().send() {
+    let client = reqwest::Client::new();
+    match client.request(Method::Get, &url).send() {
         Ok(mut resp) => {
             let mut content = String::new();
             resp.read_to_string(&mut content).unwrap();
