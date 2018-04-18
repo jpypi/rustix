@@ -25,7 +25,7 @@ pub struct Bot <'a, 'b> {
 }
 
 impl<'a, 'b> Bot<'a, 'b> {
-    pub fn new(client: &'b mut MatrixClient) -> Self{
+    pub fn new(client: &'b mut MatrixClient) -> Self {
         Bot {
             client: RefCell::new(client),
             root_services: Vec::new(),
@@ -34,7 +34,7 @@ impl<'a, 'b> Bot<'a, 'b> {
         }
     }
 
-    pub fn join(&self, room_id: &str) -> Result<Response, Error>{
+    pub fn join(&self, room_id: &str) -> Result<Response, Error> {
         // Make sure that the bot isn't already in the room to be joined
         for room in self.rooms.borrow().iter() {
             if room_id == room {
@@ -47,7 +47,7 @@ impl<'a, 'b> Bot<'a, 'b> {
         self.client.borrow().join(room_id)
     }
 
-    pub fn join_public(&self, room_id: &str) -> Result<Response, Error>{
+    pub fn join_public(&self, room_id: &str) -> Result<Response, Error> {
         let pub_room = self.client.borrow().get_public_room_id(room_id);
 
         match pub_room {
