@@ -35,6 +35,13 @@ impl<'a, 'b> Bot<'a, 'b> {
     }
 
     pub fn join(&self, room_id: &str) -> Result<Response, Error>{
+        // Make sure that the bot isn't already in the room to be joined
+        for room in self.rooms.borrow().iter() {
+            if room_id == room {
+                return Err("Already in room".into());
+            }
+        }
+
         self.rooms.borrow_mut().push(room_id.clone().to_string());
 
         self.client.borrow().join(room_id)
