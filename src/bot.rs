@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::{thread, time};
+use std::{result, thread, time};
 use std::cell::{RefCell, RefMut};
 
 use reqwest::{Response};
@@ -7,6 +7,9 @@ use reqwest::{Response};
 use errors::Error;
 use client::MatrixClient;
 use matrix_types::Event;
+
+
+type Result<T> = result::Result<T, Error>;
 
 
 #[derive(Clone)]
@@ -34,7 +37,7 @@ impl<'a, 'b> Bot<'a, 'b> {
         }
     }
 
-    pub fn join(&self, room_id: &str) -> Result<Response, Error> {
+    pub fn join(&self, room_id: &str) -> Result<Response> {
         // Make sure that the bot isn't already in the room to be joined
         for room in self.rooms.borrow().iter() {
             if room_id == room {
@@ -47,7 +50,7 @@ impl<'a, 'b> Bot<'a, 'b> {
         self.client.borrow().join(room_id)
     }
 
-    pub fn join_public(&self, room_id: &str) -> Result<Response, Error> {
+    pub fn join_public(&self, room_id: &str) -> Result<Response> {
         let pub_room = self.client.borrow().get_public_room_id(room_id);
 
         match pub_room {
@@ -56,11 +59,11 @@ impl<'a, 'b> Bot<'a, 'b> {
         }
     }
 
-    pub fn say(&self, room_id: &str, message: &str) -> Result<Response, Error> {
+    pub fn say(&self, room_id: &str, message: &str) -> Result<Response> {
         self.client.borrow_mut().send_msg(room_id, message)
     }
 
-    pub fn reply(&self, event: &RoomEvent, message: &str) -> Result<Response, Error> {
+    pub fn reply(&self, event: &RoomEvent, message: &str) -> Result<Response> {
         self.say(event.room_id, message)
     }
 
