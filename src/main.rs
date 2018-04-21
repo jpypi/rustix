@@ -1,3 +1,7 @@
+#[macro_use]
+extern crate serde_derive;
+extern crate toml;
+
 extern crate rustix;
 
 use std::io::Read;
@@ -17,15 +21,39 @@ use rustix::services::tryfile::TryFile;
 use rustix::services::join::Join;
 
 
+#[derive(Deserialize, Debug)]
+struct Config {
+    connection: Connection,
+    bot: Bot,
+}
+
+#[derive(Deserialize, Debug)]
+struct Connection {
+    server: String,
+    username: String,
+    password: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct Bot {
+    display_name: String,
+    rooms: Vec<String>,
+}
+
+
 fn main() {
-    let mut m = MatrixClient::new("https://cclub.cs.wmich.edu/");
+    let mut f = File::open("config.toml").expect("auth file not found");
+    let mut config_data = String::new();
+    f.read_to_string(&mut config_data).expect("Couldn't read config.toml");
 
-    let mut password = String::new();
-    let mut f = File::open("auth").expect("auth file not found");
-    f.read_to_string(&mut password).expect("something went wrong reading file");
+    let config: Config = toml::from_str(&config_data)
+                         .expect("Bad config.toml");
 
-    m.login("rustix", password.trim()).expect("login failed!");
-    m.set_display_name("rustix").unwrap();
+    let mut m = MatrixClient::new(&config.connection.server);
+
+    m.login(&config.connection.username,
+            &config.connection.password).expect("login failed!");
+    m.set_display_name(&config.bot.display_name).unwrap();
 
     let mut b = bot::Bot::new(&mut m);
 
@@ -44,7 +72,5 @@ fn main() {
 
     b.register_service("try_file", pf, Box::new(TryFile::new()));
 
-    let initial_rooms = vec!["test", "test2", "#geeks", "#random", "#crypto"];
-
-    b.run(&initial_rooms);
+    b.run(&config.bot.rooms);
 }

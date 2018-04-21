@@ -1,0 +1,8 @@
+[connection]
+server = "https://matrix.org/"
+username = "myrustix"
+password = ""
+
+[bot]
+display_name = "rustix"
+rooms = ["rustixtesting"]
