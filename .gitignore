@@ -1,5 +1,3 @@
-auth
-
 /target/
 **/*.rs.bk
 *.swp
