@@ -13,11 +13,8 @@ use errors::Error;
 use matrix_types::*;
 
 
-pub enum HTTPVerb{
-    GET,
-    POST,
-    PUT,
-}
+type Result<T> = result::Result<T, Error>;
+
 
 pub struct MatrixClient {
     base_url: String,
@@ -30,10 +27,6 @@ pub struct MatrixClient {
     transaction_id: u64,
     client: reqwest::Client,
 }
-
-
-type Result<T> = result::Result<T, Error>;
-
 
 
 impl MatrixClient {
@@ -294,5 +287,4 @@ impl MatrixClient {
         self.auth_query(HTTPVerb::PUT, &path, None, Some(&data))
     }
     */
-
 }
