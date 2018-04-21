@@ -37,6 +37,7 @@ struct Connection {
 #[derive(Deserialize, Debug)]
 struct Bot {
     display_name: String,
+    prefix: String,
     rooms: Vec<String>,
 }
 
@@ -58,7 +59,8 @@ fn main() {
     let mut b = bot::Bot::new(&mut m);
 
     let sf = b.register_service("self_filter", None, Box::new(SelfFilter::new()));
-    let pf = b.register_service("prefix", sf, Box::new(Prefix::new()));
+    let pf = b.register_service("prefix", sf,
+                                Box::new(Prefix::new(config.bot.prefix)));
     b.register_service("echo", pf, Box::new(Echo::new()));
 
     b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));

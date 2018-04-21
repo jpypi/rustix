@@ -5,4 +5,5 @@ password = ""
 
 [bot]
 display_name = "rustix"
+prefix = "!"
 rooms = ["rustixtesting"]
