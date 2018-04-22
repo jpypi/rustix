@@ -31,18 +31,21 @@ impl<'a> Node<'a> for AddQuote {
             }
 
             else if body.starts_with("getquote ") {
-                let qid: i32 = (body[9..]).parse().unwrap();
-                if let Some((quoter, quote)) = self.quote_db.get_quote(qid) {
-                    let datetime: DateTime<Local> = quote.time.into();
+                match body[9..].parse() {
+                    Ok(qid) => {
+                        if let Some((quoter, quote)) = self.quote_db.get_quote(qid) {
+                            let datetime: DateTime<Local> = quote.time.into();
 
-                    let response = format!("\"{}\" set by {} {}",
-                                           quote.value,
-                                           quoter.user_id,
-                                           datetime.format("on %Y-%m-%d at %T"));
-                    bot.reply(&event, &response);
-                } else {
-                    bot.reply(&event, "No quote by that id was found");
-                }
+                            let response = format!("\"{}\" set by {} {}",
+                                                   quote.value, quoter.user_id,
+                                                   datetime.format("on %Y-%m-%d at %T"));
+                            bot.reply(&event, &response)
+                        } else {
+                            bot.reply(&event, "No quote by that id was found")
+                        }
+                    },
+                    Err(e) => bot.reply(&event, "Invalid quote id"),
+                };
             }
 
             else if body.starts_with("randquote") {
