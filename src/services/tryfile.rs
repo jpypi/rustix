@@ -32,9 +32,8 @@ impl<'a> Node<'a> for TryFile {
                     let line = reservoir_sample(d, rng);
                     bot.reply(&event, &line);
                 },
-                Err(e) => {
-                    println!("Tried to open: \"{}\" failed: {:?}", body, e);
-                }
+                Err(e) => (),
+                //{ println!("Tried to open: \"{}\" failed: {:?}", body, e); }
             };
         }
     }
