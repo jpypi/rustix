@@ -59,6 +59,36 @@ impl<'a, 'b> Bot<'a, 'b> {
         }
     }
 
+    pub fn leave(&self, room_id: &str) -> Result<Response> {
+        // Make sure that the bot is in the room already
+        let mut remove_i = 0;
+        let mut res = Err("Not in room".into());
+        for (i, room) in self.rooms.borrow().iter().enumerate() {
+            if room_id == room {
+                res = self.client.borrow().leave(room_id);
+                remove_i = i;
+                break;
+            }
+        }
+
+        match res {
+            Ok(r) => {
+                self.rooms.borrow_mut().swap_remove(remove_i);
+                Ok(r)
+            },
+            Err(e) => Err(e),
+        }
+    }
+
+    pub fn leave_public(&self, room_id: &str) -> Result<Response> {
+        let pub_room = self.client.borrow().get_public_room_id(room_id);
+
+        match pub_room {
+            Some(id) => self.leave(&id),
+            None => Err("Could not leave invalid room".into()),
+        }
+    }
+
     pub fn say(&self, room_id: &str, message: &str) -> Result<Response> {
         self.client.borrow_mut().send_msg(room_id, message)
     }

@@ -8,6 +8,7 @@ pub mod roulette;
 pub mod crypto_coin;
 pub mod tryfile;
 pub mod join;
+pub mod leave;
 
 mod utils;
 mod schema;

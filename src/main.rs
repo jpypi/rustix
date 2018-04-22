@@ -19,6 +19,7 @@ use rustix::services::roulette::Roulette;
 use rustix::services::crypto_coin::CryptoCoin;
 use rustix::services::tryfile::TryFile;
 use rustix::services::join::Join;
+use rustix::services::leave::Leave;
 
 
 #[derive(Deserialize, Debug)]
@@ -71,6 +72,7 @@ fn main() {
     b.register_service("roulette", pf, Box::new(Roulette::new()));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
     b.register_service("join", pf, Box::new(Join::new()));
+    b.register_service("leave", pf, Box::new(Leave::new()));
 
     b.register_service("try_file", pf, Box::new(TryFile::new()));
 
