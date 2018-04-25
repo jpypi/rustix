@@ -47,7 +47,11 @@ be prefixed with the default prefix: `!`.
 - echo \<string\>
 - karma \<entity\>
 - p \<crypto currency ticker\>
-- join \<public channel display name\>
+- \*join \<public channel display name\>
+- \*leave \<public channel display name\>
+
+\**Command is under the admin node and requires message sender to be in the
+admin list given in `config.toml`*
 
 There is also TryFile, which attempts to look for file named `___.txt` in the
 `var` folder in the current working directory and echo a random line from it.
