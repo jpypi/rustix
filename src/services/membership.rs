@@ -34,8 +34,12 @@ impl Leave {
 impl<'a> Node<'a> for Leave {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         let body = &event.raw_event.content["body"].as_str().unwrap();
-        if body.starts_with("leave ") {
-            let room_name = &body[6..];
+        if body.starts_with("leave") {
+            let room_name = &body[5..].trim_left();
+            if room_name.len() == 0 {
+                bot.leave(&event.room_id);
+            }
+
             if let Err(e) = bot.leave_public(room_name) {
                 let resp = format!("Could not leave room: {}", room_name);
                 bot.reply(&event, &resp);
