@@ -18,8 +18,7 @@ use rustix::services::choose::Choose;
 use rustix::services::roulette::Roulette;
 use rustix::services::crypto_coin::CryptoCoin;
 use rustix::services::tryfile::TryFile;
-use rustix::services::join::Join;
-use rustix::services::leave::Leave;
+use rustix::services::membership::{Join, Leave};
 use rustix::services::admin::Admin;
 
 
