@@ -7,3 +7,4 @@ password = ""
 display_name = "rustix"
 prefix = "!"
 rooms = ["rustixtesting"]
+admins = ["@me:matrix.org"]

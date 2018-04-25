@@ -20,6 +20,7 @@ use rustix::services::crypto_coin::CryptoCoin;
 use rustix::services::tryfile::TryFile;
 use rustix::services::join::Join;
 use rustix::services::leave::Leave;
+use rustix::services::admin::Admin;
 
 
 #[derive(Deserialize, Debug)]
@@ -40,6 +41,7 @@ struct Bot {
     display_name: String,
     prefix: String,
     rooms: Vec<String>,
+    admins: Vec<String>,
 }
 
 
@@ -71,8 +73,12 @@ fn main() {
     b.register_service("choose", pf, Box::new(Choose::new()));
     b.register_service("roulette", pf, Box::new(Roulette::new()));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
-    b.register_service("join", pf, Box::new(Join::new()));
-    b.register_service("leave", pf, Box::new(Leave::new()));
+
+    let adm = b.register_service("admin", pf,
+                                 Box::new(Admin::new(config.bot.admins)));
+
+    b.register_service("join", adm, Box::new(Join::new()));
+    b.register_service("leave", adm, Box::new(Leave::new()));
 
     b.register_service("try_file", pf, Box::new(TryFile::new()));
 
