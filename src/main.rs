@@ -7,19 +7,23 @@ extern crate rustix;
 use std::io::Read;
 use std::fs::File;
 
-use rustix::bot;
-use rustix::client::MatrixClient;
-use rustix::services::echo::*;
-use rustix::services::self_filter::*;
-use rustix::services::karma::*;
-use rustix::services::quote::*;
-use rustix::services::prefix::Prefix;
-use rustix::services::choose::Choose;
-use rustix::services::roulette::Roulette;
-use rustix::services::crypto_coin::CryptoCoin;
-use rustix::services::tryfile::TryFile;
-use rustix::services::membership::{Join, Leave};
-use rustix::services::admin::Admin;
+use rustix::{
+    bot,
+    client::MatrixClient,
+    services:: {
+        echo::Echo,
+        self_filter::SelfFilter,
+        karma::*,
+        quote::*,
+        prefix::Prefix,
+        choose::Choose,
+        roulette::Roulette,
+        crypto_coin::CryptoCoin,
+        tryfile::TryFile,
+        membership::{Join, Leave},
+        admin::Admin,
+    },
+};
 
 
 #[derive(Deserialize, Debug)]
