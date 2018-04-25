@@ -47,7 +47,7 @@ impl Backend {
         use self::schema::voteables::dsl::*;
         let mut res: Vec<Voteable> = voteables.filter(value.eq(entity))
                                               .load(&self.connection).unwrap();
-        let mut voteable= match res.len() {
+        let mut voteable = match res.len() {
             0 => {
                 let new_voteable = NewVoteable {
                     value: entity,
@@ -55,9 +55,15 @@ impl Backend {
                     total_down: 0,
                 };
 
-                diesel::insert(&new_voteable).into(voteables::table)
-                    .get_result(&self.connection)
-                    .expect("Error creating new voteable")
+                let res = diesel::insert(&new_voteable)
+                                  .into(voteables::table)
+                                  .get_result(&self.connection);
+
+                if let Err(e) = res{
+                    return;
+                }
+
+                res.unwrap()
             },
 
             _ => res.pop().unwrap(),
