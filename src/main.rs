@@ -14,7 +14,7 @@ use rustix::{
         echo::Echo,
         self_filter::SelfFilter,
         karma::*,
-        quote::*,
+        quote::{read_quote, del_quote},
         prefix::Prefix,
         choose::Choose,
         roulette::Roulette,
@@ -72,7 +72,7 @@ fn main() {
     b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
     b.register_service("karma_tracker", sf, Box::new(KarmaTracker::new()));
 
-    b.register_service("add_quote", pf, Box::new(add_quote::AddQuote::new()));
+    b.register_service("read_quote", pf, Box::new(read_quote::ReadQuote::new()));
     b.register_service("choose", pf, Box::new(Choose::new()));
     b.register_service("roulette", pf, Box::new(Roulette::new()));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
@@ -82,6 +82,7 @@ fn main() {
 
     b.register_service("join", adm, Box::new(Join::new()));
     b.register_service("leave", adm, Box::new(Leave::new()));
+    b.register_service("del_quote", adm, Box::new(del_quote::DelQuote::new()));
 
     b.register_service("try_file", pf, Box::new(TryFile::new()));
 
