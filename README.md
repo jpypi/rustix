@@ -1,8 +1,9 @@
 # About
 
 Rustix is a [matrix](https://matrix.org) bot/library/framework written in
-[rust](https://www.rust-lang.org/). No matrix library is used; this project
-makes http requests directly to a matrix server via the reqwest library.
+[rust](https://www.rust-lang.org/). This project does not use a matrix client
+library, but rather contains one within it! HTTP requests are made directly to a
+matrix server via the reqwest library.
 
 # Running
 
@@ -26,21 +27,24 @@ $ cargo run
 
 # Architecture
 
-The command/plugin/service architecture of rustix is that of a graph. Service
-nodes are added to the graph and matrix events get propogated (or blocked)
-through child nodes. This makes rustix very flexible. Examples: "self" filter
-and prefix filter nodes are prebuilt and it is recommended that new services be
-added under the prefix filter which is under the "self" filter. These filters
-only propagate events to child processing nodes if the message wasn't sent by
-the bot itself and the message starts with a prefix (which gets stripped off).
+The command/plugin/service architecture of rustix can be thought of as a
+directed graph. Service nodes are added to the graph and matrix events get
+propogated (or blocked) through child nodes. This makes rustix very flexible.
+Examples: "self" filter and prefix filter nodes are prebuilt and it is
+recommended that new services be added under the prefix filter which is under
+the "self" filter. These filters only propagate events to child processing nodes
+if the message wasn't sent by the bot itself and the message starts with a
+prefix (which gets stripped off).
 
 # Prebuilt commands
 The framework should be fairly flexible and not too difficult to use for your
 own project or to just extend. The following are prebuilt commands, and should
-be prefixed with the default prefix: `!`.
+be prefixed with the default prefix: `!`. (The prefix can be changed in
+`config.toml`)
 
 - addquote \<quote here\>
 - getquote \<quote number\>
+- \*delquote \<quote number\>
 - randquote
 - roulette
 - choose \<item1\> \<item2\> ... \<itemN\>
@@ -51,11 +55,11 @@ be prefixed with the default prefix: `!`.
 - \*leave \<public channel display name\>
 
 \**Command is under the admin node and requires message sender to be in the
-admin list given in `config.toml`*
+admin list specified in `config.toml`*
 
-There is also TryFile, which attempts to look for file named `___.txt` in the
+There is also TryFile, which attempts to look for file named `*.txt` in the
 `var` folder in the current working directory and echo a random line from it.
-This allows for things like `!timecube` which will echo a random line from
+This allows for invocation like `!timecube` which will echo a random line from
 `var/timecube.txt`. If there is a name collision both things will happen, that
 is if one were to place a file named `randquote.txt` in `var`, both the
 randquote function will be executed and a random line from `randquote.txt` will
@@ -63,8 +67,7 @@ be echoed.
 
 # Note
 
-This is one of my first rust projects, thus it would not be prudent to assume
-that it is entirely idiomatic and a good reference to learn style from.
-If you see something that could be improved (I'm sure there are many things that
-could be), by all means, please open an issue and/or PR! I'm open to feedback,
-and I would love to improve this project!
+This is one of my first rust projects, thus style is still iterating towards
+idiomatic. If you see something that could be improved (I'm sure there are many
+things that could be), by all means, please open an issue and/or PR! I'm open to
+feedback, and I would love to improve this project!
