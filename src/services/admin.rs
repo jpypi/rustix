@@ -1,5 +1,3 @@
-use serde_json::value::Value;
-
 use bot::{Bot, Node, RoomEvent};
 
 pub struct Admin<'a> {
@@ -25,9 +23,8 @@ impl<'a> Node<'a> for Admin<'a> {
         self.children.push(name);
     }
 
-    fn handle(&mut self, bot: &Bot, mut event: RoomEvent) {
-        if self.hard_admins.contains(&event.raw_event.sender)
-        {
+    fn handle(&mut self, bot: &Bot, event: RoomEvent) {
+        if self.hard_admins.contains(&event.raw_event.sender) {
             self.propagate_event(bot, &event);
         }
     }
