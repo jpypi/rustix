@@ -126,7 +126,9 @@ impl<'a, 'b> Bot<'a, 'b> {
         let delay = time::Duration::from_millis(500);
 
         loop {
-            match self.client.borrow().sync(Some(&next_batch)) {
+            let sync = self.client.borrow().sync(Some(&next_batch));
+
+            match sync {
                 Ok(sync_data) => {
                     /*
                     if let Ok(x) = serde_json::to_string_pretty(&sync_data) {
