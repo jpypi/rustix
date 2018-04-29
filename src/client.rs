@@ -127,7 +127,7 @@ impl MatrixClient {
 
     pub fn auth_get(&self, path: &str,
                     params: Option<HashMap<&str, &str>>) -> Result<Response> {
-        self.auth_query(Method::Get, path, params, Option::None)
+        self.auth_query(Method::Get, path, params, None)
     }
 
     pub fn login(&mut self, username: &str, password: &str) -> Result<()> {
