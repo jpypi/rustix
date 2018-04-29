@@ -20,7 +20,7 @@ use rustix::{
         roulette::Roulette,
         crypto_coin::CryptoCoin,
         tryfile::TryFile,
-        membership::{Join, Leave},
+        membership::{Join, Leave, AcceptInvite},
         admin::Admin,
     },
 };
@@ -68,10 +68,12 @@ fn main() {
 
     // Register services with the bot
     let sf = b.register_service("self_filter", None, Box::new(SelfFilter::new()));
+
+    b.register_service("accept_invite", None, Box::new(AcceptInvite::new()));
+    b.register_service("karma_tracker", sf, Box::new(KarmaTracker::new()));
+
     let pf = b.register_service("prefix", sf,
                                 Box::new(Prefix::new(config.bot.prefix)));
-
-    b.register_service("karma_tracker", sf, Box::new(KarmaTracker::new()));
 
     b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
     b.register_service("echo", pf, Box::new(Echo::new()));

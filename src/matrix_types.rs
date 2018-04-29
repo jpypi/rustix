@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 extern crate serde;
 extern crate serde_json;
 
@@ -12,7 +13,6 @@ use serde_json::Value;
 
 
 #[derive(Serialize, Deserialize, Debug)]
-//allow(dead_code)]
 pub struct Init {
     pub access_token: String,
     pub home_server: String,
@@ -21,7 +21,6 @@ pub struct Init {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct MatrixSync {
     /*
     account_data: Events,
@@ -34,45 +33,45 @@ pub struct MatrixSync {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct Rooms {
-    pub invite: HashMap<String, InviteRoom>,
     pub join: HashMap<String, Room>,
-    //pub leave: HashMap<String, Room>,
+    pub invite: HashMap<String, InviteRoom>,
+    pub leave: HashMap<String, LeaveRoom>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct Room {
     pub account_data: Value,
     pub ephemeral: Value,
-    pub state: Events,
-    pub timeline: Events,
+    pub state: StateEvents,
+    pub timeline: Timeline,
     pub unread_notifications: Value
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct InviteRoom {
-    invite_state: InviteEvents,
+    pub invite_state: StateEvents,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[allow(dead_code)]
-pub struct InviteEvents {
-    events: Vec<Event>,
+pub struct LeaveRoom {
+    pub state: StateEvents,
+    pub timeline: Timeline,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct StateEvents {
+    pub events: Vec<Event>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[allow(dead_code)]
-pub struct Events {
+pub struct Timeline {
     pub events: Vec<Event>,
     pub limited: Option<bool>,
     pub prev_batch: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[allow(dead_code)]
 pub struct Event {
     pub content: Value,
     pub event_id: Option<String>,
@@ -85,9 +84,7 @@ pub struct Event {
     pub unsigned: Option<Value>
 }
 
-
 #[derive(Serialize, Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct PublicRooms {
     pub total_room_count_estimate: u32,
     pub next_batch: String,
@@ -95,7 +92,6 @@ pub struct PublicRooms {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct PublicRoom {
     pub canonical_alias: Option<String>,
     pub name: String,
@@ -106,4 +102,20 @@ pub struct PublicRoom {
     pub room_id: String,
     pub guest_can_join: bool,
     pub aliases: Option<Vec<String>>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct JoinedRooms {
+    pub joined_rooms: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RoomAlias {
+    pub room_id: String,
+    pub servers: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CreatedRoom {
+    pub room_id: String,
 }

@@ -47,3 +47,24 @@ impl<'a> Node<'a> for Leave {
         }
     }
 }
+
+
+pub struct AcceptInvite;
+
+impl AcceptInvite {
+    pub fn new() -> Self {
+        AcceptInvite
+    }
+}
+
+impl<'a> Node<'a> for AcceptInvite {
+    fn handle(&mut self, bot: &Bot, event: RoomEvent) {
+        if &event.raw_event.type_ == "m.room.member" {
+            if let Some(value) = event.raw_event.content.get("membership") {
+                if value.as_str().unwrap() == "invite" {
+                    bot.join(&event.room_id).ok();
+                }
+            }
+        }
+    }
+}

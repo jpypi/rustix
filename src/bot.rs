@@ -3,6 +3,7 @@ use std::{result, thread, time};
 use std::cell::{RefCell, RefMut};
 
 use reqwest::{Response};
+//use serde_json;
 
 use errors::Error;
 use client::MatrixClient;
@@ -23,8 +24,6 @@ pub struct Bot <'a, 'b> {
     client: RefCell<&'b mut MatrixClient>,
     root_services: Vec<&'a str>,
     all_services: HashMap<&'a str, RefCell<Box<Node<'a>>>>,
-
-    rooms: RefCell<Vec<String>>,
 }
 
 impl<'a, 'b> Bot<'a, 'b> {
@@ -33,20 +32,10 @@ impl<'a, 'b> Bot<'a, 'b> {
             client: RefCell::new(client),
             root_services: Vec::new(),
             all_services: HashMap::new(),
-            rooms: RefCell::new(Vec::new()),
         }
     }
 
     pub fn join(&self, room_id: &str) -> Result<Response> {
-        // Make sure that the bot isn't already in the room to be joined
-        for room in self.rooms.borrow().iter() {
-            if room_id == room {
-                return Err("Already in room".into());
-            }
-        }
-
-        self.rooms.borrow_mut().push(room_id.clone().to_string());
-
         self.client.borrow().join(room_id)
     }
 
@@ -60,32 +49,15 @@ impl<'a, 'b> Bot<'a, 'b> {
     }
 
     pub fn leave(&self, room_id: &str) -> Result<Response> {
-        // Make sure that the bot is in the room already
-        let mut remove_i = 0;
-        let mut res = Err("Not in room".into());
-        for (i, room) in self.rooms.borrow().iter().enumerate() {
-            if room_id == room {
-                res = self.client.borrow().leave(room_id);
-                remove_i = i;
-                break;
-            }
-        }
-
-        match res {
-            Ok(r) => {
-                self.rooms.borrow_mut().swap_remove(remove_i);
-                Ok(r)
-            },
-            Err(e) => Err(e),
-        }
+        self.client.borrow().leave(room_id)
     }
 
-    pub fn leave_public(&self, room_id: &str) -> Result<Response> {
-        let pub_room = self.client.borrow().get_public_room_id(room_id);
+    pub fn leave_public(&self, room_name: &str) -> Result<Response> {
+        let pub_room = self.client.borrow().get_public_room_id(room_name);
 
         match pub_room {
             Some(id) => self.leave(&id),
-            None => Err("Could not leave invalid room".into()),
+            None => Err(format!("Could not find room: {}", room_name).into()),
         }
     }
 
@@ -154,19 +126,41 @@ impl<'a, 'b> Bot<'a, 'b> {
         let delay = time::Duration::from_millis(500);
 
         loop {
-            // TODO: NLL May let this extra temp variable die
-            let sync = self.client.borrow().sync(Some(&next_batch));
-
-            match sync {
+            match self.client.borrow().sync(Some(&next_batch)) {
                 Ok(sync_data) => {
-                    let rooms = self.rooms.borrow().clone();
-                    for room_id in rooms.iter() {
-                        if let Some(room) = sync_data.rooms.join.get(room_id) {
-                            for raw_event in &room.timeline.events {
-                                self.propagate_event(
-                                    &RoomEvent{room_id, raw_event: raw_event.clone()}
-                                );
-                            }
+                    /*
+                    if let Ok(x) = serde_json::to_string_pretty(&sync_data) {
+                        println!("{}", x);
+                    }
+                    */
+
+                    for (room_id, room) in sync_data.rooms.join {
+                        for raw_event in &room.timeline.events {
+                            self.propagate_event(
+                                &RoomEvent{
+                                    room_id: &room_id,
+                                    raw_event: raw_event.clone()
+                                });
+                        }
+                    }
+
+                    for (room_id, room) in sync_data.rooms.invite {
+                        for raw_event in &room.invite_state.events {
+                            self.propagate_event(
+                                &RoomEvent{
+                                    room_id: &room_id,
+                                    raw_event: raw_event.clone()
+                                });
+                        }
+                    }
+
+                    for (room_id, room) in sync_data.rooms.leave {
+                        for raw_event in &room.timeline.events {
+                            self.propagate_event(
+                                &RoomEvent{
+                                    room_id: &room_id,
+                                    raw_event: raw_event.clone()
+                                });
                         }
                     }
 
@@ -207,9 +201,3 @@ pub trait Node<'a> {
 
     fn on_exit(&self) { }
 }
-
-
-/*
-if let Ok(x) = serde_json::to_string_pretty(&res.rooms.join) {
-    println!("{}", x);
-} */
