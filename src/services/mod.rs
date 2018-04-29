@@ -9,6 +9,7 @@ pub mod crypto_coin;
 pub mod tryfile;
 pub mod membership;
 pub mod admin;
+pub mod get_joined;
 
 mod utils;
 mod schema;

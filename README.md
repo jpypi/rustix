@@ -53,6 +53,7 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - p \<crypto currency ticker\>
 - \*join \<public channel display name\>
 - \*leave \<public channel display name\>
+- \*joined
 
 \**Command is under the admin node and requires message sender to be in the
 admin list specified in `config.toml`*

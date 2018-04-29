@@ -22,6 +22,7 @@ use rustix::{
         tryfile::TryFile,
         membership::{Join, Leave, AcceptInvite},
         admin::Admin,
+        get_joined::GetJoined,
     },
 };
 
@@ -88,6 +89,7 @@ fn main() {
     b.register_service("join", adm, Box::new(Join::new()));
     b.register_service("leave", adm, Box::new(Leave::new()));
     b.register_service("del_quote", adm, Box::new(del_quote::DelQuote::new()));
+    b.register_service("get_joined", adm, Box::new(GetJoined::new()));
 
     // Start bot main loop
     b.run(&config.bot.rooms);
