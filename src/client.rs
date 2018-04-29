@@ -270,6 +270,21 @@ impl MatrixClient {
         self.auth_query(Method::Post, &path, None, Some(&data))
     }
 
+    pub fn get_joined(&self) -> Result<JoinedRooms> {
+        match self.auth_get("/joined_rooms", None) {
+            Ok(mut resp) => {
+                Ok(serde_json::from_reader(resp)?)
+                /*
+                match serde_json::from_reader(resp) {
+                    Ok(r) => Ok(r),
+                    Err(e) => Err(e.into()),
+                }
+                */
+            },
+            Err(e) => Err(e.into())
+        }
+    }
+
     /*
     pub fn indicate_typing(&self, room_id: &str, length: Option<u32>) -> Result<Response, RustixError> {
         let mut data = HashMap::new();

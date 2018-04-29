@@ -7,7 +7,7 @@ use reqwest::{Response};
 
 use errors::Error;
 use client::MatrixClient;
-use matrix_types::Event;
+use matrix_types::*;
 
 
 type Result<T> = result::Result<T, Error>;
@@ -59,6 +59,10 @@ impl<'a, 'b> Bot<'a, 'b> {
             Some(id) => self.leave(&id),
             None => Err(format!("Could not find room: {}", room_name).into()),
         }
+    }
+
+    pub fn get_joined(&self) -> Result<JoinedRooms> {
+        self.client.borrow().get_joined()
     }
 
     pub fn say(&self, room_id: &str, message: &str) -> Result<Response> {
