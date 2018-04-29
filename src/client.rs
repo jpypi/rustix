@@ -272,15 +272,7 @@ impl MatrixClient {
 
     pub fn get_joined(&self) -> Result<JoinedRooms> {
         match self.auth_get("/joined_rooms", None) {
-            Ok(mut resp) => {
-                Ok(serde_json::from_reader(resp)?)
-                /*
-                match serde_json::from_reader(resp) {
-                    Ok(r) => Ok(r),
-                    Err(e) => Err(e.into()),
-                }
-                */
-            },
+            Ok(resp) => Ok(serde_json::from_reader(resp)?),
             Err(e) => Err(e.into())
         }
     }
