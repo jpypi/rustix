@@ -52,9 +52,9 @@ impl<'a> Node<'a> for ReadQuote {
             resp = Some(match self.quote_db.random_quote() {
                 Ok((quoter, quote)) => {
                     let datetime: DateTime<Local> = quote.time.into();
-                    format!("\"{}\" set by {} {}",
+                    format!("\"{}\" set by {} {} ~ {}",
                             quote.value, quoter.user_id,
-                            datetime.format("on %Y-%m-%d at %T"))
+                            datetime.format("on %Y-%m-%d at %T"), quote.id)
                 },
                 Err(_) => "No quote found.".to_string(),
             });
