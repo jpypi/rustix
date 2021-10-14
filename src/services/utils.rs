@@ -15,14 +15,14 @@ pub fn reservoir_sample<R: Rng>(f: File, mut rng: R) -> String {
         if i < K {
             reservoir[i] = l;
         } else {
-            let j = rng.gen_range(0, i);
+            let j = rng.gen_range(0..i);
             if j < K {
                 reservoir[j] = l;
             }
         }
     }
 
-    let n = rng.gen_range(0, K);
+    let n = rng.gen_range(0..K);
 
     reservoir[n].clone()
 }

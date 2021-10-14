@@ -33,7 +33,7 @@ impl Roulette {
         self.rounds = [0; SIZE];
         self.state = (SIZE as u8) - 1;
 
-        let i = rng.gen_range(0, SIZE);
+        let i = rng.gen_range(0..SIZE);
         self.rounds[i] = 1;
     }
 }

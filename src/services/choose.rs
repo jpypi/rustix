@@ -23,7 +23,7 @@ impl<'a> Node<'a> for Choose {
                 let choices: Vec<&str> = body[7..].split_whitespace().collect();
 
                 let mut rng = rand::thread_rng();
-                let n = rng.gen_range(0, choices.len());
+                let n = rng.gen_range(0..choices.len());
                 bot.reply(&event, choices[n]);
             }
         }

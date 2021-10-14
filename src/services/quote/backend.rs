@@ -73,7 +73,7 @@ impl Backend {
 
     pub fn random_quote(&self) -> QueryResult<(User, Quote)> {
         let mut rng = rand::thread_rng();
-        let offset = rng.gen_range(0, quotes.count().get_result(&self.connection)?);
+        let offset = rng.gen_range(0..quotes.count().get_result(&self.connection)?);
 
         // Try to query for a quote using a random offset
         let qres: Quote = quotes.offset(offset).first(&self.connection)?;
