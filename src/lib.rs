@@ -5,6 +5,7 @@ extern crate regex;
 extern crate dotenv;
 extern crate rand;
 extern crate chrono;
+extern crate http;
 
 #[macro_use]
 extern crate serde_derive;
@@ -12,8 +13,6 @@ extern crate serde_derive;
 extern crate maplit;
 #[macro_use]
 extern crate diesel;
-#[macro_use]
-extern crate diesel_codegen;
 
 mod matrix_types;
 mod errors;
