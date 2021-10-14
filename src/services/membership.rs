@@ -35,7 +35,7 @@ impl<'a> Node<'a> for Leave {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         let body = &event.raw_event.content["body"].as_str().unwrap();
         if body.starts_with("leave") {
-            let room_name = &body[5..].trim_left();
+            let room_name = &body[5..].trim_start();
             if room_name.len() == 0 {
                 bot.leave(&event.room_id);
             }
