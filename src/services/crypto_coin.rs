@@ -2,7 +2,7 @@ use std::io::Read;
 
 use serde_json;
 use reqwest;
-use reqwest::Method;
+use http::Method;
 use regex::Regex;
 
 use ::bot::{Bot, Node, RoomEvent};
@@ -54,7 +54,7 @@ fn get_ticker(sym: &str) -> Option<Vec<f32>> {
     let url = format!("https://api.bitfinex.com/v2/ticker/t{}USD", sym);
 
     let client = reqwest::Client::new();
-    match client.request(Method::Get, &url).send() {
+    match client.request(Method::GET, &url).send() {
         Ok(mut resp) => {
             let mut content = String::new();
             resp.read_to_string(&mut content).unwrap();

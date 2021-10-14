@@ -7,7 +7,7 @@ use reqwest;
 use reqwest::{Url, Response};
 use reqwest::header::{ContentType};
 use serde_json;
-use reqwest::Method;
+use http::Method;
 
 use errors::Error;
 use matrix_types::*;
@@ -70,7 +70,7 @@ impl MatrixClient {
         let mut builder = self.client.request(method.clone(), &url);
 
         let request = match method {
-            Method::Post | Method::Put => {
+            Method::POST | Method::PUT => {
                 builder.header(ContentType::json())
                        .json(data.unwrap_or(&nothing))
             },
@@ -81,7 +81,7 @@ impl MatrixClient {
 
             /*
         match method {
-            Method::Get => {
+            Method::GET => {
                 client.get(&url)?.send()
             },
             POST => {
@@ -122,12 +122,12 @@ impl MatrixClient {
 
     pub fn get(&self, path: &str,
                params: Option<&HashMap<&str, &str>>) -> Result<Response> {
-        self.query(Method::Get, path, params, None)
+        self.query(Method::GET, path, params, None)
     }
 
     pub fn auth_get(&self, path: &str,
                     params: Option<HashMap<&str, &str>>) -> Result<Response> {
-        self.auth_query(Method::Get, path, params, None)
+        self.auth_query(Method::GET, path, params, None)
     }
 
     pub fn login(&mut self, username: &str, password: &str) -> Result<()> {
@@ -140,7 +140,7 @@ impl MatrixClient {
 
         let mut content = String::new();
 
-        self.query(Method::Post, "/login", Option::None, Some(&map))?
+        self.query(Method::POST, "/login", Option::None, Some(&map))?
             .read_to_string(&mut content).unwrap();
 
         // Parse response into client state
@@ -216,13 +216,13 @@ impl MatrixClient {
     }
 
     pub fn join(&self, room_id: &str) -> Result<Response> {
-        self.auth_query(Method::Post,
+        self.auth_query(Method::POST,
                         &format!("/join/{}", room_id),
                         None, None)
     }
 
     pub fn leave(&self, room_id: &str) -> Result<Response> {
-        self.auth_query(Method::Post,
+        self.auth_query(Method::POST,
                         &format!("/rooms/{}/leave", room_id),
                         None, None)
     }
@@ -234,7 +234,7 @@ impl MatrixClient {
 
         let path = format!("/profile/{}/displayname",
                            self.user_id.as_ref().expect("Must be logged in"));
-        self.auth_query(Method::Put, &path, None, Some(&data))
+        self.auth_query(Method::PUT, &path, None, Some(&data))
     }
 
     pub fn send(&mut self,
@@ -244,7 +244,7 @@ impl MatrixClient {
         let path = format!("/rooms/{}/send/{}/{}", room_id, event_type,
                            self.get_transaction_id());
 
-        self.auth_query(Method::Put, &path, None, data)
+        self.auth_query(Method::PUT, &path, None, data)
     }
 
     pub fn send_msg(&mut self, room_id: &str, message: &str) -> Result<Response> {
@@ -267,7 +267,7 @@ impl MatrixClient {
             data.insert("reason", r);
         }
 
-        self.auth_query(Method::Post, &path, None, Some(&data))
+        self.auth_query(Method::POST, &path, None, Some(&data))
     }
 
     pub fn get_joined(&self) -> Result<JoinedRooms> {
