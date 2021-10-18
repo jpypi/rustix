@@ -5,7 +5,6 @@ use rand;
 use rand::Rng;
 
 use dotenv::dotenv;
-use diesel;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 
@@ -42,7 +41,8 @@ impl Backend {
             Ok(u) => u,
             Err(_) => {
                 let new_user = NewUser { user_id: user };
-                diesel::insert(&new_user).into(us::table)
+                diesel::insert_into(us::table)
+                    .values(&new_user)
                     .get_result(&self.connection)?
             }
         };
@@ -53,8 +53,10 @@ impl Backend {
             value: quote,
         };
 
-        Ok(diesel::insert(&new_quote).into(qu::table)
-            .get_result::<Quote>(&self.connection)?.id)
+        Ok(diesel::insert_into(qu::table)
+           .values(&new_quote)
+           .get_result::<Quote>(&self.connection)?.id
+        )
     }
 
 

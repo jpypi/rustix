@@ -1,7 +1,6 @@
 use std::env;
 
 use dotenv::dotenv;
-use diesel;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 
@@ -37,7 +36,8 @@ impl Backend {
         let user = match res.len() {
             0 => {
                 let new_user = NewUser { user_id: user };
-                diesel::insert(&new_user).into(users::table)
+                diesel::insert_into(users::table)
+                    .values(&new_user)
                     .get_result(&self.connection)
                     .expect("Error creating new user")
             },
@@ -55,11 +55,11 @@ impl Backend {
                     total_down: 0,
                 };
 
-                let res = diesel::insert(&new_voteable)
-                                  .into(voteables::table)
+                let res = diesel::insert_into(voteables::table)
+                                  .values(&new_voteable)
                                   .get_result(&self.connection);
 
-                if let Err(e) = res{
+                if let Err(_) = res{
                     return;
                 }
 
@@ -86,7 +86,7 @@ impl Backend {
                     down: 0,
                 };
 
-                diesel::insert(&new_vote).into(votes::table)
+                diesel::insert_into(votes::table).values(&new_vote)
                     .get_result(&self.connection)
                     .expect("Error creating new vote")
             },
