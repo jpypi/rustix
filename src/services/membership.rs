@@ -1,4 +1,4 @@
-use ::bot::{Bot, Node, RoomEvent};
+use crate::bot::{Bot, Node, RoomEvent};
 
 
 pub struct Join;
@@ -14,7 +14,7 @@ impl<'a> Node<'a> for Join {
         let body = &event.raw_event.content["body"].as_str().unwrap();
         if body.starts_with("join ") {
             let room_name = &body[5..];
-            if let Err(e) = bot.join_public(room_name) {
+            if let Err(_) = bot.join_public(room_name) {
                 let resp = format!("Could not join: {}", room_name);
                 bot.reply(&event, &resp);
             }
@@ -40,7 +40,7 @@ impl<'a> Node<'a> for Leave {
                 bot.leave(&event.room_id);
             }
 
-            if let Err(e) = bot.leave_public(room_name) {
+            if let Err(_) = bot.leave_public(room_name) {
                 let resp = format!("Could not leave room: {}", room_name);
                 bot.reply(&event, &resp);
             }

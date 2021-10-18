@@ -1,4 +1,4 @@
-use ::bot::{Bot, Node, RoomEvent};
+use crate::bot::{Bot, Node, RoomEvent};
 use super::backend::Backend;
 
 

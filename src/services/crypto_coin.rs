@@ -1,11 +1,8 @@
-use std::io::Read;
-
-use serde_json;
 use reqwest;
 use http::Method;
 use regex::Regex;
 
-use ::bot::{Bot, Node, RoomEvent};
+use crate::bot::{Bot, Node, RoomEvent};
 
 
 pub struct CryptoCoin {
@@ -53,12 +50,10 @@ fn price_string(sym: &str) -> String {
 fn get_ticker(sym: &str) -> Option<Vec<f32>> {
     let url = format!("https://api.bitfinex.com/v2/ticker/t{}USD", sym);
 
-    let client = reqwest::Client::new();
+    let client = reqwest::blocking::Client::new();
     match client.request(Method::GET, &url).send() {
-        Ok(mut resp) => {
-            let mut content = String::new();
-            resp.read_to_string(&mut content).unwrap();
-            match serde_json::from_str(&content) {
+        Ok(resp) => {
+            match resp.json() {
                 Ok(v) => Some(v),
                 Err(_) => None,
             }

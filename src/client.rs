@@ -1,16 +1,15 @@
 #![allow(dead_code)]
 use std::{result};
-use std::io::Read;
 use std::collections::HashMap;
 
 use reqwest;
-use reqwest::{Url, Response};
-use reqwest::header::{ContentType};
-use serde_json;
+use reqwest::Url;
+use reqwest::blocking::Response;
+use reqwest::header;
 use http::Method;
 
-use errors::Error;
-use matrix_types::*;
+use crate::errors::Error;
+use crate::matrix_types::*;
 
 
 type Result<T> = result::Result<T, Error>;
@@ -25,7 +24,7 @@ pub struct MatrixClient {
     user_id: Option<String>,
 
     transaction_id: u64,
-    client: reqwest::Client,
+    client: reqwest::blocking::Client,
 }
 
 
@@ -38,7 +37,7 @@ impl MatrixClient {
             device_id: None,
             user_id: None,
             transaction_id: 0,
-            client: reqwest::Client::new(),
+            client: reqwest::blocking::Client::new(),
         }
     }
 
@@ -61,20 +60,20 @@ impl MatrixClient {
 
         let url = match params {
             // TODO: an unwrap ok here?
-            Some(v) => Url::parse_with_params(&uri, v).unwrap().into_string(),
+            Some(v) => Url::parse_with_params(&uri, v).unwrap().into(),
             None => uri
         };
 
         let nothing = HashMap::new();
 
-        let mut builder = self.client.request(method.clone(), &url);
+        let builder = self.client.request(method.clone(), &url);
 
         let request = match method {
             Method::POST | Method::PUT => {
-                builder.header(ContentType::json())
+                builder.header(header::CONTENT_TYPE, "text/json")
                        .json(data.unwrap_or(&nothing))
             },
-            _ => &mut builder,
+            _ => builder,
         };
 
         Ok(request.send()?)
@@ -86,12 +85,12 @@ impl MatrixClient {
             },
             POST => {
                 client.post(&url)?
-                      .header(ContentType::json())
+                      .header(CONTENT_TYPE::json())
                       .json(data.unwrap_or(&nothing)).unwrap().send()
             }
             PUT => {
                 client.put(&url)?
-                      .header(ContentType::json())
+                      .header(CONTENT_TYPE::json())
                       .json(data.unwrap_or(&nothing)).unwrap().send()
             }
         }
@@ -131,20 +130,15 @@ impl MatrixClient {
     }
 
     pub fn login(&mut self, username: &str, password: &str) -> Result<()> {
-        let map = hashmap!{
+        let params = hashmap!{
             "user"     => username,
             "password" => password,
             "type"     => "m.login.password",
             "initial_device_display_name" => "rustix",
         };
 
-        let mut content = String::new();
-
-        self.query(Method::POST, "/login", Option::None, Some(&map))?
-            .read_to_string(&mut content).unwrap();
-
         // Parse response into client state
-        match serde_json::from_str::<Init>(&content) {
+        match self.query(Method::POST, "/login", Option::None, Some(&params))?.json::<Init>() {
             Ok(v) => {
                 self.user_id = Some(v.user_id);
                 self.access_token = Some(v.access_token);
@@ -162,15 +156,11 @@ impl MatrixClient {
             params.insert("since", v);
         }
 
-        let mut content = String::new();
-
         match self.auth_get("/sync", Some(params)) {
-            Ok(mut resp) => {
-                resp.read_to_string(&mut content).unwrap();
-                match serde_json::from_str(&content) {
+            Ok(resp) => {
+                match resp.json() {
                     Ok(v) => Ok(v),
                     Err(e) => {
-                        //println!("{}", content);
                         let err = format!("problem syncing: {:?}", e);
                         Err(err.into())
                     },
@@ -187,14 +177,11 @@ impl MatrixClient {
             "dir"  => "f"
         };
 
-        let mut content = String::new();
         match self.auth_get("/publicRooms", Some(params)) {
-            Ok(mut resp) => {
-                resp.read_to_string(&mut content).unwrap();
-                match serde_json::from_str(&content) {
+            Ok(resp) => {
+                match resp.json() {
                     Ok(v) => Ok(v),
                     Err(e) => {
-                        println!("{}", content);
                         panic!("{:?}", e);
                     }
                 }
@@ -272,7 +259,12 @@ impl MatrixClient {
 
     pub fn get_joined(&self) -> Result<JoinedRooms> {
         match self.auth_get("/joined_rooms", None) {
-            Ok(resp) => Ok(serde_json::from_reader(resp)?),
+            Ok(resp) => match resp.json() {
+                Ok(v) => Ok(v),
+                Err(e) => {
+                    panic!("{:?}", e);
+                }
+            },
             Err(e) => Err(e.into())
         }
     }

@@ -1,7 +1,6 @@
-use rand;
 use rand::Rng;
 
-use bot::{Bot, Node, RoomEvent};
+use crate::bot::{Bot, Node, RoomEvent};
 
 const SIZE:usize = 6;
 

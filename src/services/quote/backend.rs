@@ -8,7 +8,7 @@ use dotenv::dotenv;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 
-use ::services::schema::{
+use crate::services::schema::{
     users as us,
     quotes as qu,
     quotes::dsl::*,

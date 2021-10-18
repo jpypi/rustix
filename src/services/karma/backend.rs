@@ -4,8 +4,8 @@ use dotenv::dotenv;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 
+use crate::services::schema;
 use super::models::*;
-use ::services::schema;
 
 pub struct Backend {
     connection: PgConnection
@@ -73,7 +73,7 @@ impl Backend {
         voteable.total_down += down;
         voteable.save_changes::<Voteable>(&self.connection);
 
-        use ::services::schema::votes::dsl as vts;
+        use crate::services::schema::votes::dsl as vts;
         let mut res: Vec<Vote> = vts::votes.filter(vts::user_id.eq(user.id))
                                            .filter(vts::voteable_id.eq(voteable.id))
                                            .load(&self.connection).unwrap();

@@ -2,12 +2,11 @@ use std::collections::HashMap;
 use std::{result, thread, time};
 use std::cell::{RefCell, RefMut};
 
-use reqwest::{Response};
-//use serde_json;
+use reqwest::blocking::{Response};
 
-use errors::Error;
-use client::MatrixClient;
-use matrix_types::*;
+use crate::errors::Error;
+use crate::client::MatrixClient;
+use crate::matrix_types::*;
 
 
 type Result<T> = result::Result<T, Error>;
@@ -23,7 +22,7 @@ pub struct RoomEvent<'a> {
 pub struct Bot <'a, 'b> {
     client: RefCell<&'b mut MatrixClient>,
     root_services: Vec<&'a str>,
-    all_services: HashMap<&'a str, RefCell<Box<Node<'a>>>>,
+    all_services: HashMap<&'a str, RefCell<Box<dyn Node<'a>>>>,
 }
 
 impl<'a, 'b> Bot<'a, 'b> {
@@ -88,7 +87,7 @@ impl<'a, 'b> Bot<'a, 'b> {
     pub fn register_service(&mut self,
                             name: &'a str,
                             parent: Option<&'a str>,
-                            mut service: Box<Node<'a>>) -> Option<&'a str> {
+                            mut service: Box<dyn Node<'a>>) -> Option<&'a str> {
         match parent {
             Some(p) => {
                 self.all_services.get_mut(p).expect("Invalid parent node")
@@ -104,7 +103,7 @@ impl<'a, 'b> Bot<'a, 'b> {
         Some(name)
     }
 
-    pub fn get_service(&self, name: &str) -> RefMut<Box<Node<'a>>> {
+    pub fn get_service(&self, name: &str) -> RefMut<Box<dyn Node<'a>>> {
         self.all_services.get(name).unwrap().borrow_mut()
     }
 

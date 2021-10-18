@@ -3,8 +3,8 @@ use std::fs::File;
 use rand;
 use regex::Regex;
 
-use bot::{Bot, Node, RoomEvent};
-use services::utils::reservoir_sample;
+use crate::bot::{Bot, Node, RoomEvent};
+use crate::services::utils::reservoir_sample;
 
 pub struct TryFile {
     safe_re: Regex,
@@ -32,7 +32,7 @@ impl<'a> Node<'a> for TryFile {
                     let line = reservoir_sample(d, rng);
                     bot.reply(&event, &line);
                 },
-                Err(e) => (),
+                Err(_) => (),
                 //{ println!("Tried to open: \"{}\" failed: {:?}", body, e); }
             };
         }

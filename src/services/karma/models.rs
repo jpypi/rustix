@@ -1,4 +1,4 @@
-use ::services::schema::{users, voteables, votes};
+use crate::services::schema::{users, voteables, votes};
 
 #[derive(Queryable)]
 #[derive(Identifiable)]

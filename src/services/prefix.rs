@@ -1,6 +1,6 @@
 use serde_json::value::Value;
 
-use bot::{Bot, Node, RoomEvent};
+use crate::bot::{Bot, Node, RoomEvent};
 
 pub struct Prefix<'a> {
     children: Vec<&'a str>,

@@ -6,7 +6,7 @@ use std::collections::HashMap;
 
 use regex::Regex;
 
-use ::bot::{Bot, Node, RoomEvent};
+use crate::bot::{Bot, Node, RoomEvent};
 use self::backend::Backend;
 
 pub struct KarmaTracker {
@@ -29,7 +29,7 @@ struct VoteCount {
 }
 
 impl<'a> Node<'a> for KarmaTracker {
-    fn handle(&mut self, bot: &Bot, event: RoomEvent) {
+    fn handle(&mut self, _bot: &Bot, event: RoomEvent) {
         let event = event.raw_event;
         let body = event.content["body"].as_str().unwrap();
 

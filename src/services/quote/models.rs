@@ -1,5 +1,5 @@
 use std::time::SystemTime;
-use ::services::schema::{users, quotes};
+use crate::services::schema::{users, quotes};
 
 #[derive(Queryable)]
 #[derive(Identifiable)]
