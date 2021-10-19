@@ -14,7 +14,7 @@ dislikes in a channel. To set up the database, first, create a file called
 `.env` which contains a database url to a PostgreSQL database. It should look
 something like this:
 ```
-DATABASE_URL=user:password//localhost/rustix
+DATABASE_URL=postgres://user:password@localhost/rustix
 ```
 (Note: This assumes a database user has been set up and has proper permissions
 on the proper database.)
