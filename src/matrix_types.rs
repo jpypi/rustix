@@ -87,7 +87,7 @@ pub struct Event {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PublicRooms {
     pub total_room_count_estimate: u32,
-    pub next_batch: String,
+    pub next_batch: Option<String>,
     pub chunk: Vec<PublicRoom>,
 }
 

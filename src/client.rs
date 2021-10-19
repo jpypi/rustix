@@ -78,7 +78,7 @@ impl MatrixClient {
 
         Ok(request.send()?)
 
-            /*
+        /*
         match method {
             Method::GET => {
                 client.get(&url)?.send()
