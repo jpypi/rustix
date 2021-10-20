@@ -3,6 +3,7 @@ use chrono::DateTime;
 
 use crate::bot::{Bot, Node, RoomEvent};
 use super::backend::Backend;
+use super::models::{Quote, User};
 
 
 pub struct ReadQuote {
@@ -35,13 +36,9 @@ impl<'a> Node<'a> for ReadQuote {
         else if body.starts_with("getquote ") {
             resp = Some(match body[9..].parse() {
                 Ok(qid) => {
-                    if let Ok((quoter, quote)) = self.quote_db.get_quote(qid) {
-                        let datetime: DateTime<Local> = quote.time.into();
-                        format!("\"{}\" set by {} {}",
-                                quote.value, quoter.user_id,
-                                datetime.format("on %Y-%m-%d at %T"))
-                    } else {
-                        "No quote by that id was found".to_string()
+                    match self.quote_db.get_quote(qid) {
+                        Ok((quoter, quote)) => render_quote(&quote, &quoter),
+                        Err(_) => "No quote by that id was found".to_string()
                     }
                 },
                 Err(_) => "Invalid quote id".to_string(),
@@ -50,16 +47,19 @@ impl<'a> Node<'a> for ReadQuote {
 
         else if body.starts_with("randquote") {
             resp = Some(match self.quote_db.random_quote() {
-                Ok((quoter, quote)) => {
-                    let datetime: DateTime<Local> = quote.time.into();
-                    format!("\"{}\" set by {} {} ~ {}",
-                            quote.value, quoter.user_id,
-                            datetime.format("on %Y-%m-%d at %T"), quote.id)
-                },
+                Ok((quoter, quote)) => render_quote(&quote, &quoter),
                 Err(_) => "No quote found.".to_string(),
             });
         }
 
         resp.map(|s| bot.reply(&event, &s));
     }
+}
+
+
+fn render_quote(quote: &Quote, quoter: &User) -> String {
+    let datetime: DateTime<Local> = quote.time.into();
+    format!("{}\n{} set by {} {}",
+            quote.value, quote.id, quoter.user_id,
+            datetime.format("on %Y-%m-%d at %R"))
 }
