@@ -1,8 +1,8 @@
 use std::env;
 use std::time::SystemTime;
 
-use rand;
-use rand::Rng;
+use rand::{SeedableRng, Rng};
+use rand::rngs::SmallRng;
 
 use dotenv::dotenv;
 use diesel::prelude::*;
@@ -18,7 +18,8 @@ use super::models::*;
 
 
 pub struct Backend {
-    connection: PgConnection
+    connection: PgConnection,
+    rng: SmallRng,
 }
 
 impl Backend {
@@ -31,7 +32,8 @@ impl Backend {
             .expect(&format!("Error connecting to {}", database_url));
 
         Self {
-            connection
+            connection: connection,
+            rng: SmallRng::from_entropy(),
         }
     }
 
@@ -59,7 +61,6 @@ impl Backend {
         )
     }
 
-
     pub fn get_quote(&self, quote_id: i32) -> QueryResult<(User, Quote)> {
         let qres: Quote = quotes.filter(qu::dsl::id.eq(quote_id))
                                         .first(&self.connection)?;
@@ -73,14 +74,31 @@ impl Backend {
                              .get_result(&self.connection)
     }
 
-    pub fn random_quote(&self) -> QueryResult<(User, Quote)> {
-        let mut rng = rand::thread_rng();
-        let offset = rng.gen_range(0..quotes.count().get_result(&self.connection)?);
+    pub fn random_quote(&mut self) -> QueryResult<(User, Quote)> {
+        let offset = self.rng.gen_range(0..quotes.count().get_result(&self.connection)?);
 
         // Try to query for a quote using a random offset
         let qres: Quote = quotes.offset(offset).first(&self.connection)?;
         let ures = users.filter(us::dsl::id.eq(qres.quoter_id))
                             .first(&self.connection)?;
         Ok((ures, qres))
+    }
+
+    pub fn search_quote(&mut self, text: &str) -> QueryResult<(User, Quote)> {
+        let qfilter = quotes.filter(qu::dsl::value.ilike(format!("%{}%", text)));
+
+        // Compute a random offset so we get random ones if there are multiple
+        let count = qfilter.clone().count().get_result(&self.connection)?;
+        if count > 0 {
+            let offset = self.rng.gen_range(0..count);
+
+            let qres: Quote = qfilter.offset(offset).first(&self.connection)?;
+            let ures = users.filter(us::dsl::id.eq(qres.quoter_id))
+                            .get_result(&self.connection)?;
+
+            Ok((ures, qres))
+        } else {
+            Err(diesel::result::Error::NotFound)
+        }
     }
 }

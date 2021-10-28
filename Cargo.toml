@@ -18,4 +18,4 @@ http = "0.2"
 diesel = { version = "1.4.4", features = ["postgres"] }
 dotenv = "0.15.0"
 
-rand = "0.8"
+rand = { version = "0.8", features = ["small_rng"] }

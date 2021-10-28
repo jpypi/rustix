@@ -45,6 +45,13 @@ impl<'a> Node<'a> for ReadQuote {
             });
         }
 
+        else if body.starts_with("searchquote ") {
+            resp = Some(match self.quote_db.search_quote(&body[12..]) {
+                Ok((quoter, quote)) => render_quote(&quote, &quoter),
+                Err(_) => format!("No quote found matching \"{}\"", &body[12..]),
+            });
+        }
+
         else if body.starts_with("randquote") {
             resp = Some(match self.quote_db.random_quote() {
                 Ok((quoter, quote)) => render_quote(&quote, &quoter),
