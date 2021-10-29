@@ -23,6 +23,7 @@ use rustix::{
         membership::{Join, Leave, AcceptInvite},
         admin::Admin,
         get_joined::GetJoined,
+        old_quote,
     },
 };
 
@@ -79,6 +80,7 @@ fn main() {
     b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
     b.register_service("echo", pf, Box::new(Echo::new()));
     b.register_service("read_quote", pf, Box::new(read_quote::ReadQuote::new()));
+    b.register_service("old_quotes", pf, Box::new(old_quote::read_quote::ReadQuote::new()));
     b.register_service("choose", pf, Box::new(Choose::new()));
     b.register_service("roulette", pf, Box::new(Roulette::new()));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
