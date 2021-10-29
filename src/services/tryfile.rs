@@ -1,12 +1,12 @@
 use std::fs::File;
 use std::io::{BufReader, BufRead};
 
-use rand::{SeedableRng, Rng};
+use rand::SeedableRng;
 use rand::rngs::SmallRng;
 use regex::Regex;
 
 use crate::bot::{Bot, Node, RoomEvent};
-use crate::services::utils::reservoir_sampleg;
+use crate::services::utils::reservoir_sample;
 
 pub struct TryFile {
     safe_re: Regex,

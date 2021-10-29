@@ -4,7 +4,7 @@ use rand::{SeedableRng, Rng};
 use rand::rngs::SmallRng;
 
 use crate::bot::{Bot, Node, RoomEvent};
-use crate::services::utils;
+use crate::services::utils::reservoir_sample;
 
 
 #[derive(Deserialize, Debug, Default, Clone, Eq, PartialEq)]
@@ -41,7 +41,7 @@ impl ReadQuote {
 
     fn rand_quote(&mut self) -> Result<Option<OldQuote>, Box<dyn Error>> {
         let mut reader = csv::Reader::from_path("gb_quotes_all.csv")?;
-        match utils::reservoir_sample(reader.deserialize(), &mut self.rng) {
+        match reservoir_sample(reader.deserialize(), &mut self.rng) {
             Ok(v) => Ok(Some(v)),
             Err(e) => Err(Box::new(e)),
         }
