@@ -31,9 +31,7 @@ impl<'a> Node<'a> for ReadQuote {
             } else {
                 resp = Some("Failed to add quote.".to_string());
             }
-        }
-
-        else if body.starts_with("getquote ") {
+        } else if body.starts_with("getquote ") {
             resp = Some(match body[9..].parse() {
                 Ok(qid) => {
                     match self.quote_db.get_quote(qid) {
@@ -43,20 +41,42 @@ impl<'a> Node<'a> for ReadQuote {
                 },
                 Err(_) => "Invalid quote id".to_string(),
             });
-        }
+        } else if body.starts_with("searchquote ") {
+            let query = body[12..].trim();
 
-        else if body.starts_with("searchquote ") {
-            resp = Some(match self.quote_db.search_quote(&body[12..]) {
-                Ok((quoter, quote)) => render_quote(&quote, &quoter),
-                Err(_) => format!("No quote found matching \"{}\"", &body[12..]),
-            });
-        }
+            if query.len() > 0 {
+                resp = Some(match self.quote_db.search_quotes(query) {
+                    Ok(quotes) => {
+                        if quotes.len() > 0 {
+                            let quot_ids = quotes.into_iter()
+                                                 .map(|q| q.id.to_string())
+                                                 .collect::<Vec<String>>()
+                                                 .join(", ");
+                            format!("Matching quotes: {}", quot_ids)
+                        } else {
+                            format!("No quotes found matching \"{}\"", query)
+                        }
+                    },
+                    Err(_) => format!("Error while looking for quote matching \"{}\"", query),
+                });
+            } else {
+                resp = Some("searchquote requires search terms".to_string());
+            }
+        } else if body.starts_with("randquote") {
+            let query = body[9..].trim();
 
-        else if body.starts_with("randquote") {
-            resp = Some(match self.quote_db.random_quote() {
-                Ok((quoter, quote)) => render_quote(&quote, &quoter),
-                Err(_) => "No quote found.".to_string(),
-            });
+            if query.len() > 0 {
+                resp = Some(match self.quote_db.search_quote(&query) {
+                    Ok((quoter, quote)) => render_quote(&quote, &quoter),
+                    Err(_) => format!("No quote found matching {}", query),
+                });
+            } else {
+                resp = Some(match self.quote_db.random_quote() {
+                    Ok((quoter, quote)) => render_quote(&quote, &quoter),
+                    Err(_) => "No quote found.".to_string(),
+                });
+            }
+
         }
 
         resp.map(|s| bot.reply(&event, &s));

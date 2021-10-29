@@ -101,4 +101,9 @@ impl Backend {
             Err(diesel::result::Error::NotFound)
         }
     }
+
+    pub fn search_quotes(&mut self, text: &str) -> QueryResult<Vec<Quote>> {
+        let qfilter = quotes.filter(qu::dsl::value.ilike(format!("%{}%", text)));
+        Ok(qfilter.load(&self.connection)?)
+    }
 }
