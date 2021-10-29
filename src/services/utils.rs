@@ -1,28 +1,22 @@
-use std::io::{BufReader, BufRead};
-use std::fs::File;
 use rand::Rng;
 
 const K: usize = 5;
 
-pub fn reservoir_sample<R: Rng>(f: File, mut rng: R) -> String {
-    let reader = BufReader::new(f);
+pub fn reservoir_sample<R: Rng, T: Clone + Default, E>(iterable: impl Iterator<Item=Result<T, E>>, rng: &mut R) -> Result<T, E> {
+    let mut reservoir: [T;K] = Default::default();
 
-    let mut reservoir: [String;K] = Default::default();
-
-    for (i, line) in reader.lines().enumerate() {
-        let l = line.unwrap();
-
+    for (i, row) in iterable.enumerate() {
         if i < K {
-            reservoir[i] = l;
+            reservoir[i] = row?;
         } else {
             let j = rng.gen_range(0..i);
             if j < K {
-                reservoir[j] = l;
+                reservoir[j] = row?;
             }
         }
     }
 
     let n = rng.gen_range(0..K);
 
-    reservoir[n].clone()
+    Ok(reservoir[n].clone())
 }
