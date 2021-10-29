@@ -10,7 +10,7 @@ pub mod tryfile;
 pub mod membership;
 pub mod admin;
 pub mod get_joined;
-pub mod old_quote;
+pub mod csv_quote;
 
 mod utils;
 mod schema;
