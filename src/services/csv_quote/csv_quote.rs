@@ -66,6 +66,21 @@ impl ReadQuote {
 
         Ok(None)
     }
+
+    fn search_quotes(&mut self, sub_str: &str) -> Result<Vec<i32>, Box<dyn Error>>{
+        let mut reader = csv::Reader::from_path("gb_quotes_all.csv")?;
+
+        let mut quotes = Vec::new();
+
+        for result in reader.deserialize() {
+            let record: OldQuote = result?;
+            if let Some(_) = record.text.find(sub_str) {
+                quotes.push(record.id);
+            }
+        }
+
+        Ok(quotes)
+    }
 }
 
 impl<'a> Node<'a> for ReadQuote {
@@ -88,28 +103,47 @@ impl<'a> Node<'a> for ReadQuote {
                 },
                 Err(_) => "Invalid quote id".to_string(),
             });
-        }
+        } else if body.starts_with("oldsearchquote ") {
+            let query = body[15..].trim();
 
-        else if body.starts_with("oldsearchquote ") {
-            let query = &body[15..];
+            if query.len() > 0 {
+                resp = Some(match self.search_quotes(&query) {
+                    Ok(quote_ids) => {
+                        if quote_ids.len() > 0 {
+                            let ids_str = quote_ids.into_iter()
+                                                   .map(|id| id.to_string())
+                                                   .collect::<Vec<String>>()
+                                                   .join(", ");
+                            format!("Matching quotes: {}", ids_str)
+                        } else {
+                            format!("No quotes found matching \"{}\"", query)
+                        }
+                    },
+                    Err(e) => e.to_string(),
+                });
+            } else {
+                resp = Some("oldsearchquote requires search terms".to_string());
+            }
+        } else if body.starts_with("oldrandquote") {
+            let query = body[12..].trim();
 
-            resp = Some(match self.search_quote(query) {
-                Ok(v) => match v {
-                    Some(s) => render_quote(&s),
-                    None => format!("No quote found matching {}", query)
-                },
-                Err(e) => e.to_string(),
-            });
-        }
-
-        else if body.starts_with("oldrandquote") {
-            resp = Some(match self.rand_quote() {
-                Ok(v) => match v {
-                    Some(s) => render_quote(&s),
-                    None => "No random quote found".to_string(),
-                },
-                Err(e) => e.to_string(),
-            });
+            if query.len() > 0 {
+                resp = Some(match self.search_quote(&query) {
+                    Ok(v) => match v {
+                        Some(s) => render_quote(&s),
+                        None => format!("No quote found matching {}", query)
+                    },
+                    Err(e) => e.to_string(),
+                });
+            } else {
+                resp = Some(match self.rand_quote() {
+                    Ok(v) => match v {
+                        Some(s) => render_quote(&s),
+                        None => "No quote found".to_string(),
+                    },
+                    Err(e) => e.to_string(),
+                });
+            }
         }
 
         resp.map(|s| bot.reply(&event, &s));
