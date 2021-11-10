@@ -12,6 +12,7 @@ pub mod admin;
 pub mod get_joined;
 pub mod csv_quote;
 pub mod help;
+pub mod user_filter;
 
 mod utils;
 mod schema;

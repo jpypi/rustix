@@ -25,6 +25,7 @@ use rustix::{
         get_joined::GetJoined,
         csv_quote::csv_quote,
         help::Help,
+        user_filter::UserFilter,
     },
 };
 
@@ -48,6 +49,7 @@ struct Bot {
     prefix: String,
     rooms: Vec<String>,
     admins: Vec<String>,
+    ignore: Vec<String>,
 }
 
 
@@ -71,11 +73,13 @@ fn main() {
 
     // Register services with the bot
     let sf = b.register_service("self_filter", None, Box::new(SelfFilter::new()));
+    let uf = b.register_service("user_filter", sf,
+                                 Box::new(UserFilter::new(config.bot.ignore)));
 
-    b.register_service("accept_invite", None, Box::new(AcceptInvite::new()));
-    b.register_service("karma_tracker", sf, Box::new(KarmaTracker::new()));
+    b.register_service("accept_invite", uf, Box::new(AcceptInvite::new()));
+    b.register_service("karma_tracker", uf, Box::new(KarmaTracker::new()));
 
-    let pf = b.register_service("prefix", sf,
+    let pf = b.register_service("prefix", uf,
                                 Box::new(Prefix::new(config.bot.prefix)));
 
     b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
