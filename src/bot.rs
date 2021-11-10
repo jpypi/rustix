@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::{result, thread, time};
 use std::cell::{RefCell, RefMut};
+use std::any::Any;
 
 use reqwest::blocking::{Response};
 
@@ -19,18 +20,20 @@ pub struct RoomEvent<'a> {
 }
 
 
-pub struct Bot <'a, 'b> {
+pub struct Bot<'a, 'b, 'c> {
     client: RefCell<&'b mut MatrixClient>,
     root_services: Vec<&'a str>,
     all_services: HashMap<&'a str, RefCell<Box<dyn Node<'a>>>>,
+    delayed_queries: RefCell<HashMap<&'c str, Box<dyn Fn(&mut dyn Node) -> Box<dyn Any> + 'c>>>,
 }
 
-impl<'a, 'b> Bot<'a, 'b> {
+impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
     pub fn new(client: &'b mut MatrixClient) -> Self {
         Bot {
             client: RefCell::new(client),
             root_services: Vec::new(),
             all_services: HashMap::new(),
+            delayed_queries: RefCell::new(HashMap::new()),
         }
     }
 
@@ -107,6 +110,25 @@ impl<'a, 'b> Bot<'a, 'b> {
         self.all_services.get(name).unwrap().borrow_mut()
     }
 
+    // Two stage query all method
+    pub fn delay_service_query<T: Fn(&mut dyn Node) -> Box<dyn Any> + 'c>(&self, node: &dyn Node, func: T) {
+        self.delayed_queries.borrow_mut().insert("help", Box::new(func));
+    }
+
+    fn process_delayed_queries(&mut self) {
+        for (query_service_name, func) in self.delayed_queries.borrow().iter() {
+            let mut results: Vec<(&str, Box<dyn Any>)> = Vec::new();
+            for (service_name, service) in &self.all_services {
+                results.push((service_name, func(&mut **service.borrow_mut())));
+            }
+            // Get the service
+            self.get_service(query_service_name).recieve_all_node_post(self, results);
+        }
+
+        self.delayed_queries = RefCell::new(HashMap::new());
+    }
+    // end
+
     pub fn propagate_event(&self, event: &RoomEvent) {
         for service in &self.root_services {
             self.all_services.get(service).unwrap()
@@ -169,6 +191,8 @@ impl<'a, 'b> Bot<'a, 'b> {
                         }
                     }
 
+                    self.process_delayed_queries();
+
                     next_batch = sync_data.next_batch;
                 },
                 Err(e) => {
@@ -183,6 +207,10 @@ impl<'a, 'b> Bot<'a, 'b> {
 
 
 pub trait Node<'a> {
+    fn description(&self) -> Option<String> {
+        None
+    }
+
     fn children(&self) -> Option<&Vec<&'a str>> {
         None
     }
@@ -200,6 +228,9 @@ pub trait Node<'a> {
 
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         self.propagate_event(bot, &event);
+    }
+
+    fn recieve_all_node_post(&mut self, bot: &Bot, result: Vec<(&str, Box<dyn Any>)>) {
     }
 
     fn on_load(&mut self) { }
