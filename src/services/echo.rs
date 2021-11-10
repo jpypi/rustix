@@ -36,4 +36,8 @@ impl<'a> Node<'a> for Echo<'a> {
 
         self.propagate_event(bot, &event);
     }
+
+    fn description(&self) -> Option<String> {
+        Some("echo - Replys with the argument passed.".to_string())
+    }
 }

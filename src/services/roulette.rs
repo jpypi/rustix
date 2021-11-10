@@ -59,4 +59,8 @@ impl<'a> Node<'a> for Roulette {
             }
         }
     }
+
+    fn description(&self) -> Option<String> {
+        Some("roulette - Six chambers; don't die.".to_string())
+    }
 }

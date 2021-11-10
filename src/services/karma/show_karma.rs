@@ -57,4 +57,8 @@ impl<'a> Node<'a> for ShowKarma<'a> {
             }
         }
     }
+
+    fn description(&self) -> Option<String> {
+        Some("karma - View karma stats for anything. (e.g. !karma matrix bots)".to_string())
+    }
 }

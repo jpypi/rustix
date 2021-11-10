@@ -24,6 +24,7 @@ use rustix::{
         admin::Admin,
         get_joined::GetJoined,
         csv_quote::csv_quote,
+        help::Help,
     },
 };
 
@@ -85,6 +86,7 @@ fn main() {
     b.register_service("roulette", pf, Box::new(Roulette::new()));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
     b.register_service("try_file", pf, Box::new(TryFile::new()));
+    b.register_service("help", pf, Box::new(Help::new()));
 
     let adm = b.register_service("admin", pf,
                                  Box::new(Admin::new(config.bot.admins)));

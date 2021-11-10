@@ -148,6 +148,12 @@ impl<'a> Node<'a> for ReadQuote {
 
         resp.map(|s| bot.reply(&event, &s));
     }
+
+    fn description(&self) -> Option<String> {
+        Some("oldgetquote - Get a specific quote by id. Pass a valid integer quote id as the only argument.\n\
+              oldsearchquote - Performs string search using provided argument (may contain spaces) and returns all quote ids.\n\
+              oldrandquote - Returns a random quote. Random quotes can be filtered by a string search using an optional provided argument.".to_string())
+    }
 }
 
 
