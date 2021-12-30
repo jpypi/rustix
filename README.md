@@ -45,7 +45,8 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - addquote \<quote here\>
 - getquote \<quote number\>
 - \*delquote \<quote number\>
-- randquote
+- randquote \<optional string to filter\>
+- searchquote \<string to search\>
 - roulette
 - choose \<item1\> \<item2\> ... \<itemN\>
 - echo \<string\>
@@ -65,6 +66,28 @@ This allows for invocation like `!timecube` which will echo a random line from
 is if one were to place a file named `randquote.txt` in `var`, both the
 randquote function will be executed and a random line from `randquote.txt` will
 be echoed.
+
+# Config
+
+Rustix expects a file named `config.toml` to be in the current working
+directory. This file should look something like this:
+
+```
+[connection]
+server = "https://matrix.my.domain.com/"
+username = "rustix"
+password = "mySecr3tPassword"
+
+[bot]
+display_name = "rustix"
+prefix = "!"
+rooms = ["general", "rust", "memes"]
+admins = ["@myself:cclub.cs.wmich.edu"]
+ignore = ["@bot1:cclub.cs.wmich.edu", "@bot2:cclub.cs.wmich.edu"]
+```
+
+Rustix will ignore all events by users in the ignore list, not just ignore
+commands.
 
 # Note
 

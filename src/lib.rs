@@ -16,6 +16,7 @@ extern crate diesel;
 
 mod matrix_types;
 mod errors;
+pub mod config;
 pub mod client;
 pub mod bot;
 

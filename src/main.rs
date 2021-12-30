@@ -1,14 +1,8 @@
-#[macro_use]
-extern crate serde_derive;
-extern crate toml;
-
-extern crate rustix;
-
-use std::io::Read;
-use std::fs::File;
+//extern crate rustix;
 
 use rustix::{
     bot,
+    config,
     client::MatrixClient,
     services:: {
         echo::Echo,
@@ -30,36 +24,9 @@ use rustix::{
 };
 
 
-#[derive(Deserialize, Debug)]
-struct Config {
-    connection: Connection,
-    bot: Bot,
-}
-
-#[derive(Deserialize, Debug)]
-struct Connection {
-    server: String,
-    username: String,
-    password: String,
-}
-
-#[derive(Deserialize, Debug)]
-struct Bot {
-    display_name: String,
-    prefix: String,
-    rooms: Vec<String>,
-    admins: Vec<String>,
-    ignore: Vec<String>,
-}
-
-
 fn main() {
     // Load config
-    let mut f = File::open("config.toml").expect("auth file not found");
-    let mut config_data = String::new();
-    f.read_to_string(&mut config_data).expect("Couldn't read config.toml");
-
-    let config: Config = toml::from_str(&config_data).expect("Bad config.toml");
+    let config = config::load_config("config.toml");
 
     // Set up a matrix HTTP client
     let mut m = MatrixClient::new(&config.connection.server);
