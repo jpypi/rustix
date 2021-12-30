@@ -107,8 +107,14 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         Some(name)
     }
 
+    // TODO: This should be a Result and use ? instead of .unwrap()
     pub fn get_service(&self, name: &str) -> RefMut<Box<dyn Node<'a>>> {
         self.all_services.get(name).unwrap().borrow_mut()
+    }
+
+    pub fn get_service_names(&self) -> Vec<&str> {
+        let keys = self.all_services.keys();
+        keys.map(|k| *k).collect()
     }
 
     // Two stage query all method
