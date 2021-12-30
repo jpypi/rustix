@@ -66,7 +66,7 @@ fn main() {
 
     m.login(&config.connection.username,
             &config.connection.password).expect("login failed!");
-    m.set_display_name(&config.bot.display_name).unwrap();
+    m.set_displayname(&config.bot.display_name).unwrap();
 
     // Create a new bot
     let mut b = bot::Bot::new(&mut m);

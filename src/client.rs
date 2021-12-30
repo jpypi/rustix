@@ -214,7 +214,7 @@ impl MatrixClient {
                         None, None)
     }
 
-    pub fn set_display_name(&self, name: &str) -> Result<Response> {
+    pub fn set_displayname(&self, name: &str) -> Result<Response> {
         let data = hashmap! {
             "displayname" => name,
         };

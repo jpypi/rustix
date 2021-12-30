@@ -82,10 +82,11 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
     /*
     pub fn action(&self, room_id: &str, action: &str) {
     }
-
-    pub fn set_name(&self, name: &str) {
-    }
     */
+
+    pub fn set_displayname(&self, name: &str) {
+        self.client.borrow_mut().set_displayname(name);
+    }
 
     pub fn register_service(&mut self,
                             name: &'a str,
