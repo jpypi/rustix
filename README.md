@@ -82,8 +82,8 @@ password = "mySecr3tPassword"
 display_name = "rustix"
 prefix = "!"
 rooms = ["general", "rust", "memes"]
-admins = ["@myself:cclub.cs.wmich.edu"]
-ignore = ["@bot1:cclub.cs.wmich.edu", "@bot2:cclub.cs.wmich.edu"]
+admins = ["@myself:matrix.my.domain.com"]
+ignore = ["@bot1:matrix.my.domain.com", "@bot2:matrix.my.domain.com"]
 ```
 
 Rustix will ignore all events by users in the ignore list, not just ignore
