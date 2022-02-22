@@ -1,12 +1,9 @@
-//extern crate rustix;
-
 use rustix::{
     bot,
     config,
     client::MatrixClient,
-    services:: {
+    services::{
         echo::Echo,
-        self_filter::SelfFilter,
         karma::*,
         quote::{read_quote, del_quote},
         prefix::Prefix,
@@ -19,9 +16,12 @@ use rustix::{
         get_joined::GetJoined,
         csv_quote::csv_quote,
         help::Help,
-        user_filter::UserFilter,
-        message_type_filter::MessageTypeFilter,
     },
+    filters::{
+        SelfFilter,
+        UserFilter,
+        MessageTypeFilter,
+    }
 };
 
 

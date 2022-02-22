@@ -22,3 +22,4 @@ pub mod client;
 pub mod bot;
 
 pub mod services;
+pub mod filters;
