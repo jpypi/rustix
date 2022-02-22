@@ -20,6 +20,10 @@ impl<'a> Node<'a> for Join {
             }
         }
     }
+
+    fn description(&self) -> Option<String> {
+        Some("join - Command the bot to join a room.".to_string())
+    }
 }
 
 
@@ -45,6 +49,10 @@ impl<'a> Node<'a> for Leave {
                 bot.reply(&event, &resp);
             }
         }
+    }
+
+    fn description(&self) -> Option<String> {
+        Some("leave - Command the bot to leave a room.".to_string())
     }
 }
 
