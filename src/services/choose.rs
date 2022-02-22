@@ -31,5 +31,4 @@ impl<'a> Node<'a> for Choose {
     fn description(&self) -> Option<String> {
         Some("choose - Randomly selects from a space separated list of items.".to_string())
     }
-
 }

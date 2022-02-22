@@ -6,6 +6,7 @@ extern crate dotenv;
 extern crate rand;
 extern crate chrono;
 extern crate http;
+extern crate url;
 
 #[macro_use]
 extern crate serde_derive;

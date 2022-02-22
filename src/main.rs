@@ -20,6 +20,7 @@ use rustix::{
         csv_quote::csv_quote,
         help::Help,
         user_filter::UserFilter,
+        message_type_filter::MessageTypeFilter,
     },
 };
 
@@ -39,14 +40,22 @@ fn main() {
     let mut b = bot::Bot::new(&mut m);
 
     // Register services with the bot
-    let sf = b.register_service("self_filter", None, Box::new(SelfFilter::new()));
+    let sf = b.register_service("self_filter", None,
+                                Box::new(SelfFilter::new(
+                                        &config.connection.username,
+                                        &config.connection.server
+                                    )));
     let uf = b.register_service("user_filter", sf,
-                                 Box::new(UserFilter::new(config.bot.ignore)));
+                                Box::new(UserFilter::new(config.bot.ignore)));
 
     b.register_service("accept_invite", uf, Box::new(AcceptInvite::new()));
-    b.register_service("karma_tracker", uf, Box::new(KarmaTracker::new()));
 
-    let pf = b.register_service("prefix", uf,
+    let mt = b.register_service("message_type_filter", uf,
+                                Box::new(MessageTypeFilter::new()));
+
+    b.register_service("karma_tracker", mt, Box::new(KarmaTracker::new()));
+
+    let pf = b.register_service("prefix", mt,
                                 Box::new(Prefix::new(config.bot.prefix)));
 
     b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
