@@ -4,16 +4,25 @@ use crate::bot::{Bot, Node, RoomEvent};
 
 const SIZE:usize = 6;
 
+#[derive(PartialEq)]
+pub enum RouletteLevel{
+    Kick,
+    Ban,
+}
+
 pub struct Roulette {
     rounds: [u8; SIZE],
     state: u8,
+    level: RouletteLevel,
 }
 
 impl Roulette {
-    pub fn new() -> Self {
+    // If no value is provided, default to false
+    pub fn new(level: RouletteLevel) -> Self {
         let mut x = Self {
             rounds: [0; SIZE],
             state: 0,
+            level: level,
         };
 
         Self::reset(&mut x);
@@ -45,13 +54,17 @@ impl<'a> Node<'a> for Roulette {
 
             let body = revent.content["body"].as_str().unwrap();
 
-            if body.starts_with("roulette") {
+            if (self.level == RouletteLevel::Ban && body.starts_with("rroulette")) ||
+               body.starts_with("roulette") {
                 println!("Found roulette state: {}, rounds: {:?}", self.state, self.rounds);
 
                 match self.fire() {
                     true => {
                         self.reset();
-                        bot.kick(event.room_id, &revent.sender, Some("Bang!"));
+                        match &self.level {
+                            Kick => bot.kick(event.room_id, &revent.sender, Some("Bang!")),
+                            Ban => bot.ban(event.room_id, &revent.sender, Some("Bang!")),
+                        }
                         bot.reply(&event, "bang!")
                     },
                     false => bot.reply(&event, "click"),
@@ -61,6 +74,9 @@ impl<'a> Node<'a> for Roulette {
     }
 
     fn description(&self) -> Option<String> {
-        Some("roulette - Six chambers; don't die.".to_string())
+        match &self.level {
+            Kick => Some("roulette - Six chambers; don't mostly die.".to_string()),
+            Ban => Some("rroulette - Six chambers; don't die.".to_string()),
+        }
     }
 }

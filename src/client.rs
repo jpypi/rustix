@@ -257,6 +257,20 @@ impl MatrixClient {
         self.auth_query(Method::POST, &path, None, Some(&data))
     }
 
+    pub fn ban(&self, room_id: &str, user_id: &str, reason: Option<&str>) -> Result<Response> {
+        let path = format!("/rooms/{}/ban", room_id);
+
+        let mut data = hashmap! {
+            "user_id" => user_id,
+        };
+
+        if let Some(r) = reason {
+            data.insert("reason", r);
+        }
+
+        self.auth_query(Method::POST, &path, None, Some(&data))
+    }
+
     pub fn get_joined(&self) -> Result<JoinedRooms> {
         match self.auth_get("/joined_rooms", None) {
             Ok(resp) => match resp.json() {

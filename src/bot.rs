@@ -79,6 +79,10 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         self.client.borrow().kick(room_id, user_id, reason);
     }
 
+    pub fn ban(&self, room_id: &str, user_id: &str, reason: Option<&str>) {
+        self.client.borrow().ban(room_id, user_id, reason);
+    }
+
     /*
     pub fn action(&self, room_id: &str, action: &str) {
     }

@@ -8,7 +8,7 @@ use rustix::{
         quote::{read_quote, del_quote},
         prefix::Prefix,
         choose::Choose,
-        roulette::Roulette,
+        roulette::{Roulette, RouletteLevel},
         crypto_coin::CryptoCoin,
         tryfile::TryFile,
         membership::{Join, Leave, AcceptInvite},
@@ -63,7 +63,8 @@ fn main() {
     b.register_service("read_quote", pf, Box::new(read_quote::ReadQuote::new()));
     b.register_service("csv_quotes", pf, Box::new(csv_quote::ReadQuote::new()));
     b.register_service("choose", pf, Box::new(Choose::new()));
-    b.register_service("roulette", pf, Box::new(Roulette::new()));
+    b.register_service("roulette", pf, Box::new(Roulette::new(RouletteLevel::Kick)));
+    b.register_service("rroulette", pf, Box::new(Roulette::new(RouletteLevel::Ban)));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
     b.register_service("try_file", pf, Box::new(TryFile::new()));
     b.register_service("help", pf, Box::new(Help::new()));
