@@ -77,24 +77,6 @@ impl MatrixClient {
         };
 
         Ok(request.send()?)
-
-        /*
-        match method {
-            Method::GET => {
-                client.get(&url)?.send()
-            },
-            POST => {
-                client.post(&url)?
-                      .header(CONTENT_TYPE::json())
-                      .json(data.unwrap_or(&nothing)).unwrap().send()
-            }
-            PUT => {
-                client.put(&url)?
-                      .header(CONTENT_TYPE::json())
-                      .json(data.unwrap_or(&nothing)).unwrap().send()
-            }
-        }
-        */
     }
 
     pub fn auth_query(&self,
