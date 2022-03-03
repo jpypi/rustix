@@ -45,9 +45,13 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - addquote \<quote here\>
 - getquote \<quote number\>
 - \*delquote \<quote number\>
-- randquote \<optional string to filter\>
+- randquote \<optional string search\>
 - searchquote \<string to search\>
+- oldgetquote \<quote number\>
+- oldrandquote \<optional string search\>
+- oldsearchquote \<string search\>
 - roulette
+- rroulette
 - choose \<item1\> \<item2\> ... \<itemN\>
 - echo \<string\>
 - karma \<entity\>
@@ -91,7 +95,8 @@ commands.
 
 # Note
 
-This is one of my first rust projects, thus style is still iterating towards
-idiomatic. If you see something that could be improved (I'm sure there are many
-things that could be), by all means, please open an issue and/or PR! I'm open to
-feedback, and I would love to improve this project!
+This is one of my first rust projects. Though I try to keep up with idiomatic
+rust, I'd advise caution using this as an idiomatic reference.  If you see
+something that could be improved (I'm sure there are many things), by all means,
+please open an issue and/or PR! I'm open to feedback, and I would love to
+improve this project!
