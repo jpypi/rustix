@@ -16,9 +16,7 @@ pub struct NewUser<'a> {
 
 // ------------
 
-#[derive(Queryable)]
-#[derive(Identifiable)]
-#[derive(AsChangeset)]
+#[derive(Queryable, Identifiable, AsChangeset)]
 pub struct Quote {
     pub id: i32,
     pub quoter_id: i32,
