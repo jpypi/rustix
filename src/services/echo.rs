@@ -28,7 +28,7 @@ impl<'a> Node<'a> for Echo<'a> {
             let body = &revent.content["body"].as_str().unwrap();
             let sender = &revent.sender;
             if body.starts_with("echo ") {
-                bot.reply(&event, &body[5..]);
+                bot.reply(&event, &body[5..]).ok();
             }
 
             println!("<{}> | {}", sender, body);

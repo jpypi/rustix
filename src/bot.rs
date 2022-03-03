@@ -75,12 +75,12 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         self.say(event.room_id, message)
     }
 
-    pub fn kick(&self, room_id: &str, user_id: &str, reason: Option<&str>) {
-        self.client.borrow().kick(room_id, user_id, reason);
+    pub fn kick(&self, room_id: &str, user_id: &str, reason: Option<&str>) -> Result<Response> {
+        self.client.borrow().kick(room_id, user_id, reason)
     }
 
-    pub fn ban(&self, room_id: &str, user_id: &str, reason: Option<&str>) {
-        self.client.borrow().ban(room_id, user_id, reason);
+    pub fn ban(&self, room_id: &str, user_id: &str, reason: Option<&str>) -> Result<Response> {
+        self.client.borrow().ban(room_id, user_id, reason)
     }
 
     /*
@@ -88,8 +88,8 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
     }
     */
 
-    pub fn set_displayname(&self, name: &str) {
-        self.client.borrow_mut().set_displayname(name);
+    pub fn set_displayname(&self, name: &str) -> Result<Response> {
+        self.client.borrow_mut().set_displayname(name)
     }
 
     pub fn register_service(&mut self,
@@ -151,9 +151,11 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         for room in initial_rooms {
             if let Some(rid) = self.client.borrow().get_public_room_id(room) {
                 println!("Joining {} id: {}", &room, &rid);
-                self.join(&rid);
+                if let Err(_) = self.join(&rid) {
+                    println!("Could not join room");
+                }
             } else {
-                println!("Could not join room {}", &room);
+                println!("Failure to find public room room {}", &room);
             }
         }
 
@@ -226,6 +228,7 @@ pub trait Node<'a> {
         None
     }
 
+    #[allow(unused_variables)]
     fn register_child(&mut self, name: &'a str) {
     }
 
@@ -241,6 +244,7 @@ pub trait Node<'a> {
         self.propagate_event(bot, &event);
     }
 
+    #[allow(unused_variables)]
     fn recieve_all_node_post(&mut self, bot: &Bot, result: Vec<(&str, Box<dyn Any>)>) {
     }
 

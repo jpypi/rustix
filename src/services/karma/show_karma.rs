@@ -45,10 +45,10 @@ impl<'a> Node<'a> for ShowKarma<'a> {
                     let response = format!("Karma for '{}': Net karma: {} (+{}/-{}; {:.1}% like it)",
                         query, total, k.total_up, k.total_down, positive
                     );
-                    bot.reply(&event, &response);
+                    bot.reply(&event, &response).ok();
                 } else {
                     let response = format!("Karma for '{}': Net karma: 0 (+0/-0 0% like it)", query);
-                    bot.reply(&event, &response);
+                    bot.reply(&event, &response).ok();
                 }
             }
 

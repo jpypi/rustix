@@ -31,7 +31,7 @@ impl<'a> Node<'a> for Help {
     fn recieve_all_node_post(&mut self, bot: &Bot, result: Vec<(&str, Box<dyn Any>)>) {
         let mut help_strings: Vec<String> = Vec::new();
 
-        for (node, value) in result {
+        for (_, value) in result {
             let mut opt_v = value.downcast::<Option<String>>().unwrap();
             if let Some(v) = opt_v.take() {
                 help_strings.push(v);
@@ -40,7 +40,7 @@ impl<'a> Node<'a> for Help {
 
         if let Some(e) = &self.reply_id {
             let response = help_strings.join("\n");
-            bot.say(e, &response);
+            bot.say(e, &response).ok();
             self.reply_id = None;
         }
     }

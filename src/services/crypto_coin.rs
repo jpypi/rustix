@@ -26,7 +26,7 @@ impl<'a> Node<'a> for CryptoCoin {
 
             if let Some(m) = re.captures(body) {
                 let ticker = m.get(1).unwrap().as_str().to_uppercase();
-                bot.reply(&event, &price_string(&ticker));
+                bot.reply(&event, &price_string(&ticker)).ok();
             }
         }
     }

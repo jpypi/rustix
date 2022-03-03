@@ -36,11 +36,10 @@ impl<'a> Node<'a> for TryFile {
                 Ok(d) => {
                     let reader = BufReader::new(d);
                     if let Ok(v) = reservoir_sample(reader.lines(), &mut self.rng) {
-                        bot.reply(&event, &v);
+                        bot.reply(&event, &v).ok();
                     }
                 },
                 Err(_) => (),
-                //{ println!("Tried to open: \"{}\" failed: {:?}", body, e); }
             };
         }
     }

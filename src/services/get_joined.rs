@@ -17,11 +17,11 @@ impl<'a> Node<'a> for GetJoined {
                 Ok(rooms) => {
                     let resp = format!("Currently in rooms: {}",
                                        rooms.joined_rooms.join(", "));
-                    bot.reply(&event, &resp);
+                    bot.reply(&event, &resp).ok();
                 },
                 Err(e) => {
                     let resp = format!("{:?}", e);
-                    bot.reply(&event, &resp);
+                    bot.reply(&event, &resp).ok();
                 },
             };
         }

@@ -16,7 +16,7 @@ impl<'a> Node<'a> for Join {
             let room_name = &body[5..];
             if let Err(_) = bot.join_public(room_name) {
                 let resp = format!("Could not join: {}", room_name);
-                bot.reply(&event, &resp);
+                bot.reply(&event, &resp).ok();
             }
         }
     }
@@ -41,12 +41,12 @@ impl<'a> Node<'a> for Leave {
         if body.starts_with("leave") {
             let room_name = &body[5..].trim_start();
             if room_name.len() == 0 {
-                bot.leave(&event.room_id);
+                bot.leave(&event.room_id).ok();
             }
 
             if let Err(_) = bot.leave_public(room_name) {
                 let resp = format!("Could not leave room: {}", room_name);
-                bot.reply(&event, &resp);
+                bot.reply(&event, &resp).ok();
             }
         }
     }
