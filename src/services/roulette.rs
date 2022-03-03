@@ -62,12 +62,12 @@ impl<'a> Node<'a> for Roulette {
                     true => {
                         self.reset();
                         match &self.level {
-                            Kick => bot.kick(event.room_id, &revent.sender, Some("Bang!")),
-                            Ban => bot.ban(event.room_id, &revent.sender, Some("Bang!")),
-                        }
-                        bot.reply(&event, "bang!")
+                            RouletteLevel::Kick => bot.kick(event.room_id, &revent.sender, Some("Bang!")),
+                            RouletteLevel::Ban => bot.ban(event.room_id, &revent.sender, Some("Bang!")),
+                        }.ok();
+                        bot.reply(&event, "Bang!").ok()
                     },
-                    false => bot.reply(&event, "click"),
+                    false => bot.reply(&event, "Click.").ok(),
                 };
             }
         }
@@ -75,8 +75,8 @@ impl<'a> Node<'a> for Roulette {
 
     fn description(&self) -> Option<String> {
         match &self.level {
-            Kick => Some("roulette - Six chambers; don't mostly die.".to_string()),
-            Ban => Some("rroulette - Six chambers; don't die.".to_string()),
+            RouletteLevel::Kick => Some("roulette - Six chambers; don't mostly die.".to_string()),
+            RouletteLevel::Ban => Some("rroulette - Six chambers; don't die.".to_string()),
         }
     }
 }
