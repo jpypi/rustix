@@ -55,7 +55,7 @@ impl<'a> Node<'a> for Roulette {
             let body = revent.content["body"].as_str().unwrap();
 
             if (self.level == RouletteLevel::Ban && body.starts_with("rroulette")) ||
-               body.starts_with("roulette") {
+               (self.level == RouletteLevel::Kick && body.starts_with("roulette")) {
                 println!("Found roulette state: {}, rounds: {:?}", self.state, self.rounds);
 
                 match self.fire() {
