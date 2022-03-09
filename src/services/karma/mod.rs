@@ -59,7 +59,9 @@ impl<'a> Node<'a> for KarmaTracker {
         }
 
         for (k, v) in votes.iter() {
-            self.vote_db.vote(&event.sender, k, v.up, v.down);
+            if let Err(e) = self.vote_db.vote(&event.sender, k, v.up, v.down) {
+                println!("Error while trying to vote: {:?}", e);
+            }
         }
     }
 }

@@ -1,11 +1,22 @@
 use std::env;
 
 use dotenv::dotenv;
-use diesel::prelude::*;
-use diesel::pg::PgConnection;
+use diesel::{
+    pg::PgConnection,
+    prelude::*,
+};
 
-use crate::services::schema;
+use crate::services::schema::{
+    users,
+    users::dsl as us,
+    voteables,
+    voteables::dsl::*,
+    votes,
+    votes::dsl as vts,
+};
+
 use super::models::*;
+
 
 pub struct Backend {
     connection: PgConnection
@@ -25,12 +36,10 @@ impl Backend {
         }
     }
 
-    pub fn vote(&self, user: &str, entity: &str, up: i32, down: i32) {
-        use self::schema::{users, voteables, votes};
+    pub fn vote(&self, user: &str, entity: &str, up: i32, down: i32) -> QueryResult<()> {
 
         let entity = &entity.to_lowercase();
 
-        use self::schema::users::dsl as us;
         let mut res: Vec<User> = us::users.filter(us::user_id.eq(user))
                                           .load(&self.connection).unwrap();
         let user = match res.len() {
@@ -44,9 +53,8 @@ impl Backend {
             _ => res.pop().unwrap(),
         };
 
-        use self::schema::voteables::dsl::*;
         let mut res: Vec<Voteable> = voteables.filter(value.eq(entity))
-                                              .load(&self.connection).unwrap();
+                                              .load(&self.connection)?;
         let mut voteable = match res.len() {
             0 => {
                 let new_voteable = NewVoteable {
@@ -55,25 +63,17 @@ impl Backend {
                     total_down: 0,
                 };
 
-                let res = diesel::insert_into(voteables::table)
-                                  .values(&new_voteable)
-                                  .get_result(&self.connection);
-
-                if let Err(_) = res{
-                    return;
-                }
-
-                res.unwrap()
+                diesel::insert_into(voteables::table)
+                        .values(&new_voteable)
+                        .get_result(&self.connection)?
             },
-
             _ => res.pop().unwrap(),
         };
 
         voteable.total_up += up;
         voteable.total_down += down;
-        voteable.save_changes::<Voteable>(&self.connection);
+        voteable.save_changes::<Voteable>(&self.connection)?;
 
-        use crate::services::schema::votes::dsl as vts;
         let mut res: Vec<Vote> = vts::votes.filter(vts::user_id.eq(user.id))
                                            .filter(vts::voteable_id.eq(voteable.id))
                                            .load(&self.connection).unwrap();
@@ -95,12 +95,12 @@ impl Backend {
 
         vote.up += up;
         vote.down += down;
-        vote.save_changes::<Vote>(&self.connection);
+        vote.save_changes::<Vote>(&self.connection)?;
+
+        Ok(())
     }
 
     pub fn get_upvotes(&self, entity: &str) -> Option<Voteable> {
-        use self::schema::voteables::dsl::*;
-
         let entity = &entity.to_lowercase();
 
         let mut res = voteables.filter(value.eq(entity))
