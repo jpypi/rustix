@@ -47,12 +47,13 @@ impl<'a> Node<'a> for ReadQuote {
             if query.len() > 0 {
                 resp = Some(match self.quote_db.search_quotes(query) {
                     Ok(quotes) => {
-                        if quotes.len() > 0 {
+                        let n_quotes = quotes.len();
+                        if n_quotes > 0 {
                             let quot_ids = quotes.into_iter()
                                                  .map(|q| q.id.to_string())
                                                  .collect::<Vec<String>>()
                                                  .join(", ");
-                            format!("Matching quotes: {}", quot_ids)
+                            format!("Found {} quotes: {}", n_quotes, quot_ids)
                         } else {
                             format!("No quotes found matching \"{}\"", query)
                         }
@@ -76,7 +77,6 @@ impl<'a> Node<'a> for ReadQuote {
                     Err(_) => "No quote found.".to_string(),
                 });
             }
-
         }
 
         resp.map(|s| bot.reply(&event, &s));
