@@ -90,6 +90,10 @@ prefix = "!"
 rooms = ["general", "rust", "memes"]
 admins = ["@myself:matrix.my.domain.com"]
 ignore = ["@bot1:matrix.my.domain.com", "@bot2:matrix.my.domain.com"]
+
+[services]
+[services.try_file]
+directory = "var"
 ```
 
 Rustix will ignore all events by users in the ignore list, not just ignore

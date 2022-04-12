@@ -46,7 +46,7 @@ fn main() {
                                         &config.connection.server
                                     )));
     let uf = b.register_service("user_filter", sf,
-                                Box::new(UserFilter::new(config.bot.ignore)));
+                                Box::new(UserFilter::new(config.bot.ignore.clone())));
 
     b.register_service("accept_invite", uf, Box::new(AcceptInvite::new()));
 
@@ -56,7 +56,7 @@ fn main() {
     b.register_service("karma_tracker", mt, Box::new(KarmaTracker::new()));
 
     let pf = b.register_service("prefix", mt,
-                                Box::new(Prefix::new(config.bot.prefix)));
+                                Box::new(Prefix::new(config.bot.prefix.clone())));
 
     b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
     b.register_service("echo", pf, Box::new(Echo::new()));
@@ -66,7 +66,10 @@ fn main() {
     b.register_service("roulette", pf, Box::new(Roulette::new(RouletteLevel::Kick)));
     b.register_service("rroulette", pf, Box::new(Roulette::new(RouletteLevel::Ban)));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
-    b.register_service("try_file", pf, Box::new(TryFile::new()));
+
+    let try_file_cfg = config.services.as_ref().and_then(|s| s.get("try_file"));
+    b.register_service("try_file", pf, Box::new(TryFile::new(try_file_cfg)));
+
     b.register_service("help", pf, Box::new(Help::new()));
 
     let adm = b.register_service("admin", pf,

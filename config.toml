@@ -8,3 +8,8 @@ display_name = "rustix"
 prefix = "!"
 rooms = ["rustixtesting"]
 admins = ["@me:matrix.org"]
+ignore = ["@bot1:matrix.my.domain.com", "@bot2:matrix.my.domain.com"]
+
+[services]
+[services.try_file]
+directory = "var"

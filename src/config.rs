@@ -1,11 +1,14 @@
 use std::io::Read;
 use std::fs::File;
 
+use toml::value::Table;
+
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
     pub connection: Connection,
     pub bot: Bot,
+    pub services: Option<Table>,
 }
 
 #[derive(Deserialize, Debug)]
