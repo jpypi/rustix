@@ -59,17 +59,19 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - \*join \<public channel display name\>
 - \*leave \<public channel display name\>
 - \*joined
+- help
 
 \**Command is under the admin node and requires message sender to be in the
 admin list specified in `config.toml`*
 
-There is also TryFile, which attempts to look for file named `*.txt` in the
-`var` folder in the current working directory and echo a random line from it.
-This allows for invocation like `!timecube` which will echo a random line from
-`var/timecube.txt`. If there is a name collision both things will happen, that
-is if one were to place a file named `randquote.txt` in `var`, both the
-randquote function will be executed and a random line from `randquote.txt` will
-be echoed.
+There is also TryFile, which attempts to look for file matching
+`!<command name>` to a file `<command name>.txt` in the `var` folder in the
+current working directory and echo a random line from it. This allows for
+invocation like `!timecube` which will echo a random line from
+`var/timecube.txt`.  N.B. If there is a command name collision both matched
+commands will trigger, that is if one were to place a file named `randquote.txt`
+in `var`, both the randquote function will be executed and a random line from
+`randquote.txt` will be echoed.
 
 # Config
 
@@ -95,8 +97,6 @@ commands.
 
 # Note
 
-This is one of my first rust projects. Though I try to keep up with idiomatic
-rust, I'd advise caution using this as an idiomatic reference.  If you see
-something that could be improved (I'm sure there are many things), by all means,
-please open an issue and/or PR! I'm open to feedback, and I would love to
-improve this project!
+If you see something that could be improved (I'm sure there are many things), by
+all means, please open an issue and/or PR! I'm open to feedback, and I would
+love to improve this project!
