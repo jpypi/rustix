@@ -1,0 +1,47 @@
+version: "3.3"
+
+
+services:
+  rustix:
+    image: perplexinglabs/rustix:0.1
+    depends_on:
+      - pg-database
+    environment:
+      - DATABASE_URL=postgres://postgres:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@pg-database/postgres
+    networks:
+      postgres:
+    volumes:
+      - rustix-data:/usr/share/rustix
+
+  pg-database:
+    image: postgres:13.6-alpine3.15
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST_AUTH_METHOD=scram-sha-256
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    networks:
+      postgres:
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+  db-migration:
+    image: perplexinglabs/rustix-diesel:0.1
+    command: diesel migration run
+    depends_on:
+      - pg-database
+    environment:
+      - DATABASE_URL=postgres://postgres:${POSTGRES_PASSWORD}@pg-database/postgres
+    networks:
+      postgres:
+    profiles:
+      - setup
+
+
+networks:
+  postgres:
+    driver: bridge
+
+
+volumes:
+  pg-data:
+  rustix-data:

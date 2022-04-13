@@ -99,6 +99,39 @@ directory = "var"
 Rustix will ignore all events by users in the ignore list, not just ignore
 commands.
 
+# Docker
+
+Rustix is easy to run in docker. There is a Makefile which contains commands
+which aid in an easy rustix docker setup. There are a few assumptions made here:
+
+1. Make is installed
+2. `services.try_file.directory` in `config.toml` is set to `/usr/share/rustix`
+3. Docker and docker-compose are both installed and setup
+
+### Step 1
+
+Run `make rustix` to build the main rustix image
+
+### Step 2
+
+Run `make migration` to build the db migration script image
+
+### Step 3
+
+Run `make setup` to generate a database password, launch rustix and the db
+migration container, copy files from `var` in to the appropriate volume, and
+finally remove the migration container.
+
+Rustix should now be running. From here you can easily run `make up`, `make
+down`, `make stop` and `make start` to manage the deployment respectively.
+
+*NOTE:* Upon running this command a file named `.pw_lock` will be created which
+contains the password to the postgres database which rustix is using. This file
+could alternately be created before running `make setup` and set to whatever you
+like, or removed and thus ephemeral.  Keeping it around allows stopping just the
+rustix container independent of the postgres container.
+
+
 # Note
 
 If you see something that could be improved (I'm sure there are many things), by
