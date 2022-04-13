@@ -74,14 +74,19 @@ impl Backend {
                              .get_result(&self.connection)
     }
 
-    pub fn random_quote(&mut self) -> QueryResult<(User, Quote)> {
-        let offset = self.rng.gen_range(0..quotes.count().get_result(&self.connection)?);
+    pub fn random_quote(&mut self) -> QueryResult<Option<(User, Quote)>> {
+        let n_quotes = quotes.count().get_result(&self.connection)?;
+        if n_quotes == 0 {
+            return Ok(None);
+        }
+
+        let offset = self.rng.gen_range(0..n_quotes);
 
         // Try to query for a quote using a random offset
         let qres: Quote = quotes.offset(offset).first(&self.connection)?;
         let ures = users.filter(us::dsl::id.eq(qres.quoter_id))
                             .first(&self.connection)?;
-        Ok((ures, qres))
+        Ok(Some((ures, qres)))
     }
 
     pub fn search_quote(&mut self, text: &str) -> QueryResult<(User, Quote)> {

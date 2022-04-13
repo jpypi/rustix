@@ -73,8 +73,8 @@ impl<'a> Node<'a> for ReadQuote {
                 });
             } else {
                 resp = Some(match self.quote_db.random_quote() {
-                    Ok((quoter, quote)) => render_quote(&quote, &quoter),
-                    Err(_) => "No quote found.".to_string(),
+                    Ok(Some((quoter, quote))) => render_quote(&quote, &quoter),
+                    Ok(None) | Err(_) => "No quote found.".to_string(),
                 });
             }
         }
