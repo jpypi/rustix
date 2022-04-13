@@ -106,10 +106,11 @@ of rustix a breeze. Before running this way, note the instructions make the
 following assumptions:
 
 1. Make is installed
-2. `services.try_file.directory` in `config.toml` is set to
+2. `config.toml` has been appropriately configured
+3. `services.try_file.directory` in `config.toml` is set to
    `"/usr/share/rustix"`
-3. Docker and docker-compose are both installed and setup
-4. Any files to be used with the tryfile service are in a folder named `var` in
+4. Docker and docker-compose are both installed and setup
+5. Any files to be used with the tryfile service are in a folder named `var` in
    the project root
 
 ### Step 1
