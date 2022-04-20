@@ -1,18 +1,18 @@
 use crate::bot::{Bot, Node, RoomEvent};
 
-pub struct Echo<'a> {
+pub struct Logger<'a> {
     children: Vec<&'a str>
 }
 
-impl<'a> Echo<'a> {
+impl<'a> Logger<'a> {
     pub fn new() -> Self {
         Self {
-            children: Vec::new()
+            children: Vec::new(),
         }
     }
 }
 
-impl<'a> Node<'a> for Echo<'a> {
+impl<'a> Node<'a> for Logger<'a> {
     fn children(&self) -> Option<&Vec<&'a str>> {
         Some(&self.children)
     }
@@ -26,15 +26,11 @@ impl<'a> Node<'a> for Echo<'a> {
 
         if revent.type_ == "m.room.message" && revent.content["msgtype"] == "m.text" {
             let body = &revent.content["body"].as_str().unwrap();
-            if body.starts_with("echo ") {
-                bot.reply(&event, &body[5..]).ok();
-            }
+            let sender = &revent.sender;
+
+            println!("<{}> | {}", sender, body);
         }
 
         self.propagate_event(bot, &event);
-    }
-
-    fn description(&self) -> Option<String> {
-        Some("echo - Replys with the argument passed.".to_string())
     }
 }

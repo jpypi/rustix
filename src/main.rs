@@ -16,6 +16,7 @@ use rustix::{
         get_joined::GetJoined,
         csv_quote::csv_quote,
         help::Help,
+        logging::Logger,
     },
     filters::{
         SelfFilter,
@@ -49,6 +50,7 @@ fn main() {
                                 Box::new(UserFilter::new(config.bot.ignore.clone())));
 
     b.register_service("accept_invite", uf, Box::new(AcceptInvite::new()));
+    b.register_service("logging", uf, Box::new(Logger::new()));
 
     let mt = b.register_service("message_type_filter", uf,
                                 Box::new(MessageTypeFilter::new()));
