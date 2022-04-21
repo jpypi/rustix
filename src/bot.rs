@@ -155,7 +155,7 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
                     println!("Could not join room");
                 }
             } else {
-                println!("Failure to find public room room {}", &room);
+                println!("Failure to find public room {}", &room);
             }
         }
 
