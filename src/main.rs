@@ -50,7 +50,6 @@ fn main() {
                                 Box::new(UserFilter::new(config.bot.ignore.clone())));
 
     b.register_service("accept_invite", uf, Box::new(AcceptInvite::new()));
-    b.register_service("logging", uf, Box::new(Logger::new()));
 
     let mt = b.register_service("message_type_filter", uf,
                                 Box::new(MessageTypeFilter::new()));
@@ -59,6 +58,8 @@ fn main() {
 
     let pf = b.register_service("prefix", mt,
                                 Box::new(Prefix::new(config.bot.prefix.clone())));
+
+    b.register_service("logging", pf, Box::new(Logger::new()));
 
     b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
     b.register_service("echo", pf, Box::new(Echo::new()));
