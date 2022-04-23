@@ -111,9 +111,15 @@ impl Backend {
         }
     }
 
-    pub fn voteables_rank(&self, n: i64) -> QueryResult<Vec<Voteable>> {
+    pub fn voteables_rank_desc(&self, n: i64) -> QueryResult<Vec<Voteable>> {
         voteables.order((total_up - total_down).desc())
-                                              .limit(n)
-                                              .load(&self.connection)
+                                               .limit(n)
+                                               .load(&self.connection)
+    }
+
+    pub fn voteables_rank_asc(&self, n: i64) -> QueryResult<Vec<Voteable>> {
+        voteables.order((total_up - total_down).asc())
+                                               .limit(n)
+                                               .load(&self.connection)
     }
 }

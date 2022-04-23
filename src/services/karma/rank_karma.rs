@@ -21,7 +21,7 @@ impl<'a> Node<'a> for RankKarma {
             revent.content["msgtype"] == "m.text" {
             let body = revent.content["body"].as_str().unwrap().trim();
             if body.starts_with("kkarma") {
-                if let Ok(rankings) = self.vote_db.voteables_rank(10) {
+                if let Ok(rankings) = self.vote_db.voteables_rank_desc(10) {
                     let mut response = String::new();
                     for (i, r) in rankings.iter().enumerate() {
                         let item = format!("{}. '{}' with {} (+{}/-{});",
@@ -36,6 +36,25 @@ impl<'a> Node<'a> for RankKarma {
                     bot.reply(&event, &response).ok();
                 }
             }
+
+            if body.starts_with("lkarma") {
+                if let Ok(rankings) = self.vote_db.voteables_rank_asc(10) {
+                    let mut response = String::new();
+                    for (i, r) in rankings.iter().enumerate() {
+                        let item = format!("{}. '{}' with {} (+{}/-{});",
+                                           i+1, r.value, r.total_up - r.total_down,
+                                           r.total_up, r.total_down);
+                        if i > 0 {
+                            response += " ";
+                        }
+                        response += &item;
+                    }
+
+                    bot.reply(&event, &response).ok();
+                }
+            }
+
+
         }
     }
 
