@@ -110,4 +110,10 @@ impl Backend {
             _ => Some(res.pop().unwrap()),
         }
     }
+
+    pub fn voteables_rank(&self, n: i64) -> QueryResult<Vec<Voteable>> {
+        voteables.order((total_up - total_down).desc())
+                                              .limit(n)
+                                              .load(&self.connection)
+    }
 }

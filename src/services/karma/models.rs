@@ -15,9 +15,7 @@ pub struct NewUser<'a> {
 
 // ------------
 
-#[derive(Queryable)]
-#[derive(Identifiable)]
-#[derive(AsChangeset)]
+#[derive(Queryable, Identifiable, AsChangeset)]
 pub struct Voteable {
     pub id: i32,
     pub value: String,
