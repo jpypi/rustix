@@ -62,6 +62,7 @@ fn main() {
     b.register_service("logging", pf, Box::new(Logger::new()));
 
     b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
+    b.register_service("rank_karma", pf, Box::new(rank_karma::RankKarma::new()));
     b.register_service("echo", pf, Box::new(Echo::new()));
     b.register_service("read_quote", pf, Box::new(read_quote::ReadQuote::new()));
     b.register_service("csv_quotes", pf, Box::new(csv_quote::ReadQuote::new()));
