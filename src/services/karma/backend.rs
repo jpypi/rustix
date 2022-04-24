@@ -122,4 +122,30 @@ impl Backend {
                                                .limit(n)
                                                .load(&self.connection)
     }
+
+    pub fn votes_rank(&self, item: &str, n: i64) -> QueryResult<Vec<(String, i32, i32)>> {
+        /*
+        SELECT votes.up,votes.down,users.user_id FROM
+            votes
+        JOIN users ON
+            votes.user_id = users.id
+        JOIN voteables ON
+            voteables.id = votes.voteable_id
+        WHERE
+            voteables.value = '$item'
+        ORDER BY
+            (votes.up - votes.down) DESC;
+        LIMIT n
+        */
+
+        votes::table.inner_join(users::table)
+                    .inner_join(voteables::table)
+                    .select((users::user_id,
+                             votes::up,
+                             votes::down))
+                    .filter(voteables::value.eq(item))
+                    .order((total_up - total_down).desc())
+                    .limit(n)
+                    .load(&self.connection)
+    }
 }
