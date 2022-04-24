@@ -144,7 +144,7 @@ impl Backend {
                              votes::up,
                              votes::down))
                     .filter(voteables::value.eq(item))
-                    .order((total_up - total_down).desc())
+                    .order((votes::up - votes::down).desc())
                     .limit(n)
                     .load(&self.connection)
     }
