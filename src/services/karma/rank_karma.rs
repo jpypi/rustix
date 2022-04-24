@@ -30,6 +30,7 @@ impl<'a> Node<'a> for RankKarma {
             if let Some(captures) = check_re.captures(body) {
                 if let Some(query) = captures.get(1) {
                     if let Ok(rankings) = self.vote_db.votes_rank(query.as_str().trim(), 10) {
+                        response += &format!("Top upvoters for '{}': ", query.as_str().trim());
                         for (i, (user, up, down)) in rankings.iter().enumerate() {
                             let item = format!("{}. {} with {} (+{}/-{})",
                                                i + 1, user, up - down, up, down);
@@ -42,6 +43,7 @@ impl<'a> Node<'a> for RankKarma {
                         bot.reply(&event, &response).ok();
                     }
                 } else if let Ok(rankings) = self.vote_db.voteables_rank_desc(10) {
+                    response += "All time most upvoted: ";
                     for (i, r) in rankings.iter().enumerate() {
                         let item = format!("{}. '{}' with {} (+{}/-{})",
                                            i + 1, r.value, r.total_up - r.total_down,
