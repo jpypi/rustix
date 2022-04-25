@@ -87,7 +87,12 @@ impl<'a> Node<'a> for RankKarma {
                 };
 
                 if let Ok(rankings) = self.vote_db.user_ranks(user_query, 10) {
-                    response += &format!("Most upvoted by {}: ", user_query);
+                    if rankings.len() > 0 {
+                        response += &format!("Most upvoted by {}: ", user_query);
+                    } else {
+                        response = format!("{} has not upvoted anything", user_query);
+                    }
+
                     for (i, (item, up, down)) in rankings.iter().enumerate() {
                         let item = format!("{}. '{}' with {} (+{}/-{})",
                                            i + 1, item, up - down, up, down);
