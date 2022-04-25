@@ -61,7 +61,8 @@ fn main() {
     let mt = b.register_service("message_type_filter", uf,
                                 Box::new(MessageTypeFilter::new()));
 
-    b.register_service("karma_tracker", mt, Box::new(KarmaTracker::new()));
+    b.register_service("karma_tracker", mt,
+                       Box::new(KarmaTracker::new(config.bot.prefix.clone())));
 
     let pf = b.register_service("prefix", mt,
                                 Box::new(Prefix::new(config.bot.prefix.clone())));

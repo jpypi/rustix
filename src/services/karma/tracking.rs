@@ -10,13 +10,15 @@ use super::backend::Backend;
 pub struct KarmaTracker {
     vote_db: Backend,
     re: Regex,
+    bot_prefix: String
 }
 
 impl KarmaTracker {
-    pub fn new() -> Self {
+    pub fn new(bot_prefix: String) -> Self {
         Self {
             vote_db: Backend::new(),
             re: Regex::new(r"([^\- ]+|\(.+?\))(\+\+|--)").unwrap(),
+            bot_prefix: bot_prefix,
         }
     }
 }
@@ -32,7 +34,7 @@ impl<'a> Node<'a> for KarmaTracker {
         let body = event.content["body"].as_str().unwrap();
 
         // Don't karma based off anything that is a command to the bot
-        if body.starts_with("!") {
+        if body.starts_with(&self.bot_prefix) {
             return;
         }
 
