@@ -14,7 +14,7 @@ impl RankKarma {
     pub fn new() -> Self {
         Self {
             vote_db: Backend::new(),
-            karmastats_re: Regex::new(r"^kokarma(?: (.+))?$").unwrap(),
+            karmastats_re: Regex::new(r"^karmastats(?: (.+))?$").unwrap(),
             nickstats_re: Regex::new(r"^nickstats(?: (.+))?$").unwrap(),
         }
     }
@@ -63,7 +63,7 @@ impl<'a> Node<'a> for RankKarma {
             }
 
 
-            if body.starts_with("pokarma") {
+            if body.starts_with("badkarmastats") {
                 if let Ok(rankings) = self.vote_db.voteables_rank_asc(10) {
                     response += "All time most downvoted: ";
                     for (i, r) in rankings.iter().enumerate() {
@@ -109,6 +109,8 @@ impl<'a> Node<'a> for RankKarma {
     }
 
     fn description(&self) -> Option<String> {
-        Some("kokarma <optional word> - View kings of karma\npokarma - View peasants of karma".to_string())
+        Some("karmastats <optional word> - View kings of karma\n\
+              badkarmastats - View peasants of karma\n\
+              nickstats <optional user id> - view ranking of things user has given karma".to_string())
     }
 }

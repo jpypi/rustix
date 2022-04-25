@@ -55,6 +55,9 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - choose \<item1\> \<item2\> ... \<itemN\>
 - echo \<string\>
 - karma \<entity\>
+- karmastats \<optional entity\>
+- nickstats \<optional matrix user id\>
+- badkarmastats
 - p \<crypto currency ticker\>
 - \*join \<public channel display name\>
 - \*leave \<public channel display name\>
