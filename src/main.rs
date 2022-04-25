@@ -4,8 +4,15 @@ use rustix::{
     client::MatrixClient,
     services::{
         echo::Echo,
-        karma::*,
-        quote::{read_quote, del_quote},
+        karma::{
+            tracking::KarmaTracker,
+            show_karma::ShowKarma,
+            rank_karma::RankKarma,
+        },
+        quote::{
+            read_quote,
+            del_quote::DelQuote
+        },
         prefix::Prefix,
         choose::Choose,
         roulette::{Roulette, RouletteLevel},
@@ -61,8 +68,8 @@ fn main() {
 
     b.register_service("logging", pf, Box::new(Logger::new()));
 
-    b.register_service("show_karma", pf, Box::new(show_karma::ShowKarma::new()));
-    b.register_service("rank_karma", pf, Box::new(rank_karma::RankKarma::new()));
+    b.register_service("show_karma", pf, Box::new(ShowKarma::new()));
+    b.register_service("rank_karma", pf, Box::new(RankKarma::new()));
     b.register_service("echo", pf, Box::new(Echo::new()));
     b.register_service("read_quote", pf, Box::new(read_quote::ReadQuote::new()));
     b.register_service("csv_quotes", pf, Box::new(csv_quote::ReadQuote::new()));
@@ -80,7 +87,7 @@ fn main() {
                                  Box::new(Admin::new(config.bot.admins)));
     b.register_service("join", adm, Box::new(Join::new()));
     b.register_service("leave", adm, Box::new(Leave::new()));
-    b.register_service("del_quote", adm, Box::new(del_quote::DelQuote::new()));
+    b.register_service("del_quote", adm, Box::new(DelQuote::new()));
     b.register_service("get_joined", adm, Box::new(GetJoined::new()));
 
     // Start bot main loop
