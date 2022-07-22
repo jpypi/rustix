@@ -1,5 +1,6 @@
 use crate::bot::{Bot, Node, RoomEvent};
 
+
 pub struct Logger<'a> {
     children: Vec<&'a str>
 }
