@@ -208,6 +208,17 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
 
                     next_batch = sync_data.next_batch;
                 },
+                Err(Error::ReqwestError(e)) => {
+                    if e.is_timeout() {
+                        if let Some(url) = e.url() {
+                            println!("Request timed out for {}", url);
+                        } else {
+                            println!("Request timed out");
+                        }
+                    } else {
+                        println!("ReqwestError: {:?}", e);
+                    }
+                }
                 Err(e) => {
                     println!("Error: {:?}", e);
                 }
