@@ -102,7 +102,19 @@ directory = "var"
 Rustix will ignore all events by users in the ignore list, not just ignore
 commands.
 
-# Docker
+# Docker - Pre-built
+
+There are pre-built rustix docker images which can be used by replaceing the
+rustix image specified in `docker-compose.yml` with:
+`registry.gitlab.com/jpypi/rustix`. This will be the latest version of rustix.
+Additionally, you must copy the config toml in to the rustix container a la:
+`docker cp config.toml rustix-rustix-1:config.toml` or utilize a volume or bind
+mount for the config.
+
+*NOTE:* You will still need to run steps 2 through 3 from the "Docker - DIY"
+section of this README (below).
+
+# Docker - DIY (recommended/easiest)
 
 There is a Makefile with phony targets which makes running a dockerized version
 of rustix a breeze. Before running this way, note the instructions make the
