@@ -9,13 +9,13 @@ migration:
 	docker build -t perplexinglabs/rustix-diesel:0.1 -f DockerfileMigration .
 
 up:
-	@POSTGRES_PASSWORD=$(shell cat .pw_lock) docker-compose up -d
+	@POSTGRES_PASSWORD=$(shell cat .pw_lock) docker compose up -d
 down:
-	POSTGRES_PASSWORD=na docker-compose down
+	POSTGRES_PASSWORD=na docker compose down
 stop:
-	POSTGRES_PASSWORD=na docker-compose stop
+	POSTGRES_PASSWORD=na docker compose stop
 start:
-	POSTGRES_PASSWORD=na docker-compose start
+	POSTGRES_PASSWORD=na docker compose start
 
 setup:
 	@if [ ! -f .pw_lock ]; then\
