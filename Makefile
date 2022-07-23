@@ -3,6 +3,7 @@ RUSTIX=perplexinglabs/rustix:0.1
 .PHONY: rustix, migration, up, down, stop, start, setup
 
 rustix:
+	mkdir -p var
 	docker build -t $(RUSTIX) -f Dockerfile .
 
 migration:
@@ -22,5 +23,6 @@ setup:
 		head -c 16 /dev/random | base64 > .pw_lock;\
 	fi
 	POSTGRES_PASSWORD=$(shell cat .pw_lock) docker-compose --profile=setup up -d
+	mkdir -p var
 	docker cp var/. rustix-rustix-1:/usr/share/rustix/
 	docker rm rustix-db-migration-1
