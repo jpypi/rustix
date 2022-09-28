@@ -13,3 +13,6 @@ ignore = ["@bot1:matrix.my.domain.com", "@bot2:matrix.my.domain.com"]
 [services]
 [services.try_file]
 directory = "var"
+
+[services.csv_quote]
+file = "csv_quotes.csv"

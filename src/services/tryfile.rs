@@ -14,7 +14,7 @@ use crate::services::utils::reservoir_sample;
 pub struct TryFile {
     safe_re: Regex,
     rng: SmallRng,
-    directory: PathBuf
+    directory: PathBuf,
 }
 
 

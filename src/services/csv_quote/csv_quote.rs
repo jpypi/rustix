@@ -2,6 +2,7 @@ use std::error::Error;
 
 use rand::{SeedableRng, Rng};
 use rand::rngs::SmallRng;
+use toml::value::Value;
 
 use crate::bot::{Bot, Node, RoomEvent};
 use crate::services::utils::reservoir_sample;
@@ -19,17 +20,24 @@ struct OldQuote {
 
 pub struct ReadQuote {
     rng: SmallRng,
+    filename: String,
 }
 
 impl ReadQuote {
-    pub fn new() -> Self {
+    pub fn new(config: Option<&Value>) -> Self {
+        let filename = config.and_then(|c| c.get("file")
+                                            .and_then(|d| d.as_str())
+                                            .map(|s| s.to_string()))
+                             .unwrap_or("csv_quotes.csv".to_string());
+
         Self {
             rng: SmallRng::from_entropy(),
+            filename: filename,
         }
     }
 
     fn get_quote(&self, id: i32) -> Result<Option<OldQuote>, Box<dyn Error>>{
-        let mut reader = csv::Reader::from_path("gb_quotes_all.csv")?;
+        let mut reader = csv::Reader::from_path(&self.filename)?;
         for result in reader.deserialize() {
             let record: OldQuote = result?;
             if record.id == id {
@@ -40,7 +48,7 @@ impl ReadQuote {
     }
 
     fn rand_quote(&mut self) -> Result<Option<OldQuote>, Box<dyn Error>> {
-        let mut reader = csv::Reader::from_path("gb_quotes_all.csv")?;
+        let mut reader = csv::Reader::from_path(&self.filename)?;
         match reservoir_sample(reader.deserialize(), &mut self.rng) {
             Ok(v) => Ok(Some(v)),
             Err(e) => Err(Box::new(e)),
@@ -48,7 +56,7 @@ impl ReadQuote {
     }
 
     fn search_quote(&mut self, sub_str: &str) -> Result<Option<OldQuote>, Box<dyn Error>>{
-        let mut reader = csv::Reader::from_path("gb_quotes_all.csv")?;
+        let mut reader = csv::Reader::from_path(&self.filename)?;
 
         let mut quotes = Vec::new();
 
@@ -68,7 +76,7 @@ impl ReadQuote {
     }
 
     fn search_quotes(&mut self, sub_str: &str) -> Result<Vec<i32>, Box<dyn Error>>{
-        let mut reader = csv::Reader::from_path("gb_quotes_all.csv")?;
+        let mut reader = csv::Reader::from_path(&self.filename)?;
 
         let mut quotes = Vec::new();
 
