@@ -6,11 +6,11 @@ use super::backend::Backend;
 use super::models::{Quote, User};
 
 
-pub struct ReadQuote {
+pub struct Quotes {
     quote_db: Backend,
 }
 
-impl ReadQuote {
+impl Quotes {
     pub fn new() -> Self {
         Self {
             quote_db: Backend::new()
@@ -18,7 +18,7 @@ impl ReadQuote {
     }
 }
 
-impl<'a> Node<'a> for ReadQuote {
+impl<'a> Node<'a> for Quotes {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         let revent = &event.raw_event;
         let body = revent.content["body"].as_str().unwrap();
