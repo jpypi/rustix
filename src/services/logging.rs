@@ -25,7 +25,7 @@ impl<'a> Node<'a> for Logger<'a> {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         let revent = &event.raw_event;
 
-        if revent.type_ == "m.room.message" && revent.content["msgtype"] == "m.text" {
+        if event.is_normal() {
             let body = &revent.content["body"].as_str().unwrap();
             let sender = &revent.sender;
 
