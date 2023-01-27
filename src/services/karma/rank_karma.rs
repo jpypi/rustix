@@ -8,6 +8,7 @@ pub struct RankKarma {
     vote_db: Backend,
     karmastats_re: Regex,
     nickstats_re: Regex,
+    badnickstats_re: Regex,
 }
 
 impl RankKarma {
@@ -16,6 +17,7 @@ impl RankKarma {
             vote_db: Backend::new(),
             karmastats_re: Regex::new(r"^karmastats(?: (.+))?$").unwrap(),
             nickstats_re: Regex::new(r"^nickstats(?: (.+))?$").unwrap(),
+            badnickstats_re: Regex::new(r"^badnickstats(?: (.+))?$").unwrap(),
         }
     }
 }
@@ -114,12 +116,48 @@ impl<'a> Node<'a> for RankKarma {
                     bot.reply(&event, &response).ok();
                 }
             }
+
+            if let Some(captures) = self.badnickstats_re.captures(body) {
+                let user_query = match captures.get(1) {
+                    Some(query) => {
+                        let q = query.as_str().trim();
+                        match bot.uid_from_displayname(q) {
+                            Ok(r) => r,
+                            Err(e) => {
+                                bot.reply(&event, &format!("{:?}", e)).ok();
+                                return;
+                            }
+                        }
+                    },
+                    None => revent.sender.clone(),
+                };
+
+                if let Ok(rankings) = self.vote_db.user_ranks_asc(&user_query, 10) {
+                    if rankings.len() > 0 {
+                        response += &format!("Most downvoted by {}: ", user_query);
+                    } else {
+                        response = format!("{} has not downvoted anything", user_query);
+                    }
+
+                    for (i, (item, up, down)) in rankings.iter().enumerate() {
+                        let item = format!("{}. '{}' with {} (+{}/-{})",
+                                           i + 1, item, up - down, up, down);
+                        if i > 0 {
+                            response += "; ";
+                        }
+                        response += &item;
+                    }
+
+                    bot.reply(&event, &response).ok();
+                }
+            }
         }
     }
 
     fn description(&self) -> Option<String> {
         Some("karmastats <optional word> - View kings of karma\n\
               badkarmastats - View peasants of karma\n\
-              nickstats <optional user id> - view ranking of things user has given karma".to_string())
+              nickstats <optional user id> - view ranking of things user has given karma\n\
+              badnickstats <optional user id> - view ranking of things user has given negative karma".to_string())
     }
 }

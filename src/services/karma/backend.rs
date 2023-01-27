@@ -174,4 +174,28 @@ impl Backend {
                     .load(&self.connection)
     }
 
+    pub fn user_ranks_asc(&self, user: &str, n: i64) -> QueryResult<Vec<(String, i32, i32)>>{
+        /*
+        SELECT voteables.value, votes.up, votes.down FROM
+            votes
+        JOIN voteables ON
+            votes.voteable_id = voteables.id
+        JOIN users ON
+            votes.user_id = users.id
+        WHERE
+            users.user_id = '$user'
+        ORDER BY
+            (votes.up - votes.down) ASC
+        LIMIT $n;
+        */
+        votes::table.inner_join(voteables::table)
+                    .inner_join(users::table)
+                    .select((voteables::value,
+                             votes::up,
+                             votes::down))
+                    .filter(users::user_id.eq(user))
+                    .order((votes::up - votes::down).asc())
+                    .limit(n)
+                    .load(&self.connection)
+    }
 }
