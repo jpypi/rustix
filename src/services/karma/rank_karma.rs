@@ -82,11 +82,20 @@ impl<'a> Node<'a> for RankKarma {
 
             if let Some(captures) = self.nickstats_re.captures(body) {
                 let user_query = match captures.get(1) {
-                    Some(query) => query.as_str().trim(),
-                    None => &revent.sender,
+                    Some(query) => {
+                        let q = query.as_str().trim();
+                        match bot.uid_from_displayname(q) {
+                            Ok(r) => r,
+                            Err(e) => {
+                                bot.reply(&event, &format!("{:?}", e)).ok();
+                                return;
+                            }
+                        }
+                    },
+                    None => revent.sender.clone(),
                 };
 
-                if let Ok(rankings) = self.vote_db.user_ranks(user_query, 10) {
+                if let Ok(rankings) = self.vote_db.user_ranks(&user_query, 10) {
                     if rankings.len() > 0 {
                         response += &format!("Most upvoted by {}: ", user_query);
                     } else {

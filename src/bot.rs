@@ -89,6 +89,14 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         self.client.borrow().ban(room_id, user_id, reason)
     }
 
+    pub fn uid_from_displayname(&self, name_query: &str) -> Result<String> {
+        let res = self.client.borrow().get_directory(name_query, Some(10))?;
+        match res.results.first() {
+            Some(n) => Ok(n.user_id.clone()),
+            None => Err(Error::Generic("Empty".to_owned())),
+        }
+    }
+
     /*
     pub fn action(&self, room_id: &str, action: &str) {
     }
