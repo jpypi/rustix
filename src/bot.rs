@@ -26,11 +26,12 @@ impl<'a> RoomEvent<'a> {
 }
 
 
+type NodeProcessFn<'a> = dyn Fn(&mut dyn Node) -> Box<dyn Any> + 'a;
 pub struct Bot<'a, 'b, 'c> {
     client: RefCell<&'b mut MatrixClient>,
     root_services: Vec<&'a str>,
     all_services: HashMap<&'a str, RefCell<Box<dyn Node<'a>>>>,
-    delayed_queries: RefCell<HashMap<&'c str, Box<dyn Fn(&mut dyn Node) -> Box<dyn Any> + 'c>>>,
+    delayed_queries: RefCell<HashMap<&'c str, Box<NodeProcessFn<'c>>>>,
 }
 
 impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
@@ -165,7 +166,7 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         for room in initial_rooms {
             if let Some(rid) = self.client.borrow().get_public_room_id(room) {
                 println!("Joining {} id: {}", &room, &rid);
-                if let Err(_) = self.join(&rid) {
+                if self.join(&rid).is_err() {
                     println!("Could not join room");
                 }
             } else {
@@ -222,7 +223,7 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
 
                     next_batch = sync_data.next_batch;
                 },
-                Err(Error::ReqwestError(e)) => {
+                Err(Error::Reqwest(e)) => {
                     if e.is_timeout() {
                         if let Some(url) = e.url() {
                             println!("Request timed out for {}", url);

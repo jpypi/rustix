@@ -21,7 +21,7 @@ use rustix::{
         membership::{Join, Leave, AcceptInvite},
         admin::Admin,
         get_joined::GetJoined,
-        csv_quote::csv_quote,
+        csv_quote::ReadQuote,
         help::Help,
         logging::Logger,
     },
@@ -75,7 +75,7 @@ fn main() {
     b.register_service("read_quote", pf, Box::new(quotes::Quotes::new()));
 
     let csv_quote_cfg = config.services.as_ref().and_then(|s| s.get("csv_quote"));
-    b.register_service("csv_quotes", pf, Box::new(csv_quote::ReadQuote::new(csv_quote_cfg)));
+    b.register_service("csv_quotes", pf, Box::new(ReadQuote::new(csv_quote_cfg)));
     b.register_service("choose", pf, Box::new(Choose::new()));
     b.register_service("roulette", pf, Box::new(Roulette::new(RouletteLevel::Kick)));
     b.register_service("rroulette", pf, Box::new(Roulette::new(RouletteLevel::Ban)));

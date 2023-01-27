@@ -18,7 +18,7 @@ impl KarmaTracker {
         Self {
             vote_db: Backend::new(),
             re: Regex::new(r"([^\- ]+|\(.+?\))(\+\+|--)").unwrap(),
-            bot_prefix: bot_prefix,
+            bot_prefix,
         }
     }
 }

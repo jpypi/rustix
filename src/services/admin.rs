@@ -9,7 +9,7 @@ impl<'a> Admin<'a> {
     pub fn new(hard_admins: Vec<String>) -> Self {
         Self {
             children: Vec::new(),
-            hard_admins: hard_admins,
+            hard_admins,
         }
     }
 }

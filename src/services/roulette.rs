@@ -22,7 +22,7 @@ impl Roulette {
         let mut x = Self {
             rounds: [0; SIZE],
             state: 0,
-            level: level,
+            level,
         };
 
         Self::reset(&mut x);

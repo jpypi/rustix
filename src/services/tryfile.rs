@@ -72,7 +72,7 @@ impl<'a> Node<'a> for TryFile {
                 Some(paths.map(|p| {
                                     let mut path = p.unwrap().path();
                                     path.set_extension("");
-                                    path.into_iter()
+                                    path.iter()
                                         .next_back()
                                         .unwrap()
                                         .to_str() // consider to_string_lossy

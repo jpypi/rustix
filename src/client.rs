@@ -267,7 +267,7 @@ impl MatrixClient {
 
         let data = Query {
             limit: limit.unwrap_or(u32::MAX),
-            search_term: search_term,
+            search_term,
         };
 
         self.auth_query(Method::POST, "/user_directory/search", None, Some(&data), None)

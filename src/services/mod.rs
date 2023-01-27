@@ -1,3 +1,4 @@
+#![allow(clippy::new_without_default)]
 pub mod echo;
 pub mod karma;
 pub mod prefix;

@@ -32,7 +32,7 @@ impl ReadQuote {
 
         Self {
             rng: SmallRng::from_entropy(),
-            filename: filename,
+            filename,
         }
     }
 
@@ -62,7 +62,7 @@ impl ReadQuote {
 
         for result in reader.deserialize() {
             let record: OldQuote = result?;
-            if let Some(_) = record.text.find(sub_str) {
+            if record.text.contains(sub_str) {
                 quotes.push(record);
             }
         }
@@ -82,7 +82,7 @@ impl ReadQuote {
 
         for result in reader.deserialize() {
             let record: OldQuote = result?;
-            if let Some(_) = record.text.find(sub_str) {
+            if record.text.contains(sub_str) {
                 quotes.push(record.id);
             }
         }
@@ -98,8 +98,8 @@ impl<'a> Node<'a> for ReadQuote {
 
         let mut resp: Option<String> = None;
 
-        if body.starts_with("oldgetquote ") {
-            resp = Some(match body[12..].parse() {
+        if let Some(id) = body.strip_prefix("oldgetquote ") {
+            resp = Some(match id.parse() {
                 Ok(qid) => {
                     match self.get_quote(qid) {
                         Ok(v) => match v {
@@ -111,13 +111,13 @@ impl<'a> Node<'a> for ReadQuote {
                 },
                 Err(_) => "Invalid quote id".to_string(),
             });
-        } else if body.starts_with("oldsearchquote ") {
-            let query = body[15..].trim();
+        } else if let Some(mut query) = body.strip_prefix("oldsearchquote ") {
+            query = query.trim();
 
-            if query.len() > 0 {
-                resp = Some(match self.search_quotes(&query) {
+            if !query.is_empty() {
+                resp = Some(match self.search_quotes(query) {
                     Ok(quote_ids) => {
-                        if quote_ids.len() > 0 {
+                        if !quote_ids.is_empty() {
                             let ids_str = quote_ids.into_iter()
                                                    .map(|id| id.to_string())
                                                    .collect::<Vec<String>>()
@@ -132,11 +132,11 @@ impl<'a> Node<'a> for ReadQuote {
             } else {
                 resp = Some("oldsearchquote requires search terms".to_string());
             }
-        } else if body.starts_with("oldrandquote") {
-            let query = body[12..].trim();
+        } else if let Some(mut query) = body.strip_prefix("oldrandquote") {
+            query = query.trim();
 
-            if query.len() > 0 {
-                resp = Some(match self.search_quote(&query) {
+            if !query.is_empty() {
+                resp = Some(match self.search_quote(query) {
                     Ok(v) => match v {
                         Some(s) => render_quote(&s),
                         None => format!("No quote found matching {}", query)

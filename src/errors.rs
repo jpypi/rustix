@@ -1,23 +1,19 @@
-use reqwest;
-use serde_json;
-
-
 #[derive(Debug)]
 pub enum Error {
-    SerdeError(serde_json::Error),
-    ReqwestError(reqwest::Error),
+    Serde(serde_json::Error),
+    Reqwest(reqwest::Error),
     Generic(String),
 }
 
 impl From<reqwest::Error> for Error {
     fn from(err: reqwest::Error) -> Error {
-        Error::ReqwestError(err)
+        Error::Reqwest(err)
     }
 }
 
 impl From<serde_json::Error> for Error {
     fn from(err: serde_json::Error) -> Error {
-        Error::SerdeError(err)
+        Error::Serde(err)
     }
 }
 

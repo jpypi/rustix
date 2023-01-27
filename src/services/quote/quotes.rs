@@ -25,14 +25,14 @@ impl<'a> Node<'a> for Quotes {
 
         let mut resp: Option<String> = None;
 
-        if body.starts_with("addquote ") {
-            if let Ok(qid) = self.quote_db.add_quote(&revent.sender, &body[9..]) {
+        if let Some(quote) = body.strip_prefix("addquote ") {
+            if let Ok(qid) = self.quote_db.add_quote(&revent.sender, quote) {
                 resp = Some(format!("Successfully added quote #{}!", qid));
             } else {
                 resp = Some("Failed to add quote.".to_string());
             }
-        } else if body.starts_with("getquote ") {
-            resp = Some(match body[9..].parse() {
+        } else if let Some(id) = body.strip_prefix("getquote ") {
+            resp = Some(match id.parse() {
                 Ok(qid) => {
                     match self.quote_db.get_quote(qid) {
                         Ok((quoter, quote)) => render_quote(&quote, &quoter),
@@ -41,8 +41,8 @@ impl<'a> Node<'a> for Quotes {
                 },
                 Err(_) => "Invalid quote id".to_string(),
             });
-        } else if body.starts_with("searchquote ") {
-            let query = body[12..].trim();
+        } else if let Some(mut query) = body.strip_prefix("searchquote ") {
+            query = query.trim();
 
             if query.len() > 0 {
                 resp = Some(match self.quote_db.search_quotes(query) {
@@ -63,11 +63,11 @@ impl<'a> Node<'a> for Quotes {
             } else {
                 resp = Some("searchquote requires search terms".to_string());
             }
-        } else if body.starts_with("randquote") {
-            let query = body[9..].trim();
+        } else if let Some(mut query) = body.strip_prefix("randquote") {
+            query = query.trim();
 
-            if query.len() > 0 {
-                resp = Some(match self.quote_db.search_quote(&query) {
+            if !query.is_empty() {
+                resp = Some(match self.quote_db.search_quote(query) {
                     Ok((quoter, quote)) => render_quote(&quote, &quoter),
                     Err(_) => format!("No quote found matching {}", query),
                 });

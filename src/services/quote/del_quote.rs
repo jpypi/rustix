@@ -20,10 +20,10 @@ impl<'a> Node<'a> for DelQuote {
 
         let mut resp: Option<String> = None;
 
-        if body.starts_with("delquote ") {
-            resp = Some(match body[9..].parse() {
+        if let Some(qid) = body.strip_prefix("delquote ") {
+            resp = Some(match qid.parse() {
                 Ok(qid) => {
-                    if let Ok(_) = self.quote_db.del_quote(qid) {
+                    if self.quote_db.del_quote(qid).is_ok() {
                         format!("Successfully deleted quote {}", qid)
                     } else {
                         format!("Failed to delete quote {}", qid)

@@ -13,7 +13,7 @@ impl<'a> SelfFilter<'a> {
         println!("Ignoring messages sent by self ({})", sender);
         Self {
             children: Vec::new(),
-            sender: sender,
+            sender,
         }
     }
 }

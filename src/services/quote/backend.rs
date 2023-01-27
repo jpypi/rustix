@@ -32,7 +32,7 @@ impl Backend {
             .expect(&format!("Error connecting to {}", database_url));
 
         Self {
-            connection: connection,
+            connection,
             rng: SmallRng::from_entropy(),
         }
     }

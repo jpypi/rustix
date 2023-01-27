@@ -13,7 +13,7 @@ impl<'a> Prefix<'a> {
         let len = prefix.len();
         Self {
             children: Vec::new(),
-            prefix: prefix,
+            prefix,
             prefix_n: len,
         }
     }
