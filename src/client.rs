@@ -7,6 +7,7 @@ use reqwest::Url;
 use reqwest::blocking::Response;
 use reqwest::header;
 use http::Method;
+use serde::Serialize;
 
 use crate::errors::Error;
 use crate::matrix_types::*;
@@ -47,11 +48,11 @@ impl MatrixClient {
         self.transaction_id
     }
 
-    pub fn query(&self,
+    pub fn query<T: Serialize + ?Sized>(&self,
              method: Method,
              path: &str,
              params: Option<&HashMap<&str, &str>>,
-             data: Option<&HashMap<&str, &str>>,
+             data: Option<&T>,
              version: Option<&str>) -> Result<Response> {
 
         // Concat the path to the base url and constant string
@@ -66,14 +67,17 @@ impl MatrixClient {
             None => uri
         };
 
-        let nothing = HashMap::new();
+        let nothing = HashMap::<String, String>::new();
 
         let builder = self.client.request(method.clone(), &url);
 
         let request = match method {
             Method::POST | Method::PUT => {
-                builder.header(header::CONTENT_TYPE, "text/json")
-                       .json(data.unwrap_or(&nothing))
+                let partial = builder.header(header::CONTENT_TYPE, "text/json");
+                match data {
+                    Some(d) => partial.json(d),
+                    None    => partial.json(&nothing),
+                }
             },
             _ => builder,
         };
@@ -81,11 +85,11 @@ impl MatrixClient {
         Ok(request.send()?)
     }
 
-    pub fn auth_query(&self,
+    pub fn auth_query<T: Serialize + ?Sized>(&self,
                   method: Method,
                   path: &str,
                   params: Option<HashMap<&str, &str>>,
-                  data: Option<&HashMap<&str, &str>>,
+                  data: Option<&T>,
                   version: Option<&str>) -> Result<Response> {
 
         let mut real_params = match params {
@@ -107,13 +111,13 @@ impl MatrixClient {
     pub fn get(&self, path: &str,
                params: Option<&HashMap<&str, &str>>,
                version: Option<&str>) -> Result<Response> {
-        self.query(Method::GET, path, params, None, version)
+        self.query::<()>(Method::GET, path, params, None, version)
     }
 
     pub fn auth_get(&self, path: &str,
                     params: Option<HashMap<&str, &str>>,
                     version: Option<&str>) -> Result<Response> {
-        self.auth_query(Method::GET, path, params, None, version)
+        self.auth_query::<()>(Method::GET, path, params, None, version)
     }
 
     pub fn login(&mut self, username: &str, password: &str) -> Result<()> {
@@ -181,15 +185,15 @@ impl MatrixClient {
     }
 
     pub fn join(&self, room_id: &str) -> Result<Response> {
-        self.auth_query(Method::POST,
-                        &format!("/join/{}", room_id),
-                        None, None, None)
+        self.auth_query::<()>(Method::POST,
+                              &format!("/join/{}", room_id),
+                              None, None, None)
     }
 
     pub fn leave(&self, room_id: &str) -> Result<Response> {
-        self.auth_query(Method::POST,
-                        &format!("/rooms/{}/leave", room_id),
-                        None, None, None)
+        self.auth_query::<()>(Method::POST,
+                              &format!("/rooms/{}/leave", room_id),
+                              None, None, None)
     }
 
     pub fn set_displayname(&self, name: &str) -> Result<Response> {
@@ -255,12 +259,18 @@ impl MatrixClient {
     }
 
     pub fn get_directory(&self, search_term: &str, limit: Option<u32>) -> Result<UserDirectory> {
-        let limit = limit.unwrap_or(u32::MAX).to_string();
-        let data = hashmap! {
-            "limit" => limit.as_str(),
-            "search_term" => search_term,
+        #[derive(Serialize)]
+        struct Query<'a> {
+            limit: u32,
+            search_term: &'a str,
+        }
+
+        let data = Query {
+            limit: limit.unwrap_or(u32::MAX),
+            search_term: search_term,
         };
-        self.auth_query(Method::POST, "user_directory/search", None, Some(&data), Some("v3"))
+
+        self.auth_query(Method::POST, "/user_directory/search", None, Some(&data), None)
             .and_then(|o| o.json().or_else(|e| Err(e.into())))
     }
 
