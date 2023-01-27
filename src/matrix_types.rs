@@ -119,3 +119,16 @@ pub struct RoomAlias {
 pub struct CreatedRoom {
     pub room_id: String,
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UserDirectory {
+    pub limited: bool,
+    pub results: Vec<DirectoryProfile>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DirectoryProfile {
+    pub avatar_url: String,
+    pub display_name: String,
+    pub user_id: String,
+}

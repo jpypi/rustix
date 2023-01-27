@@ -51,11 +51,13 @@ impl MatrixClient {
              method: Method,
              path: &str,
              params: Option<&HashMap<&str, &str>>,
-             data: Option<&HashMap<&str, &str>>) -> Result<Response> {
+             data: Option<&HashMap<&str, &str>>,
+             version: Option<&str>) -> Result<Response> {
 
         // Concat the path to the base url and constant string
         let mut uri = self.base_url.clone();
-        uri += "/_matrix/client/r0";
+        uri += "/_matrix/client/";
+        uri += version.unwrap_or("r0");
         uri += path;
 
         let url = match params {
@@ -83,7 +85,8 @@ impl MatrixClient {
                   method: Method,
                   path: &str,
                   params: Option<HashMap<&str, &str>>,
-                  data: Option<&HashMap<&str, &str>>) -> Result<Response> {
+                  data: Option<&HashMap<&str, &str>>,
+                  version: Option<&str>) -> Result<Response> {
 
         let mut real_params = match params {
             Some(v) => v,
@@ -93,7 +96,7 @@ impl MatrixClient {
         match self.access_token {
             Some(ref v) => {
                 real_params.insert("access_token", v);
-                self.query(method, path, Some(&real_params), data)
+                self.query(method, path, Some(&real_params), data, version)
             },
             None => {
                 Err(Error::Generic("User must be authenticated first.".to_string()))
@@ -102,13 +105,15 @@ impl MatrixClient {
     }
 
     pub fn get(&self, path: &str,
-               params: Option<&HashMap<&str, &str>>) -> Result<Response> {
-        self.query(Method::GET, path, params, None)
+               params: Option<&HashMap<&str, &str>>,
+               version: Option<&str>) -> Result<Response> {
+        self.query(Method::GET, path, params, None, version)
     }
 
     pub fn auth_get(&self, path: &str,
-                    params: Option<HashMap<&str, &str>>) -> Result<Response> {
-        self.auth_query(Method::GET, path, params, None)
+                    params: Option<HashMap<&str, &str>>,
+                    version: Option<&str>) -> Result<Response> {
+        self.auth_query(Method::GET, path, params, None, version)
     }
 
     pub fn login(&mut self, username: &str, password: &str) -> Result<()> {
@@ -120,7 +125,7 @@ impl MatrixClient {
         };
 
         // Parse response into client state
-        match self.query(Method::POST, "/login", Option::None, Some(&params))?.json::<Init>() {
+        match self.query(Method::POST, "/login", Option::None, Some(&params), None)?.json::<Init>() {
             Ok(v) => {
                 self.user_id = Some(v.user_id);
                 self.access_token = Some(v.access_token);
@@ -138,7 +143,7 @@ impl MatrixClient {
             params.insert("since", v);
         }
 
-        match self.auth_get("/sync", Some(params)) {
+        match self.auth_get("/sync", Some(params), None) {
             Ok(resp) => {
                 match resp.json() {
                     Ok(v) => Ok(v),
@@ -159,17 +164,8 @@ impl MatrixClient {
             "dir"  => "f"
         };
 
-        match self.auth_get("/publicRooms", Some(params)) {
-            Ok(resp) => {
-                match resp.json() {
-                    Ok(v) => Ok(v),
-                    Err(e) => {
-                        panic!("{:?}", e);
-                    }
-                }
-            },
-            Err(v) => Err(v),
-        }
+        self.auth_get("/publicRooms", Some(params), None) 
+            .and_then(|o| o.json().or_else(|e| Err(e.into())))
     }
 
     pub fn get_public_room_id(&self, name: &str) -> Option<String> {
@@ -187,13 +183,13 @@ impl MatrixClient {
     pub fn join(&self, room_id: &str) -> Result<Response> {
         self.auth_query(Method::POST,
                         &format!("/join/{}", room_id),
-                        None, None)
+                        None, None, None)
     }
 
     pub fn leave(&self, room_id: &str) -> Result<Response> {
         self.auth_query(Method::POST,
                         &format!("/rooms/{}/leave", room_id),
-                        None, None)
+                        None, None, None)
     }
 
     pub fn set_displayname(&self, name: &str) -> Result<Response> {
@@ -203,7 +199,7 @@ impl MatrixClient {
 
         let path = format!("/profile/{}/displayname",
                            self.user_id.as_ref().expect("Must be logged in"));
-        self.auth_query(Method::PUT, &path, None, Some(&data))
+        self.auth_query(Method::PUT, &path, None, Some(&data), None)
     }
 
     pub fn send(&mut self,
@@ -213,7 +209,7 @@ impl MatrixClient {
         let path = format!("/rooms/{}/send/{}/{}", room_id, event_type,
                            self.get_transaction_id());
 
-        self.auth_query(Method::PUT, &path, None, data)
+        self.auth_query(Method::PUT, &path, None, data, None)
     }
 
     pub fn send_msg(&mut self, room_id: &str, message: &str) -> Result<Response> {
@@ -236,7 +232,7 @@ impl MatrixClient {
             data.insert("reason", r);
         }
 
-        self.auth_query(Method::POST, &path, None, Some(&data))
+        self.auth_query(Method::POST, &path, None, Some(&data), None)
     }
 
     pub fn ban(&self, room_id: &str, user_id: &str, reason: Option<&str>) -> Result<Response> {
@@ -250,19 +246,22 @@ impl MatrixClient {
             data.insert("reason", r);
         }
 
-        self.auth_query(Method::POST, &path, None, Some(&data))
+        self.auth_query(Method::POST, &path, None, Some(&data), None)
     }
 
     pub fn get_joined(&self) -> Result<JoinedRooms> {
-        match self.auth_get("/joined_rooms", None) {
-            Ok(resp) => match resp.json() {
-                Ok(v) => Ok(v),
-                Err(e) => {
-                    panic!("{:?}", e);
-                }
-            },
-            Err(e) => Err(e.into())
-        }
+        self.auth_get("/joined_rooms", None, None)
+            .and_then(|o| o.json().or_else(|e| Err(e.into())))
+    }
+
+    pub fn get_directory(&self, search_term: &str, limit: Option<u32>) -> Result<UserDirectory> {
+        let limit = limit.unwrap_or(u32::MAX).to_string();
+        let data = hashmap! {
+            "limit" => limit.as_str(),
+            "search_term" => search_term,
+        };
+        self.auth_query(Method::POST, "user_directory/search", None, Some(&data), Some("v3"))
+            .and_then(|o| o.json().or_else(|e| Err(e.into())))
     }
 
     /*
