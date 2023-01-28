@@ -19,7 +19,7 @@ DATABASE_URL=postgres://user:password@localhost/rustix
 (Note: This assumes a database user has been set up and has proper permissions
 on the proper database.)
 
-Next, run the database migrations and comple+run rustix!
+Next, run the database migrations and comple + run rustix!
 ```
 $ diesel migration run
 $ cargo run
@@ -56,8 +56,9 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - echo \<string\>
 - karma \<entity\>
 - karmastats \<optional entity\>
-- nickstats \<optional matrix user id\>
 - badkarmastats
+- nickstats \<optional matrix user id\>
+- badnickstats \<optional matrix user id\>
 - p \<crypto currency ticker\>
 - \*join \<public channel display name\>
 - \*leave \<public channel display name\>
@@ -96,37 +97,49 @@ ignore = ["@bot1:matrix.my.domain.com", "@bot2:matrix.my.domain.com"]
 
 [services]
 [services.try_file]
-directory = "var"
+directory = "/usr/share/rustix"
+
+[services.csv_quote]
+file = "csv_quotes.csv"
 ```
 
-Rustix will ignore all events by users in the ignore list, not just ignore
-commands.
+Rustix will ignore all events by users in the ignore list, not just commands.
 
-# Docker - Pre-built
+# Docker - Pre-built (recommended/easiest)
 
-There are pre-built rustix docker images which can be used by replaceing the
-rustix image specified in `docker-compose.yml` with:
-`registry.gitlab.com/jpypi/rustix`. This will be the latest version of rustix.
-Additionally, you must copy the config toml in to the rustix container a la:
-`docker cp config.toml rustix-rustix-1:config.toml` or utilize a volume or bind
-mount for the config.
+There are pre-built rustix docker images in this gitlab project which the
+`docker-compose.yml` file utilizes.  By default, docker compose will use a bind
+mount for the `config.toml` file, but you could alternately copy the config in
+to the rustix container via: `docker cp config.toml
+rustix-rustix-1:config.toml` or utilize a volume.
 
-*NOTE:* You will still need to run steps 2 through 3 from the "Docker - DIY"
-section of this README (below).
+You will also need to make sure to have the following in palce:
 
-# Docker - DIY (recommended/easiest)
+1. `config.toml` has been appropriately configured
+2. A folder named `var` containing all the files that the tryfile service can
+   use, exists in the project root folder
+3. If you intend to use the `old*quote` commands, a file named `csv_quotes.csv`
+   lives in the project root folder
 
-There is a Makefile with phony targets which makes running a dockerized version
-of rustix a breeze. Before running this way, note the instructions make the
+*NOTE:* You also still need to run steps 2 through 3 from the "Docker - DIY"
+section of this README (below). Eventually this will change, but please bear
+with me as this is just a hobby project.
+
+# Docker - DIY 
+
+There is a Makefile which makes building and running a dockerized version of
+rustix a breeze. Before running this way, note that the instructions make the
 following assumptions:
 
 1. Make is installed
-2. `config.toml` has been appropriately configured
-3. `services.try_file.directory` in `config.toml` is set to
-   `"/usr/share/rustix"`
-4. Docker and docker-compose are both installed and setup
-5. Any files to be used with the tryfile service are in a folder named `var` in
-   the project root
+2. Docker and docker-compose are both installed and setup
+3. You have updated `docker-compose.yml` to use the appropriate local image:
+   `perplexinglabs/rustix:0.1` (as defined in the `Makefile`)
+4. `config.toml` has been appropriately configured
+5. A folder named `var` containing all the files that the tryfile service can
+   use, exists in the project root folder
+6. If you intend to use the `old*quote` commands, a file named `csv_quotes.csv`
+   lives in the project root folder
 
 ### Step 1
 
