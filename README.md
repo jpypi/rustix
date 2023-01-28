@@ -115,9 +115,9 @@ rustix-rustix-1:config.toml` or utilize a volume.
 
 You will also need to make sure to have the following in palce:
 
-1. `config.toml` has been appropriately configured
-2. A folder named `var` containing all the files that the tryfile service can
-   use, exists in the project root folder
+1. An appropriately configured `config.toml` file
+2. A folder named `var`, containing all the files that the tryfile service can
+   use, in the project root folder
 3. If you intend to use the `old*quote` commands, a file named `csv_quotes.csv`
    lives in the project root folder
 
@@ -136,7 +136,7 @@ following assumptions:
 3. You have updated `docker-compose.yml` to use the appropriate local image:
    `perplexinglabs/rustix:0.1` (as defined in the `Makefile`)
 4. `config.toml` has been appropriately configured
-5. A folder named `var` containing all the files that the tryfile service can
+5. A folder named `var`, containing all the files that the tryfile service can
    use, exists in the project root folder
 6. If you intend to use the `old*quote` commands, a file named `csv_quotes.csv`
    lives in the project root folder
