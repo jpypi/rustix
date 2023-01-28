@@ -1,6 +1,6 @@
 RUSTIX=perplexinglabs/rustix:0.1
 
-.PHONY: rustix, migration, up, down, stop, start, setup
+.PHONY: rustix, migration, up, down, stop, start, setup, cleanup
 
 rustix:
 	mkdir -p var
@@ -26,3 +26,6 @@ setup:
 	mkdir -p var
 	docker cp var/. rustix-rustix-1:/usr/share/rustix/
 	docker rm rustix-db-migration-1
+
+cleanup:
+	docker image rm $(docker images -f "dangling=true" -q)
