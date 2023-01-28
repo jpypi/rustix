@@ -24,7 +24,6 @@ setup:
 	fi
 	POSTGRES_PASSWORD=$(shell cat .pw_lock) docker-compose --profile=setup up -d
 	mkdir -p var
-	docker cp var/. rustix-rustix-1:/usr/share/rustix/
 	docker rm rustix-db-migration-1
 
 cleanup:

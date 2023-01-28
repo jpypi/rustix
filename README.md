@@ -152,9 +152,8 @@ Run `make migration` which builds the db maintenence (for db migrations) image
 ### Step 3
 
 Run `make setup` which generates a database password, launches rustix and the db
-maintenence container (which then runs the db migrations), copies files from `var`
-in to a volume, and removes the db maintenence container after running
-migrations.
+maintenence container (which then runs the db migrations) and then removes the
+db maintenence container after running migrations.
 
 Rustix should now be running. From here you can easily run `make up`, `make
 down`, `make stop` and `make start` which are simple helpful wrappers around the
@@ -169,6 +168,6 @@ containers (such as the postgres container).
 
 # Note
 
-If you see something that could be improved (I'm sure there are many things), by
-all means, please open an issue and/or PR! I'm open to feedback, and I would
-love to improve this project!
+If you see anything that could be improved (I'm sure there are many things),
+please open an issue and/or PR! I'm open to feedback, and would love to
+improve this project!
