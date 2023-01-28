@@ -8,7 +8,7 @@
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
 
-latest-build:
+build-latest-rustix:
   extends: .docker-build
   stage: build
   # Default branch leaves tag empty (= latest tag)
@@ -22,11 +22,30 @@ latest-build:
         tag=":$CI_COMMIT_REF_SLUG"
         echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
       fi
-    - mkdir -p var
-    - docker build --build-arg BuildEnv=prod --pull -t "$CI_REGISTRY_IMAGE${tag}" .
-    - docker push "$CI_REGISTRY_IMAGE${tag}"
-  # Run this job in a branch where a Dockerfile exists
+    - docker build --build-arg BuildEnv=prod --pull -t "$CI_REGISTRY_IMAGE/rustix${tag}" -f Dockerfile .
+    - docker push "$CI_REGISTRY_IMAGE/rustix${tag}"
   rules:
     - if: $CI_COMMIT_BRANCH
       exists:
         - Dockerfile
+
+build-latest-rustix-db-migration:
+  extends: .docker-build
+  stage: build
+  # Default branch leaves tag empty (= latest tag)
+  # All other branches are tagged with the escaped branch name (commit ref slug)
+  script:
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+        tag=""
+        echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+      else
+        tag=":$CI_COMMIT_REF_SLUG"
+        echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+      fi
+    - docker build --pull -t "$CI_REGISTRY_IMAGE/rustix-db-migration${tag}" -f DockerfileMigration .
+    - docker push "$CI_REGISTRY_IMAGE/rustix-db-migration${tag}"
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      exists:
+        - DockerfileMigration
