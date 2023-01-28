@@ -3,7 +3,7 @@ version: "3.3"
 
 services:
   rustix:
-    image: registry.gitlab.com/jpypi/rustix:latest
+    image: registry.gitlab.com/jpypi/rustix/rustix:latest
     depends_on:
       - pg-database
     environment:
@@ -27,7 +27,7 @@ services:
       - pg-data:/var/lib/postgresql/data
 
   db-migration:
-    image: perplexinglabs/rustix-diesel:0.1
+    image: registry.gitlab.com/jpypi/rustix/rustix-db-migration:latest
     command: diesel migration run
     depends_on:
       - pg-database

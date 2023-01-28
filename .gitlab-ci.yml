@@ -26,7 +26,7 @@ build-latest-rustix:
     - docker push "$CI_REGISTRY_IMAGE/rustix${tag}"
   rules:
     - if: $CI_COMMIT_BRANCH
-      exists:
+      changes:
         - Dockerfile
 
 build-latest-rustix-db-migration:
@@ -47,5 +47,5 @@ build-latest-rustix-db-migration:
     - docker push "$CI_REGISTRY_IMAGE/rustix-db-migration${tag}"
   rules:
     - if: $CI_COMMIT_BRANCH
-      exists:
+      changes:
         - DockerfileMigration
