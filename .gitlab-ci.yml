@@ -28,6 +28,8 @@ build-latest-rustix:
     - if: $CI_COMMIT_BRANCH
       changes:
         - Dockerfile
+        - Cargo.lock
+        - src/**/*.rs
 
 build-latest-rustix-db-migration:
   extends: .docker-build
@@ -49,3 +51,7 @@ build-latest-rustix-db-migration:
     - if: $CI_COMMIT_BRANCH
       changes:
         - DockerfileMigration
+        - Cargo.lock
+        - diesel.toml
+        - migrations/**/*.sql
+
