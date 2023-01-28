@@ -115,15 +115,15 @@ rustix-rustix-1:config.toml` or utilize a volume.
 
 You will also need to make sure to have the following in palce:
 
-1. An appropriately configured `config.toml` file
-2. A folder named `var`, containing all the files that the tryfile service can
+1. Make is installed
+2. Docker and docker-compose are both installed and setup
+3. An appropriately configured `config.toml` file
+4. A folder named `var`, containing all the files that the tryfile service can
    use, in the project root folder
-3. If you intend to use the `old*quote` commands, a file named `csv_quotes.csv`
+5. If you intend to use the `old*quote` commands, a file named `csv_quotes.csv`
    lives in the project root folder
 
-*NOTE:* You also still need to run steps 2 through 3 from the "Docker - DIY"
-section of this README (below). Eventually this will change, but please bear
-with me as this is just a hobby project.
+Run `Step 3` from the "Docker - DIY" section of this README (below).
 
 # Docker - DIY 
 
@@ -133,8 +133,9 @@ following assumptions:
 
 1. Make is installed
 2. Docker and docker-compose are both installed and setup
-3. You have updated `docker-compose.yml` to use the appropriate local image:
-   `perplexinglabs/rustix:0.1` (as defined in the `Makefile`)
+3. You have updated `docker-compose.yml` to use the appropriate local images:
+   `perplexinglabs/rustix:0.1` and `perplexinglabs/rustix-diesel:0.1`
+   (as defined in the `Makefile`)
 4. `config.toml` has been appropriately configured
 5. A folder named `var`, containing all the files that the tryfile service can
    use, exists in the project root folder
