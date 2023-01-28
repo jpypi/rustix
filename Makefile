@@ -1,4 +1,5 @@
 RUSTIX=perplexinglabs/rustix:0.1
+RUSTIX_DIESEL=perplexinglabs/rustix-diesel:0.1
 
 .PHONY: rustix, migration, up, down, stop, start, setup, cleanup
 
@@ -7,7 +8,7 @@ rustix:
 	docker build -t $(RUSTIX) -f Dockerfile .
 
 migration:
-	docker build -t perplexinglabs/rustix-diesel:0.1 -f DockerfileMigration .
+	docker build -t $(RUSTIX_DIESEL) -f DockerfileMigration .
 
 up:
 	@POSTGRES_PASSWORD=$(shell cat .pw_lock) docker compose up -d
