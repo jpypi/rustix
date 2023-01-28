@@ -1,5 +1,5 @@
 ARG BuildEnv
-FROM rust:1.59-alpine as build
+FROM rust:1.67-alpine as build
 
 RUN apk add --no-cache openssl-dev libpq-dev musl-dev
 
@@ -23,7 +23,5 @@ FROM alpine
 RUN apk add --no-cache openssl libpq libgcc
 
 COPY --from=build /usr/src/rustix/target/debug/rustix /usr/bin/rustix
-COPY config.toml ./
-COPY var/ /usr/share/rustix/
 
 CMD ["rustix"]

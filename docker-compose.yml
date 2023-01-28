@@ -11,7 +11,9 @@ services:
     networks:
       postgres:
     volumes:
-      - rustix-data:/usr/share/rustix
+      - ./config.toml:/config.toml
+      - ./var:/usr/share/rustix
+      - ./csv_quotes.csv:/csv_quotes.csv
 
   pg-database:
     image: postgres:13.6-alpine3.15
@@ -44,4 +46,3 @@ networks:
 
 volumes:
   pg-data:
-  rustix-data:
