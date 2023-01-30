@@ -16,3 +16,7 @@ directory = "/usr/share/rustix"
 
 [services.csv_quote]
 file = "csv_quotes.csv"
+
+[services.web_search]
+key = "<google api key>"
+seid = "<google custom search id>"
