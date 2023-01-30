@@ -24,10 +24,10 @@ pub struct ReadQuote {
 }
 
 impl ReadQuote {
-    pub fn new(config: Option<&Value>) -> Self {
-        let filename = config.and_then(|c| c.get("file")
-                                            .and_then(|d| d.as_str())
-                                            .map(|s| s.to_string()))
+    pub fn new(config: &Value) -> Self {
+        let filename = config.get("file")
+                             .and_then(|d| d.as_str())
+                             .map(|s| s.to_string())
                              .unwrap_or("csv_quotes.csv".to_string());
 
         Self {

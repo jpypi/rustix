@@ -74,15 +74,18 @@ fn main() {
     b.register_service("echo", pf, Box::new(Echo::new()));
     b.register_service("read_quote", pf, Box::new(quotes::Quotes::new()));
 
-    let csv_quote_cfg = config.services.as_ref().and_then(|s| s.get("csv_quote"));
-    b.register_service("csv_quotes", pf, Box::new(ReadQuote::new(csv_quote_cfg)));
     b.register_service("choose", pf, Box::new(Choose::new()));
     b.register_service("roulette", pf, Box::new(Roulette::new(RouletteLevel::Kick)));
     b.register_service("rroulette", pf, Box::new(Roulette::new(RouletteLevel::Ban)));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
 
-    let try_file_cfg = config.services.as_ref().and_then(|s| s.get("try_file"));
-    b.register_service("try_file", pf, Box::new(TryFile::new(try_file_cfg)));
+    // Optional configurable services
+    if let Some(csv_quote_cfg) = config.services.as_ref().and_then(|s| s.get("csv_quote")) {
+        b.register_service("csv_quotes", pf, Box::new(ReadQuote::new(csv_quote_cfg)));
+    }
+    if let Some(try_file_cfg) = config.services.as_ref().and_then(|s| s.get("try_file")) {
+        b.register_service("try_file", pf, Box::new(TryFile::new(try_file_cfg)));
+    }
 
     b.register_service("help", pf, Box::new(Help::new()));
 

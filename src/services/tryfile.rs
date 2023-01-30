@@ -19,10 +19,10 @@ pub struct TryFile {
 
 
 impl TryFile {
-    pub fn new(config: Option<&Value>) -> Self {
-        let dir_string = config.and_then(|c| c.get("directory")
-                                              .and_then(|d| d.as_str())
-                                              .map(|s| s.to_string()))
+    pub fn new(config: &Value) -> Self {
+        let dir_string = config.get("directory")
+                               .and_then(|d| d.as_str())
+                               .map(|s| s.to_string())
                                .unwrap_or("var".to_string());
         let path = PathBuf::from(dir_string)
             .canonicalize()
