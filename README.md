@@ -101,9 +101,20 @@ directory = "/usr/share/rustix"
 
 [services.csv_quote]
 file = "csv_quotes.csv"
+
+[services.web_search]
+key = "<google api key>"
+seid = "<google custom search id>"
 ```
 
 Rustix will ignore all events by users in the ignore list, not just commands.
+
+The configuration for the following services is optional. That is, removing the
+configuration will disable the service in rustix and not cause an error.
+
+- try_file
+- csv_quote
+- web_search
 
 # Docker - Pre-built (recommended/easiest)
 
