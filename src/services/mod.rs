@@ -13,6 +13,7 @@ pub mod get_joined;
 pub mod csv_quote;
 pub mod help;
 pub mod logging;
+pub mod websearch;
 
 mod utils;
 mod schema;

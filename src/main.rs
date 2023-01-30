@@ -24,6 +24,7 @@ use rustix::{
         csv_quote::ReadQuote,
         help::Help,
         logging::Logger,
+        websearch::WebSearch,
     },
     filters::{
         SelfFilter,
@@ -85,6 +86,9 @@ fn main() {
     }
     if let Some(try_file_cfg) = config.services.as_ref().and_then(|s| s.get("try_file")) {
         b.register_service("try_file", pf, Box::new(TryFile::new(try_file_cfg)));
+    }
+    if let Some(ws_cfg) = config.services.as_ref().and_then(|s| s.get("web_search")) {
+        b.register_service("web_search", pf, Box::new(WebSearch::new(ws_cfg)));
     }
 
     b.register_service("help", pf, Box::new(Help::new()));
