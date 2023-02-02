@@ -47,9 +47,6 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - \*delquote \<quote number\>
 - randquote \<optional string search\>
 - searchquote \<string to search\>
-- oldgetquote \<quote number\>
-- oldrandquote \<optional string search\>
-- oldsearchquote \<string search\>
 - roulette
 - rroulette
 - choose \<item1\> \<item2\> ... \<itemN\>
@@ -68,14 +65,31 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 \**Command is under the admin node and requires message sender to be in the
 admin list specified in `config.toml`*
 
-There is also TryFile, which attempts to look for file matching
-`!<command name>` to a file `<command name>.txt` in the `var` folder in the
-current working directory and echo a random line from it. This allows for
-invocation like `!timecube` which will echo a random line from
-`var/timecube.txt`.  N.B. If there is a command name collision both matched
-commands will trigger, that is if one were to place a file named `randquote.txt`
-in `var`, both the randquote function will be executed and a random line from
-`randquote.txt` will be echoed.
+## Optional Commands (if configured)
+
+### Enabled via `services.csv_quote`:
+These commands will look up quotes stored in a csv file. New quotes must be
+manually added to this file.
+
+The expected column layout is: `id,text,user,timestamp,channel`
+- oldgetquote \<quote number\>
+- oldrandquote \<optional string search\>
+- oldsearchquote \<string search\>
+
+### Enabled via `services.try_file`:
+The TryFile service attempts to interpret `!<command name>` as referring to a
+file named `<command name>.txt` in the `var` folder in the current working
+directory and then echo a random line from it. This allows for invocation like
+`!timecube` which will echo a random line from `var/timecube.txt`.  N.B. If
+there is a command name collision both matched commands will trigger, that is if
+one were to place a file named `randquote.txt` in `var`, both the randquote
+function will be executed and a random line from `randquote.txt` will be echoed.
+
+### Enabled via `services.web_search`:
+The `s` command, which performs search queries using the Goolge custom web
+search API.
+
+- s \<search string\>
 
 # Config
 
