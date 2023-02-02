@@ -20,6 +20,7 @@ struct ResultItem {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(non_snake_case)]
 struct Spelling {
     correctedQuery: String,
 }
@@ -37,9 +38,9 @@ impl WebSearch {
                         .map(|s| s.to_string())
                         .unwrap_or_default();
         let seid = config.get("seid")
-                        .and_then(|k| k.as_str())
-                        .map(|s| s.to_string())
-                        .unwrap_or_default();
+                         .and_then(|k| k.as_str())
+                         .map(|s| s.to_string())
+                         .unwrap_or_default();
         Self {
             key,
             seid,
@@ -49,10 +50,10 @@ impl WebSearch {
     fn search(&self, query: &str) -> Result<SearchResults, reqwest::Error> {
         let client = reqwest::blocking::Client::new();
         let query = client.get(BASE_URL)
-                            .query(&[("key", self.key.as_str()),
-                                    ("cx", self.seid.as_str()),
-                                    ("q", query)])
-                            .header("Accept", "application/json");
+                          .query(&[("key", self.key.as_str()),
+                                  ("cx", self.seid.as_str()),
+                                  ("q", query)])
+                          .header("Accept", "application/json");
 
         query.send().and_then(|o| o.json())
     }
