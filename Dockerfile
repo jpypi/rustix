@@ -23,5 +23,6 @@ FROM alpine
 RUN apk add --no-cache openssl libpq libgcc
 
 COPY --from=build /usr/src/rustix/target/debug/rustix /usr/bin/rustix
+COPY merges.txt vocab.json ./
 
 CMD ["rustix"]

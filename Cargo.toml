@@ -12,10 +12,13 @@ serde_derive = "1.0"
 maplit = "1.0"
 regex = "1.5"
 chrono = "0.4.0"
-toml = "0.5"
+toml = "0.7"
 http = "0.2"
 csv = "1.1"
 url = "2.2"
+rust_tokenizers = "8.0"
+sha3 = "0.10.6"
+base16ct = { version = "0.1.1", features = ["alloc"] }
 
 diesel = { version = "1.4.4", features = ["postgres"] }
 dotenv = "0.15.0"

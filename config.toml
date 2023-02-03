@@ -18,5 +18,9 @@ directory = "/usr/share/rustix"
 file = "csv_quotes.csv"
 
 [services.web_search]
-key = "<google api key>"
-seid = "<google custom search id>"
+
+[services.openai]
+secret = "<openai api key>"
+backstory_file = "backstory.txt"
+monthly_budget = 5.0
+starting_tokens = 10000

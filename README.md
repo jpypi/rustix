@@ -91,6 +91,13 @@ search API.
 
 - s \<search string\>
 
+### Enabled via `services.openai`:
+The `chat` command, which enables interaction with openai's gpt models.
+Basically, your own chatgpt that everyone can interact with in a shared channel.
+
+- chat \<whatever you want to say to rustix\>
+
+
 # Config
 
 Rustix expects a file named `config.toml` to be in the current working
@@ -119,6 +126,13 @@ file = "csv_quotes.csv"
 [services.web_search]
 key = "<google api key>"
 seid = "<google custom search id>"
+
+[services.openai]
+secret = "<openai api key>"
+backstory_file = "backstory.txt"
+monthly_budget = 5.0
+# starting_tokens is optional
+starting_tokens = 10000
 ```
 
 Rustix will ignore all events by users in the ignore list, not just commands.

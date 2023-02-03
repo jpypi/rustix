@@ -25,6 +25,7 @@ use rustix::{
         help::Help,
         logging::Logger,
         websearch::WebSearch,
+        openai::gpt::GPT,
     },
     filters::{
         SelfFilter,
@@ -89,6 +90,16 @@ fn main() {
     }
     if let Some(ws_cfg) = config.services.as_ref().and_then(|s| s.get("web_search")) {
         b.register_service("web_search", pf, Box::new(WebSearch::new(ws_cfg)));
+    }
+    if let Some(oa_cfg) = config.services.as_ref().and_then(|s| s.get("openai")) {
+        /*
+        let users = oa_cfg.get("whitelist").unwrap()
+                          .as_array().unwrap()
+                          .iter().map(|x| x.as_str().unwrap().to_string())
+                          .collect();
+        let allowed = b.register_service("openai_priv", pf, Box::new(Admin::new(users)));
+        */
+        b.register_service("openai", pf, Box::new(GPT::new(oa_cfg)));
     }
 
     b.register_service("help", pf, Box::new(Help::new()));
