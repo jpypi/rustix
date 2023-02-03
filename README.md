@@ -2,8 +2,8 @@
 
 Rustix is a [matrix](https://matrix.org) bot/library/framework written in
 [rust](https://www.rust-lang.org/). This project does not use a matrix client
-library, but rather contains one within it! HTTP requests are made directly to a
-matrix server via the reqwest library.
+library, but rather contains one, with only the necessary API calls, within it.
+HTTP requests are made directly to a matrix server via the reqwest library.
 
 # Running
 
