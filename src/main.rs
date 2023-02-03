@@ -43,10 +43,10 @@ fn main() {
 
     m.login(&config.connection.username,
             &config.connection.password).expect("login failed!");
-    m.set_displayname(&config.bot.display_name).unwrap();
 
     // Create a new bot
     let mut b = bot::Bot::new(&mut m);
+    b.set_displayname(&config.bot.display_name).unwrap();
 
     // Register services with the bot
     let sf = b.register_service("self_filter", None,

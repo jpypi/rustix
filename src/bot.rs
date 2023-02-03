@@ -32,6 +32,7 @@ pub struct Bot<'a, 'b, 'c> {
     root_services: Vec<&'a str>,
     all_services: HashMap<&'a str, RefCell<Box<dyn Node<'a>>>>,
     delayed_queries: RefCell<HashMap<&'c str, Box<NodeProcessFn<'c>>>>,
+    display_name: String,
 }
 
 impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
@@ -41,6 +42,7 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
             root_services: Vec::new(),
             all_services: HashMap::new(),
             delayed_queries: RefCell::new(HashMap::new()),
+            display_name: "".to_string(),
         }
     }
 
@@ -103,8 +105,13 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
     }
     */
 
-    pub fn set_displayname(&self, name: &str) -> Result<Response> {
+    pub fn set_displayname(&mut self, name: &str) -> Result<Response> {
+        self.display_name = name.to_string();
         self.client.borrow_mut().set_displayname(name)
+    }
+
+    pub fn get_displayname(&self) -> &str {
+        &self.display_name
     }
 
     pub fn register_service(&mut self,
