@@ -104,15 +104,46 @@ impl GPT {
         })
     } 
 
-    fn build_context(&self, bot_name: &str, username: &str, message: &str) -> String {
+    fn build_context(&self, bot: &Bot, room_id: &str, username: &str, message: &str) -> (String, u32) {
         let mut to_complete = String::new();
         to_complete += &self.backstory;
-        to_complete += &format!("\n<{}> {}\n<{}> ", username, message, bot_name);
 
-        to_complete
+        let max_context = 1000;
+        let mut context_tokens = self.count_tokens(&to_complete);
+
+        let mut messages = Vec::<String>::new();
+
+        if let Ok(e) = bot.get_room_events(room_id, 100, None) {
+            for event in e.chunk.iter().skip(1) {
+                let event_uname = trim_name(&event.sender);
+                let event_body = event.content["body"].as_str().unwrap().trim_start_matches("[7!]chat ");
+                let context_line = format!("<{}> {}", event_uname, event_body);
+                let context_line_size = self.count_tokens(&context_line);
+
+                if context_tokens + context_line_size > max_context {
+                    break;
+                }
+
+                messages.push(context_line);
+                context_tokens += context_line_size;
+            }
+        }
+
+        messages.reverse();
+        to_complete += &messages.join("\n");
+
+        let final_line = format!("\n<{}> {}\n<{}> ", username, message, bot.get_displayname());
+        context_tokens += self.count_tokens(&final_line);
+
+        to_complete += &final_line;
+
+        (to_complete, context_tokens)
     }
 }
 
+fn trim_name(name: &str) -> &str{
+    name.strip_prefix('@').unwrap().split(':').collect::<Vec<&str>>()[0]
+}
 
 impl<'a> Node<'a> for GPT {
    fn handle(&mut self, bot: &Bot, event: RoomEvent) {
@@ -126,8 +157,8 @@ impl<'a> Node<'a> for GPT {
             self.last_query = std::time::Instant::now();
 
             if let Some(message) = body.strip_prefix("chat ") {
-                let uname = revent.sender.strip_prefix('@').unwrap().split(':').collect::<Vec<&str>>()[0];
-                let context = self.build_context(bot.get_displayname(), uname, message);
+                let uname = trim_name(&revent.sender);
+                let (context, _) = self.build_context(bot, event.room_id, uname, message);
 
                 let count = self.count_tokens(&context);
                 if  count as f64 > self.token_budget {
@@ -142,7 +173,8 @@ impl<'a> Node<'a> for GPT {
                             Response::Success(s) => {
                                 let txt = s.choices[0].text.trim();
                                 self.token_budget -= s.usage.total_tokens as f64;
-                                println!("-----------\n{}{}\ntotal tokens: {}\n-----------", &context, txt, s.usage.total_tokens);
+                                println!("total tokens: {}", s.usage.total_tokens);
+                                //println!("-----------\n{}{}\ntotal tokens: {}\n-----------", &context, txt, s.usage.total_tokens);
                                 bot.reply(&event, &txt).ok();
                             }
                         }
@@ -155,7 +187,6 @@ impl<'a> Node<'a> for GPT {
                         }
                     }
                 }
-
             }
 
             if let Some(_) = body.strip_prefix("budget") {
