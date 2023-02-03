@@ -1,7 +1,7 @@
 RUSTIX=perplexinglabs/rustix:0.1
 RUSTIX_DIESEL=perplexinglabs/rustix-diesel:0.1
 
-.PHONY: rustix, migration, up, down, stop, start, setup, cleanup
+.PHONY: rustix, migration, update, up, down, stop, start, setup, cleanup
 
 rustix:
 	mkdir -p var
@@ -9,6 +9,11 @@ rustix:
 
 migration:
 	docker build -t $(RUSTIX_DIESEL) -f DockerfileMigration .
+
+update:
+    docker pull registry.gitlab.com/jpypi/rustix/rustix
+    POSTGRES_PASSWORD=na docker compose down
+    @POSTGRES_PASSWORD=$(shell cat .pw_lock) docker compose up -d
 
 up:
 	@POSTGRES_PASSWORD=$(shell cat .pw_lock) docker compose up -d
