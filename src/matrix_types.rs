@@ -132,3 +132,11 @@ pub struct DirectoryProfile {
     pub display_name: String,
     pub user_id: String,
 }
+
+#[derive(Deserialize, Debug)]
+pub struct RoomChunks {
+    pub chunk: Vec<Event>,
+    pub start: String,
+    pub end: Option<String>,
+    pub state: Option<Vec<Event>>,
+}

@@ -274,6 +274,21 @@ impl MatrixClient {
             .and_then(|o| o.json().or_else(|e| Err(e.into())))
     }
 
+    pub fn get_room_events(&self, room_id: &str, n: u32, from: Option<&str>) -> Result<RoomChunks> {
+        let limit_str = n.to_string();
+        let mut params = hashmap! {
+            "dir"   => "b",
+            "limit" => &limit_str,
+        };
+
+        if let Some(f) = from {
+            params.insert("from", f);
+        }
+
+        self.auth_get(&format!("/rooms/{}/messages", room_id), Some(params), None)
+            .and_then(|o| o.json().or_else(|e| Err(e.into())))
+    }
+
     /*
     pub fn indicate_typing(&self, room_id: &str, length: Option<u32>) -> Result<Response, RustixError> {
         let mut data = HashMap::new();

@@ -92,6 +92,10 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         self.client.borrow().ban(room_id, user_id, reason)
     }
 
+    pub fn get_room_events(&self, room_id: &str, n: u32, from: Option<&str>) -> Result<RoomChunks> {
+        self.client.borrow().get_room_events(room_id, n, from)
+    }
+
     pub fn uid_from_displayname(&self, name_query: &str) -> Result<String> {
         let res = self.client.borrow().get_directory(name_query, Some(10))?;
         match res.results.first() {
