@@ -85,7 +85,7 @@ impl GPT {
             user: Some(hashed_userid),
         };
 
-        let res = client.post(BASE_URL).timeout(Duration::new(10, 0))
+        let res = client.post(BASE_URL).timeout(Duration::new(30, 0))
                         .bearer_auth(&self.secret)
                         .json(&req)
                         .send()?
@@ -148,7 +148,11 @@ impl<'a> Node<'a> for GPT {
                         }
                     },
                     Err(e) => {
-                        println!("{:?}", e);
+                        if e.is_timeout() {
+                            bot.reply(&event, &"Chat response timed out.").ok();
+                        } else {
+                            println!("{:?}", e);
+                        }
                     }
                 }
 
