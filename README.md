@@ -143,6 +143,7 @@ configuration will disable the service in rustix and not cause an error.
 - try_file
 - csv_quote
 - web_search
+- openai
 
 # Docker - Pre-built (recommended/easiest)
 
@@ -164,7 +165,7 @@ You will also need to make sure to have the following in palce:
 
 Run `Step 3` from the "Docker - DIY" section of this README (below).
 
-# Docker - DIY 
+# Docker - DIY
 
 There is a Makefile which makes building and running a dockerized version of
 rustix a breeze. Before running this way, note that the instructions make the
