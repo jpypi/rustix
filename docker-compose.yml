@@ -14,6 +14,7 @@ services:
       - ./config.toml:/config.toml
       - ./var:/usr/share/rustix
       - ./csv_quotes.csv:/csv_quotes.csv
+      - ./backstory.txt:/backstory.txt
 
   pg-database:
     image: postgres:13.6-alpine3.15
