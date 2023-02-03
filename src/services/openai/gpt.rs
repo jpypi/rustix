@@ -115,8 +115,13 @@ impl GPT {
 
         if let Ok(e) = bot.get_room_events(room_id, 100, None) {
             for event in e.chunk.iter().skip(1) {
+                if !(event.type_ == "m.room.message" && event.content["msgtype"] == "m.text") {
+                    continue;
+                }
+
                 let event_uname = trim_name(&event.sender);
-                let event_body = event.content["body"].as_str().unwrap().trim_start_matches("[7!]chat ");
+
+                let event_body = event.content["body"].as_str().unwrap().trim_start_matches("!chat ");
                 let context_line = format!("<{}> {}", event_uname, event_body);
                 let context_line_size = self.count_tokens(&context_line);
 
