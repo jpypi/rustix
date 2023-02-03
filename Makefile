@@ -11,9 +11,9 @@ migration:
 	docker build -t $(RUSTIX_DIESEL) -f DockerfileMigration .
 
 update:
-    docker pull registry.gitlab.com/jpypi/rustix/rustix
-    POSTGRES_PASSWORD=na docker compose down
-    @POSTGRES_PASSWORD=$(shell cat .pw_lock) docker compose up -d
+	docker pull registry.gitlab.com/jpypi/rustix/rustix
+	POSTGRES_PASSWORD=na docker compose down
+	@POSTGRES_PASSWORD=$(shell cat .pw_lock) docker compose up -d
 
 up:
 	@POSTGRES_PASSWORD=$(shell cat .pw_lock) docker compose up -d
