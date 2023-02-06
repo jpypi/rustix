@@ -25,7 +25,7 @@ struct Spelling {
     correctedQuery: String,
 }
 
-
+#[derive(Deserialize)]
 pub struct WebSearch {
     key: String,
     seid: String,
@@ -33,18 +33,7 @@ pub struct WebSearch {
 
 impl WebSearch {
     pub fn new(config: &Value) -> Self {
-        let key = config.get("key")
-                        .and_then(|k| k.as_str())
-                        .map(|s| s.to_string())
-                        .unwrap_or_default();
-        let seid = config.get("seid")
-                         .and_then(|k| k.as_str())
-                         .map(|s| s.to_string())
-                         .unwrap_or_default();
-        Self {
-            key,
-            seid,
-        }
+        config.clone().try_into().expect("")
     }
 
     fn search(&self, query: &str) -> Result<SearchResults, reqwest::Error> {
