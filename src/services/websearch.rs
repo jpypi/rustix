@@ -40,8 +40,8 @@ impl WebSearch {
         let client = reqwest::blocking::Client::new();
         let query = client.get(BASE_URL)
                           .query(&[("key", self.key.as_str()),
-                                  ("cx", self.seid.as_str()),
-                                  ("q", query)])
+                                   ("cx", self.seid.as_str()),
+                                   ("q", query)])
                           .header("Accept", "application/json");
 
         query.send().and_then(|o| o.json())
