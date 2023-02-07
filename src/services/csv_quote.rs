@@ -56,13 +56,14 @@ impl ReadQuote {
     }
 
     fn search_quote(&mut self, sub_str: &str) -> Result<Option<OldQuote>, Box<dyn Error>>{
+        let query = sub_str.to_lowercase();
         let mut reader = csv::Reader::from_path(&self.filename)?;
 
         let mut quotes = Vec::new();
 
         for result in reader.deserialize() {
             let record: OldQuote = result?;
-            if record.text.contains(sub_str) {
+            if record.text.to_lowercase().contains(&query) {
                 quotes.push(record);
             }
         }
