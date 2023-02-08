@@ -297,9 +297,11 @@ impl MatrixClient {
             timeout: u128,
         }
 
+        let timeout = length.unwrap_or(Duration::new(1, 0)).as_millis();
+
         let data = Data {
-            typing: true,
-            timeout: length.unwrap_or(Duration::new(1, 0)).as_millis(),
+            typing: length.is_some(),
+            timeout: timeout,
         };
 
         let path = format!("/rooms/{}/typing/{}", room_id,
