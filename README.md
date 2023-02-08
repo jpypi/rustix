@@ -92,8 +92,9 @@ search API.
 - s \<search string\>
 
 ### Enabled via `services.openai`:
-The `chat` command, which enables interaction with openai's gpt models.
-Basically, your own chatgpt that everyone can interact with in a shared channel.
+The `chat` command, which enables interaction with openai's gpt models. Very
+similar to having your own ChatGPT that everyone can interact with in a shared
+channel.
 
 - chat \<whatever you want to say to rustix\>
 
