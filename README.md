@@ -153,7 +153,7 @@ mount for the `config.toml` file, but you could alternately copy the config in
 to the rustix container via: `docker cp config.toml
 rustix-rustix-1:config.toml` or utilize a volume.
 
-You will also need to make sure to have the following in palce:
+You will also need to make sure to have the following in place:
 
 1. Make is installed
 2. Docker and docker-compose are both installed and setup
