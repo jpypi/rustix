@@ -162,6 +162,8 @@ impl<'a> Node<'a> for GPT {
             self.last_query = std::time::Instant::now();
 
             if let Some(message) = body.strip_prefix("chat ") {
+                bot.indicate_typing(&event.room_id, None).ok();
+
                 let uname = trim_name(&revent.sender);
                 let (context, _) = self.build_context(bot, event.room_id, uname, message);
 
