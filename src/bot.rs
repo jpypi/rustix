@@ -1,5 +1,6 @@
 use std::collections::HashMap;
-use std::{result, thread, time};
+use std::time::Duration;
+use std::{result, thread};
 use std::cell::{RefCell, RefMut};
 use std::any::Any;
 
@@ -92,9 +93,14 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         self.client.borrow().ban(room_id, user_id, reason)
     }
 
-    pub fn get_room_events(&self, room_id: &str, n: u32, from: Option<&str>) -> Result<RoomChunks> {
-        self.client.borrow().get_room_events(room_id, n, from)
+    pub fn indicate_typing(&self, room_id: &str, length: Option<Duration>) -> Result<Response> {
+        self.client.borrow().indicate_typing(room_id, length)
     }
+
+    /*
+    pub fn action(&self, room_id: &str, action: &str) {
+    }
+    */
 
     pub fn uid_from_displayname(&self, name_query: &str) -> Result<String> {
         let res = self.client.borrow().get_directory(name_query, Some(10))?;
@@ -104,11 +110,6 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         }
     }
 
-    /*
-    pub fn action(&self, room_id: &str, action: &str) {
-    }
-    */
-
     pub fn set_displayname(&mut self, name: &str) -> Result<Response> {
         self.display_name = name.to_string();
         self.client.borrow_mut().set_displayname(name)
@@ -116,6 +117,10 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
 
     pub fn get_displayname(&self) -> &str {
         &self.display_name
+    }
+
+    pub fn get_room_events(&self, room_id: &str, n: u32, from: Option<&str>) -> Result<RoomChunks> {
+        self.client.borrow().get_room_events(room_id, n, from)
     }
 
     pub fn register_service(&mut self,
@@ -187,7 +192,7 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
 
         let mut next_batch: String = self.client.borrow().sync(None).unwrap().next_batch;
 
-        let delay = time::Duration::from_millis(500);
+        let delay = Duration::from_millis(500);
 
         loop {
             let sync = self.client.borrow().sync(Some(&next_batch));

@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+use std::time::Duration;
 use std::{result};
 use std::collections::HashMap;
 
@@ -289,21 +290,20 @@ impl MatrixClient {
             .and_then(|o| o.json().or_else(|e| Err(e.into())))
     }
 
-    /*
-    pub fn indicate_typing(&self, room_id: &str, length: Option<u32>) -> Result<Response, RustixError> {
-        let mut data = HashMap::new();
-        data.insert("typing", serde_json::Value::Bool(true));
-        let v = match length {
-            Some(i) => i,
-            None => 1000,
+    pub fn indicate_typing(&self, room_id: &str, length: Option<Duration>) -> Result<Response> {
+        #[derive(Serialize)]
+        struct Data {
+            typing: bool,
+            timeout: u128,
+        }
+
+        let data = Data {
+            typing: true,
+            timeout: length.unwrap_or(Duration::new(1, 0)).as_millis(),
         };
-
-
-        data.insert("timeout", serde_json::Value::from(v));
 
         let path = format!("/rooms/{}/typing/{}", room_id,
                            self.user_id.as_ref().expect("Must be logged in"));
-        self.auth_query(HTTPVerb::PUT, &path, None, Some(&data))
+        self.auth_query(Method::PUT, &path, None, Some(&data), None)
     }
-    */
 }
