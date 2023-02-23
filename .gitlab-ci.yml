@@ -45,12 +45,12 @@ build-latest-rustix-db-migration:
         tag=":$CI_COMMIT_REF_SLUG"
         echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
       fi
-    - docker build --pull -t "$CI_REGISTRY_IMAGE/rustix-db-migration${tag}" -f DockerfileMigration .
+    - docker build --pull -t "$CI_REGISTRY_IMAGE/rustix-db-migration${tag}" -f migration.Dockerfile .
     - docker push "$CI_REGISTRY_IMAGE/rustix-db-migration${tag}"
   rules:
     - if: $CI_COMMIT_BRANCH
       changes:
-        - DockerfileMigration
+        - migration.Dockerfile
         - Cargo.lock
         - diesel.toml
         - migrations/**/*.sql

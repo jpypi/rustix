@@ -8,7 +8,7 @@ rustix:
 	docker build -t $(RUSTIX) -f Dockerfile .
 
 migration:
-	docker build -t $(RUSTIX_DIESEL) -f DockerfileMigration .
+	docker build -t $(RUSTIX_DIESEL) -f migration.Dockerfile.
 
 update:
 	docker pull registry.gitlab.com/jpypi/rustix/rustix
