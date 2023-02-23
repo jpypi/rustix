@@ -22,12 +22,12 @@ build-latest-rustix:
         tag=":$CI_COMMIT_REF_SLUG"
         echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
       fi
-    - docker build --build-arg BuildEnv=prod --pull -t "$CI_REGISTRY_IMAGE/rustix${tag}" -f Dockerfile .
+    - docker build --build-arg BuildEnv=prod --pull -t "$CI_REGISTRY_IMAGE/rustix${tag}" -f rustix.Dockerfile .
     - docker push "$CI_REGISTRY_IMAGE/rustix${tag}"
   rules:
     - if: $CI_COMMIT_BRANCH
       changes:
-        - Dockerfile
+        - rustix.Dockerfile
         - Cargo.lock
         - src/**/*.rs
 

@@ -5,7 +5,7 @@ RUSTIX_DIESEL=perplexinglabs/rustix-diesel:0.1
 
 rustix:
 	mkdir -p var
-	docker build -t $(RUSTIX) -f Dockerfile .
+	docker build -t $(RUSTIX) -f rustix.Dockerfile .
 
 migration:
 	docker build -t $(RUSTIX_DIESEL) -f migration.Dockerfile.
