@@ -65,6 +65,8 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 \**Command is under the admin node and requires message sender to be in the
 admin list specified in `config.toml`*
 
+Quote related commands such as "addquote" also have aliases e.g. "aq".
+
 ## Optional Commands (if configured)
 
 ### Enabled via `services.csv_quote`:

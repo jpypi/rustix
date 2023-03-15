@@ -20,3 +20,19 @@ pub fn reservoir_sample<R: Rng, T: Clone + Default, E>(iterable: impl Iterator<I
 
     Ok(reservoir[n].clone())
 }
+
+
+pub trait AliasStripPrefix {
+    fn alias_strip_prefix<'a>(&'a self, aliases: &[&str]) -> Option<&'a str>;
+}
+
+impl AliasStripPrefix for str {
+    fn alias_strip_prefix<'a>(&'a self, aliases: &[&str]) -> Option<&'a str> {
+        for alias in aliases {
+            if let Some(res) = self.strip_prefix(alias) {
+                return Some(res);
+            }
+        }
+        None
+    }
+}

@@ -5,7 +5,7 @@ use rand::rngs::SmallRng;
 use toml::value::Value;
 
 use crate::bot::{Bot, Node, RoomEvent};
-use crate::services::utils::reservoir_sample;
+use crate::services::utils::{reservoir_sample, AliasStripPrefix};
 
 
 #[derive(Deserialize, Debug, Default, Clone, Eq, PartialEq)]
@@ -100,7 +100,7 @@ impl<'a> Node<'a> for ReadQuote {
 
         let mut resp: Option<String> = None;
 
-        if let Some(id) = body.strip_prefix("oldgetquote ") {
+        if let Some(id) = body.alias_strip_prefix(&["oldgetquote ", "ogq "]) {
             resp = Some(match id.parse() {
                 Ok(qid) => {
                     match self.get_quote(qid) {
@@ -113,7 +113,7 @@ impl<'a> Node<'a> for ReadQuote {
                 },
                 Err(_) => "Invalid quote id".to_string(),
             });
-        } else if let Some(mut query) = body.strip_prefix("oldsearchquote ") {
+        } else if let Some(mut query) = body.alias_strip_prefix(&["oldsearchquote ", "osq "]) {
             query = query.trim();
 
             if !query.is_empty() {
@@ -134,7 +134,7 @@ impl<'a> Node<'a> for ReadQuote {
             } else {
                 resp = Some("oldsearchquote requires search terms".to_string());
             }
-        } else if let Some(mut query) = body.strip_prefix("oldrandquote") {
+        } else if let Some(mut query) = body.alias_strip_prefix(&["oldrandquote", "orq"]) {
             query = query.trim();
 
             if !query.is_empty() {
@@ -160,9 +160,9 @@ impl<'a> Node<'a> for ReadQuote {
     }
 
     fn description(&self) -> Option<String> {
-        Some("oldgetquote - Get a specific quote by id. Pass a valid integer quote id as the only argument.\n\
-              oldsearchquote - Performs string search using provided argument (may contain spaces) and returns all quote ids.\n\
-              oldrandquote - Returns a random quote. Random quotes can be filtered by a string search using an optional provided argument.".to_string())
+        Some("oldgetquote (ogq) - Get a specific quote by id. Pass a valid integer quote id as the only argument.\n\
+              oldsearchquote (osq) - Performs string search using provided argument (may contain spaces) and returns all quote ids.\n\
+              oldrandquote (orq) - Returns a random quote. Random quotes can be filtered by a string search using an optional provided argument.".to_string())
     }
 }
 

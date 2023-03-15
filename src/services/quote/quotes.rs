@@ -2,6 +2,7 @@ use chrono::offset::Local;
 use chrono::DateTime;
 
 use crate::bot::{Bot, Node, RoomEvent};
+use crate::services::utils::AliasStripPrefix;
 use super::backend::Backend;
 use super::models::{Quote, User};
 
@@ -25,13 +26,13 @@ impl<'a> Node<'a> for Quotes {
 
         let mut resp: Option<String> = None;
 
-        if let Some(quote) = body.strip_prefix("addquote ") {
+        if let Some(quote) = body.alias_strip_prefix(&["addquote ", "aq "]) {
             if let Ok(qid) = self.quote_db.add_quote(&revent.sender, quote) {
                 resp = Some(format!("Successfully added quote #{}!", qid));
             } else {
                 resp = Some("Failed to add quote.".to_string());
             }
-        } else if let Some(id) = body.strip_prefix("getquote ") {
+        } else if let Some(id) = body.alias_strip_prefix(&["getquote ", "gq "]) {
             resp = Some(match id.parse() {
                 Ok(qid) => {
                     match self.quote_db.get_quote(qid) {
@@ -41,7 +42,7 @@ impl<'a> Node<'a> for Quotes {
                 },
                 Err(_) => "Invalid quote id".to_string(),
             });
-        } else if let Some(mut query) = body.strip_prefix("searchquote ") {
+        } else if let Some(mut query) = body.alias_strip_prefix(&["searchquote ", "sq "]) {
             query = query.trim();
 
             if query.len() > 0 {
@@ -63,7 +64,7 @@ impl<'a> Node<'a> for Quotes {
             } else {
                 resp = Some("searchquote requires search terms".to_string());
             }
-        } else if let Some(mut query) = body.strip_prefix("randquote") {
+        } else if let Some(mut query) = body.alias_strip_prefix(&["randquote", "rq"]) {
             query = query.trim();
 
             if !query.is_empty() {
@@ -83,10 +84,10 @@ impl<'a> Node<'a> for Quotes {
     }
 
     fn description(&self) -> Option<String> {
-        Some("addquote - Add a quote to the database. (Please format as: <nick> phrase)\n\
-              getquote - Get a specific quote by id. Pass a valid integer quote id as the only argument.\n\
-              searchquote - Performs string search using provided argument (may contain spaces) and returns all quote ids.\n\
-              randquote - Returns a random quote. Random quotes can be filtered by a string search using an optional provided argument.".to_string())
+        Some("addquote (aq) - Add a quote to the database. (Please format as: <nick> phrase)\n\
+              getquote (gq) - Get a specific quote by id. Pass a valid integer quote id as the only argument.\n\
+              searchquote (sq) - Performs string search using provided argument (may contain spaces) and returns all quote ids.\n\
+              randquote (rq) - Returns a random quote. Random quotes can be filtered by a string search using an optional provided argument.".to_string())
     }
 }
 
