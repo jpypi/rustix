@@ -37,7 +37,7 @@ impl<'a> Node<'a> for Quotes {
                 Ok(qid) => {
                     match self.quote_db.get_quote(qid) {
                         Ok((quoter, quote)) => render_quote(&quote, &quoter),
-                        Err(_) => "No quote by that id was found".to_string()
+                        Err(_) => format!("No quote found with id {}", qid),
                     }
                 },
                 Err(_) => "Invalid quote id".to_string(),

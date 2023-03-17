@@ -106,7 +106,7 @@ impl<'a> Node<'a> for ReadQuote {
                     match self.get_quote(qid) {
                         Ok(v) => match v {
                             Some(s) => render_quote(&s),
-                            None => format!("No quote found with id {}", qid)
+                            None => format!("No quote found with id {}", qid),
                         },
                         Err(e) => e.to_string(),
                     }
@@ -120,11 +120,10 @@ impl<'a> Node<'a> for ReadQuote {
                 resp = Some(match self.search_quotes(query) {
                     Ok(quote_ids) => {
                         if !quote_ids.is_empty() {
-                            let ids_str = quote_ids.into_iter()
-                                                   .map(|id| id.to_string())
-                                                   .collect::<Vec<String>>()
-                                                   .join(", ");
-                            format!("Matching quotes: {}", ids_str)
+                            let ids = quote_ids.into_iter()
+                                               .map(|id| id.to_string())
+                                               .collect::<Vec<String>>();
+                            format!("Found {} quotes: {}", ids.len(), ids.join(", "))
                         } else {
                             format!("No quotes found matching \"{}\"", query)
                         }
@@ -141,7 +140,7 @@ impl<'a> Node<'a> for ReadQuote {
                 resp = Some(match self.search_quote(query) {
                     Ok(v) => match v {
                         Some(s) => render_quote(&s),
-                        None => format!("No quote found matching {}", query)
+                        None => format!("No quote found matching {}", query),
                     },
                     Err(e) => e.to_string(),
                 });
