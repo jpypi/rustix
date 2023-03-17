@@ -79,8 +79,10 @@ impl GPT {
             model: self.current_model,
             prompt: message.to_string(),
             max_tokens: Some(4096 - msg_tokens),
-            temperature: Some(0.2),
+            temperature: Some(0.8),
             top_p: None,
+            presence_penalty: None,
+            frequency_penalty: Some(0.4),
             n: Some(1),
             user: Some(hashed_userid),
         };

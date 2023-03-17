@@ -27,6 +27,8 @@ pub struct Query {
     pub prompt: String,
     pub max_tokens: Option<u32>,
     pub temperature: Option<f32>,
+    pub presence_penalty: Option<f32>,
+    pub frequency_penalty: Option<f32>,
     pub top_p: Option<f32>,
     pub n: Option<u32>,
     pub user: Option<String>,
