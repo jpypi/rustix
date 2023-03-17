@@ -25,12 +25,18 @@ pub struct AIModel {
 pub struct Query {
     pub model: ModelType,
     pub prompt: String,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub max_tokens: Option<u32>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub temperature: Option<f32>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub presence_penalty: Option<f32>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub frequency_penalty: Option<f32>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub top_p: Option<f32>,
     pub n: Option<u32>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub user: Option<String>,
 }
 
