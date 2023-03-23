@@ -26,7 +26,7 @@ impl<'a> Node<'a> for Quotes {
 
         let mut resp: Option<String> = None;
 
-        if let Some(quote) = body.alias_strip_prefix(&["addquote ", "aq "]) {
+        if let Some(quote) = body.alias_strip_prefix(&["addquote ", "aq ", "quote ", "q "]) {
             if let Ok(qid) = self.quote_db.add_quote(&revent.sender, quote) {
                 resp = Some(format!("Successfully added quote #{}!", qid));
             } else {
