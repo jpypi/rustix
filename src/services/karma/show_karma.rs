@@ -39,16 +39,19 @@ impl<'a> Node<'a> for ShowKarma<'a> {
             for cap in check_re.captures_iter(body) {
                 finds += 1;
                 let query = cap[1].trim();
-                if let Some(k) = self.vote_db.get_upvotes(query) {
+                let res = self.vote_db.get_upvotes(query);
+                if let Ok(Some(k)) = res {
                     let positive = (k.total_up as f32/(k.total_up+k.total_down) as f32)*100.0;
                     let total = k.total_up - k.total_down;
                     let response = format!("Karma for '{}': Net karma: {} (+{}/-{}; {:.1}% like it)",
                         query, total, k.total_up, k.total_down, positive
                     );
                     bot.reply(&event, &response).ok();
-                } else {
+                } else if let Ok(None) = res {
                     let response = format!("Karma for '{}': Net karma: 0 (+0/-0 0% like it)", query);
                     bot.reply(&event, &response).ok();
+                } else {
+                    bot.reply(&event, &format!("Error querying karma for '{}'", query)).ok();
                 }
             }
 

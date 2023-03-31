@@ -100,14 +100,14 @@ impl Backend {
         Ok(())
     }
 
-    pub fn get_upvotes(&self, entity: &str) -> Option<Voteable> {
+    pub fn get_upvotes(&self, entity: &str) -> QueryResult<Option<Voteable>> {
         let entity = &entity.to_lowercase();
 
         let mut res = voteables.filter(value.eq(entity))
-                               .load(&self.connection).unwrap();
+                               .load(&self.connection)?;
         match res.len() {
-            0 => None,
-            _ => Some(res.pop().unwrap()),
+            0 => Ok(None),
+            _ => Ok(Some(res.pop().unwrap())),
         }
     }
 
