@@ -5,6 +5,8 @@ Rustix is a [matrix](https://matrix.org) bot/library/framework written in
 library, but rather contains one, with only the necessary API calls, within it.
 HTTP requests are made directly to a matrix server via the reqwest library.
 
+*Note:* [The primary home for this project is on gitlab](https://gitlab.com/jpypi/rustix) anywhere else is just a mirror.
+
 # Running
 
 To run rustix there must be a matrix user account with a password set up. The
