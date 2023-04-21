@@ -88,7 +88,7 @@ one were to place a file named `randquote.txt` in `var`, both the randquote
 function will be executed and a random line from `randquote.txt` will be echoed.
 
 ### Enabled via `services.web_search`:
-The `s` command, which performs search queries using the Goolge custom web
+The `s` command, which performs search queries using the Google custom web
 search API.
 
 - s \<search string\>
