@@ -16,6 +16,7 @@ use crate::services::schema::{
 };
 
 use super::models::*;
+use super::super::db::user::*;
 
 
 pub struct Backend {

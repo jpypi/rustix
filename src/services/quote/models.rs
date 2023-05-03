@@ -1,20 +1,5 @@
 use std::time::SystemTime;
-use crate::services::schema::{users, quotes};
-
-#[derive(Queryable)]
-#[derive(Identifiable)]
-pub struct User {
-    pub id: i32,
-    pub user_id: String,
-}
-
-#[derive(Insertable)]
-#[table_name="users"]
-pub struct NewUser<'a> {
-    pub user_id: &'a str,
-}
-
-// ------------
+use crate::services::schema::quotes;
 
 #[derive(Queryable, Identifiable, AsChangeset)]
 pub struct Quote {

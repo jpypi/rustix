@@ -4,7 +4,8 @@ use chrono::DateTime;
 use crate::bot::{Bot, Node, RoomEvent};
 use crate::services::utils::AliasStripPrefix;
 use super::backend::Backend;
-use super::models::{Quote, User};
+use super::models::Quote;
+use super::super::db::user::User;
 
 
 pub struct Quotes {
