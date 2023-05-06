@@ -16,7 +16,7 @@ use crate::services::schema::{
 };
 
 use super::models::*;
-use super::super::db::user::*;
+use crate::services::db::user::{self, *};
 
 
 pub struct Backend {
@@ -38,21 +38,8 @@ impl Backend {
     }
 
     pub fn vote(&self, user: &str, entity: &str, up: i32, down: i32) -> QueryResult<()> {
-
         let entity = &entity.to_lowercase();
-
-        let mut res: Vec<User> = us::users.filter(us::user_id.eq(user))
-                                          .load(&self.connection).unwrap();
-        let user = match res.len() {
-            0 => {
-                let new_user = NewUser { user_id: user };
-                diesel::insert_into(users::table)
-                    .values(&new_user)
-                    .get_result(&self.connection)
-                    .expect("Error creating new user")
-            },
-            _ => res.pop().unwrap(),
-        };
+        let user = user::fetch_or_create(&self.connection, user).unwrap();
 
         let mut res: Vec<Voteable> = voteables.filter(value.eq(entity))
                                               .load(&self.connection)?;

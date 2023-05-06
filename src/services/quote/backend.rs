@@ -8,6 +8,7 @@ use dotenv::dotenv;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 
+use crate::services::db::user::{self, *};
 use crate::services::schema::{
     users as us,
     quotes as qu,
@@ -15,7 +16,6 @@ use crate::services::schema::{
     users::dsl::*,
 };
 use super::models::*;
-use super::super::db::user::*;
 
 
 pub struct Backend {
@@ -39,16 +39,7 @@ impl Backend {
     }
 
     pub fn add_quote(&self, user: &str, quote: &str) -> QueryResult<i32>{
-        let user: User = match users.filter(user_id.eq(user))
-                                    .get_result(&self.connection) {
-            Ok(u) => u,
-            Err(_) => {
-                let new_user = NewUser { user_id: user };
-                diesel::insert_into(us::table)
-                    .values(&new_user)
-                    .get_result(&self.connection)?
-            }
-        };
+        let user = user::fetch_or_create(&self.connection, user).unwrap();
 
         let new_quote = NewQuote {
             quoter_id: user.id,
