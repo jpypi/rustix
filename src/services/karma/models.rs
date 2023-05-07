@@ -1,4 +1,4 @@
-use crate::services::schema::{voteables, votes};
+use super::super::db::schema::{voteables, votes};
 
 #[derive(Queryable, Identifiable, AsChangeset)]
 pub struct Voteable {

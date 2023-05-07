@@ -1,5 +1,5 @@
 use std::time::SystemTime;
-use crate::services::schema::quotes;
+use super::super::db::schema::quotes;
 
 #[derive(Queryable, Identifiable, AsChangeset)]
 pub struct Quote {

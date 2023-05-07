@@ -6,17 +6,16 @@ use diesel::{
     prelude::*,
 };
 
-use crate::services::schema::{
+use super::super::db::schema::{
     users,
-    users::dsl as us,
     voteables,
     voteables::dsl::*,
     votes,
     votes::dsl as vts,
 };
+use super::super::db::user;
 
 use super::models::*;
-use crate::services::db::user::{self, *};
 
 
 pub struct Backend {

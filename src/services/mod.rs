@@ -17,5 +17,4 @@ pub mod websearch;
 pub mod openai;
 
 mod utils;
-mod schema;
 mod db;

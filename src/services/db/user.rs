@@ -1,7 +1,7 @@
 use diesel::PgConnection;
 use diesel::prelude::*;
 
-use crate::services::schema::users::{self, dsl::*};
+use super::schema::users::{self, dsl::*};
 
 #[derive(Queryable)]
 #[derive(Identifiable)]

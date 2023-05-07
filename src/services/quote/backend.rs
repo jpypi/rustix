@@ -8,8 +8,8 @@ use dotenv::dotenv;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 
-use crate::services::db::user::{self, *};
-use crate::services::schema::{
+use super::super::db::user::{self, *};
+use super::super::db::schema::{
     users as us,
     quotes as qu,
     quotes::dsl::*,
