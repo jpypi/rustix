@@ -15,6 +15,7 @@ pub mod help;
 pub mod logging;
 pub mod websearch;
 pub mod openai;
+pub mod factoid;
 
 mod utils;
 mod db;
