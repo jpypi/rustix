@@ -1,13 +1,13 @@
 use crate::bot::{Bot, Node, RoomEvent};
 
 pub struct Echo<'a> {
-    children: Vec<&'a str>
+    children: Vec<&'a str>,
 }
 
 impl<'a> Echo<'a> {
     pub fn new() -> Self {
         Self {
-            children: Vec::new()
+            children: Vec::new(),
         }
     }
 }

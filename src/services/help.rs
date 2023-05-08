@@ -8,9 +8,7 @@ pub struct Help {
 
 impl Help {
     pub fn new() -> Self {
-        Self {
-            reply_id: None
-        }
+        Self { reply_id: None }
     }
 }
 

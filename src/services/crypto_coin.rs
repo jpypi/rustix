@@ -1,17 +1,14 @@
-use reqwest;
 use http::Method;
 use regex::Regex;
+use reqwest;
 
 use crate::bot::{Bot, Node, RoomEvent};
 
-
-pub struct CryptoCoin {
-}
+pub struct CryptoCoin {}
 
 impl CryptoCoin {
     pub fn new() -> Self {
-        Self {
-        }
+        Self {}
     }
 }
 
@@ -36,40 +33,38 @@ impl<'a> Node<'a> for CryptoCoin {
     }
 }
 
-
 fn price_string(sym: &str) -> String {
     match get_ticker(&sym[..3]) {
         Some(values) => {
-            format!("{} - Last Price: ${}, Bid/Ask: ${}/{}, Volume: {}", sym,
-                    values[TickerValue::LastPrice.value()],
-                    values[TickerValue::Bid.value()],
-                    values[TickerValue::Ask.value()],
-                    values[TickerValue::Volume.value()])
-        },
-        None => format!("Could not fetch market data for: {}", sym)
+            format!(
+                "{} - Last Price: ${}, Bid/Ask: ${}/{}, Volume: {}",
+                sym,
+                values[TickerValue::LastPrice.value()],
+                values[TickerValue::Bid.value()],
+                values[TickerValue::Ask.value()],
+                values[TickerValue::Volume.value()]
+            )
+        }
+        None => format!("Could not fetch market data for: {}", sym),
     }
 }
-
 
 fn get_ticker(sym: &str) -> Option<Vec<f32>> {
     let url = format!("https://api.bitfinex.com/v2/ticker/t{}USD", sym);
 
     let client = reqwest::blocking::Client::new();
     match client.request(Method::GET, &url).send() {
-        Ok(resp) => {
-            match resp.json() {
-                Ok(v) => Some(v),
-                Err(_) => None,
-            }
+        Ok(resp) => match resp.json() {
+            Ok(v) => Some(v),
+            Err(_) => None,
         },
         Err(_) => None,
     }
 }
 
-
 #[allow(dead_code)]
 #[repr(usize)]
-enum TickerValue{
+enum TickerValue {
     Bid,             // float  Price of last highest bid
     BidSize,         // float  Size of the last highest bid
     Ask,             // float  Price of last lowest ask
