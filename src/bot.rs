@@ -164,8 +164,8 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
     }
 
     // Two stage query all method
-    pub fn delay_service_query<T: Fn(&mut dyn Node) -> Box<dyn Any> + 'c>(&self, node: &dyn Node, func: T) {
-        self.delayed_queries.borrow_mut().insert("help", Box::new(func));
+    pub fn delay_service_query<T: Fn(&mut dyn Node) -> Box<dyn Any> + 'c>(&self, node: &'c str, func: T) {
+        self.delayed_queries.borrow_mut().insert(node, Box::new(func));
     }
 
     fn process_delayed_queries(&mut self) {
