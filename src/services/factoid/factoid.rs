@@ -39,7 +39,7 @@ impl Factoid {
 
         let leader = cfg.factoid_leader;
         let set_pattern =
-            Regex::new(&format!("{}\\s?(.+?) is (<reply>|<action>) (.+)", &leader)).unwrap();
+            Regex::new(&format!("^{}\\s?(.+?) is (<reply>|<action>) (.+)", &leader)).unwrap();
 
         Self {
             connection,
@@ -60,36 +60,12 @@ impl<'a> Node<'a> for Factoid {
         let body = revent.content["body"].as_str().unwrap();
 
         let captures = self.set_pattern.captures(body);
-        if let Some(groups) = captures {
-            let factoid_key = groups.get(1).unwrap().as_str();
-            let factoid_kind = groups.get(2).unwrap().as_str();
-            let factoid_value = groups.get(3).unwrap().as_str();
-
-            let user = user::fetch_or_create(&self.connection, &event.raw_event.sender).unwrap();
-
-            let fact_kind = match factoid_kind {
-                "<reply>" => models::FactoidKind::Reply,
-                "<action>" => models::FactoidKind::Action,
-                &_ => panic!("This should never occur"),
-            };
-
-            let f = models::NewFactoid {
-                time: SystemTime::now(),
-                user_id: user.id,
-                pattern: factoid_key,
-                kind: fact_kind,
-                value: factoid_value,
-            };
-
-            diesel::insert_into(fs::table)
-                .values(&f)
-                .execute(&self.connection)
-                .ok();
-        } else if let Some(factoid_key) = body.strip_prefix("literal ") {
-            let res: Vec<models::Factoid> = fs::dsl::factoids
-                .filter(fs::pattern.eq(factoid_key))
-                .load(&self.connection)
-                .unwrap();
+        if let Some(factoid_key) = body.strip_prefix("literal ") {
+            let res: Vec<models::Factoid> =
+                sql_query("SELECT * FROM factoids WHERE $1 LIKE pattern || '%'")
+                    .bind::<Text, _>(factoid_key)
+                    .load(&self.connection)
+                    .unwrap();
             let mut response = vec![format!(
                 "{:>4} - {:^34} - {:^8}: {}",
                 "id", "user", "kind", "factoid"
@@ -124,6 +100,31 @@ impl<'a> Node<'a> for Factoid {
             };
 
             bot.reply(&event, &response).ok();
+        } else if let Some(groups) = captures {
+            let factoid_key = groups.get(1).unwrap().as_str();
+            let factoid_kind = groups.get(2).unwrap().as_str();
+            let factoid_value = groups.get(3).unwrap().as_str();
+
+            let user = user::fetch_or_create(&self.connection, &event.raw_event.sender).unwrap();
+
+            let fact_kind = match factoid_kind {
+                "<reply>" => models::FactoidKind::Reply,
+                "<action>" => models::FactoidKind::Action,
+                &_ => panic!("This should never occur"),
+            };
+
+            let f = models::NewFactoid {
+                time: SystemTime::now(),
+                user_id: user.id,
+                pattern: factoid_key,
+                kind: fact_kind,
+                value: factoid_value,
+            };
+
+            diesel::insert_into(fs::table)
+                .values(&f)
+                .execute(&self.connection)
+                .ok();
         } else {
             let res: Vec<models::Factoid> =
                 sql_query("SELECT * FROM factoids WHERE $1 LIKE pattern || '%'")
