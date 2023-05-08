@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::string::String;
 use std::time::SystemTime;
 
@@ -13,7 +14,17 @@ pub enum FactoidKind {
     Action,
 }
 
-#[derive(Queryable, Identifiable, AsChangeset)]
+impl Display for FactoidKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FactoidKind::Reply => f.pad("<reply>"),
+            FactoidKind::Action => f.pad("<action>"),
+        }
+    }
+}
+
+#[derive(Debug, Queryable, QueryableByName, Identifiable, AsChangeset)]
+#[table_name = "factoids"]
 pub struct Factoid {
     pub id: i32,
     pub time: SystemTime,
