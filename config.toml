@@ -18,6 +18,8 @@ directory = "/usr/share/rustix"
 file = "csv_quotes.csv"
 
 [services.web_search]
+key = "<google api key>"
+seid = "<google custom search id>"
 
 [services.factoid]
 factoid_leader = "rustix,"

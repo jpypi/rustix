@@ -1,4 +1,6 @@
 # About
+[![pipeline status](https://gitlab.com/jpypi/rustix/badges/master/pipeline.svg?key_text=build+(master)&key_width=110)](https://gitlab.com/jpypi/rustix/-/pipelines/latest)
+
 
 Rustix is a [matrix](https://matrix.org) bot/library/framework written in
 [rust](https://www.rust-lang.org/). This project does not use a matrix client
@@ -95,6 +97,33 @@ search API.
 
 - s \<search string\>
 
+### Enabled via `services.factoid`:
+This service provides functionality for simple pattern matching to simple facts.
+Though enabled by default, it should be noted that this service can quickly
+become very irritating, and it may be wise to put it behind some additional
+filters restricting it to certain rooms or potentially only allowing certain
+users to use some of the functionality. As a reminder, to disable the service,
+simply remove the configuration in the config file.
+You can add mappings by sending:
+
+"rustix, rust is <reply> awesome"
+
+or
+
+"rustix, waves is <action> waves back"
+
+Now, whenever a message containing the word "rust" is sent, rustix will reply
+"awesome".  Similarly, whenever a message containing the word "waves" is sent,
+rustix will send an event which creates a message as though the action was
+performed in third person i.e. "* rustix waves back". This is akin to using "/me
+waves at rustix" in popular matrix or irc clients.
+
+Multiple factoids can be assigned to the same "key", and rustix will randomly
+chose one when a match for the key is found. To list all the responses mapped to
+a key send: "literal <key>" e.g. "literal waves", and you will get a list of
+factoids (including the factoid metadata i.e. creator, id, etc.). To remove a
+factoid simply send "delfactoid <id>" and rustix will remove that factoid.
+
 ### Enabled via `services.openai`:
 The `chat` command, which enables interaction with openai's gpt models. Very
 similar to having your own ChatGPT that everyone can interact with in a shared
@@ -132,6 +161,9 @@ file = "csv_quotes.csv"
 key = "<google api key>"
 seid = "<google custom search id>"
 
+[services.factoid]
+factoid_leader = "rustix,"
+
 [services.openai]
 secret = "<openai api key>"
 backstory_file = "backstory.txt"
@@ -142,12 +174,13 @@ starting_tokens = 10000
 
 Rustix will ignore all events by users in the ignore list, not just commands.
 
-The configuration for the following services is optional. That is, removing the
+**Reminder:** The configuration for the following services is optional. That is, removing the
 configuration will disable the service in rustix and not cause an error.
 
 - try_file
 - csv_quote
 - web_search
+- factoid
 - openai
 
 # Docker - Pre-built (recommended/easiest)
