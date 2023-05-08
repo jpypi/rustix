@@ -81,8 +81,16 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         self.client.borrow_mut().send_msg(room_id, message)
     }
 
+    pub fn action(&self, room_id: &str, message: &str) -> Result<Response> {
+        self.client.borrow_mut().send_act(room_id, message)
+    }
+
     pub fn reply(&self, event: &RoomEvent, message: &str) -> Result<Response> {
         self.say(event.room_id, message)
+    }
+
+    pub fn reply_action(&self, event: &RoomEvent, message: &str) -> Result<Response> {
+        self.action(event.room_id, message)
     }
 
     pub fn kick(&self, room_id: &str, user_id: &str, reason: Option<&str>) -> Result<Response> {
@@ -96,11 +104,6 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
     pub fn indicate_typing(&self, room_id: &str, length: Option<Duration>) -> Result<Response> {
         self.client.borrow().indicate_typing(room_id, length)
     }
-
-    /*
-    pub fn action(&self, room_id: &str, action: &str) {
-    }
-    */
 
     pub fn uid_from_displayname(&self, name_query: &str) -> Result<String> {
         let res = self.client.borrow().get_directory(name_query, Some(10))?;

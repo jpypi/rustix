@@ -226,6 +226,15 @@ impl MatrixClient {
         self.send(room_id, "m.room.message", Some(&data))
     }
 
+    pub fn send_act(&mut self, room_id: &str, message: &str) -> Result<Response> {
+        let data = hashmap! {
+            "msgtype" => "m.emote",
+            "body"    => message,
+        };
+
+        self.send(room_id, "m.room.message", Some(&data))
+    }
+
     pub fn kick(&self, room_id: &str, user_id: &str, reason: Option<&str>) -> Result<Response> {
         let path = format!("/rooms/{}/kick", room_id);
 
