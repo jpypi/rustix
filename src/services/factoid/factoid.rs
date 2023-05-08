@@ -62,7 +62,8 @@ impl<'a> Node<'a> for Factoid {
                 ));
             }
 
-            if response.len() > 0 {
+            // If the only row is the header row then the length will be 1
+            if response.len() > 1 {
                 let raw = response.join("\n");
                 let message = codeblock_format(&raw);
                 bot.reply_fmt(&event, &message, &raw).ok();
