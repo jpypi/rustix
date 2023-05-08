@@ -1,6 +1,5 @@
 use crate::bot::{Bot, Node, RoomEvent};
 
-
 pub struct GetJoined;
 impl GetJoined {
     pub fn new() -> Self {
@@ -15,14 +14,13 @@ impl<'a> Node<'a> for GetJoined {
             if body.starts_with("joined") {
                 match bot.get_joined() {
                     Ok(rooms) => {
-                        let resp = format!("Currently in rooms: {}",
-                                        rooms.joined_rooms.join(", "));
+                        let resp = format!("Currently in rooms: {}", rooms.joined_rooms.join(", "));
                         bot.reply(&event, &resp).ok();
-                    },
+                    }
                     Err(e) => {
                         let resp = format!("{:?}", e);
                         bot.reply(&event, &resp).ok();
-                    },
+                    }
                 };
             }
         }

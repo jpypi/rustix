@@ -1,12 +1,11 @@
 use std::error::Error;
 
-use rand::{SeedableRng, Rng};
 use rand::rngs::SmallRng;
+use rand::{Rng, SeedableRng};
 use toml::value::Value;
 
 use crate::bot::{Bot, Node, RoomEvent};
 use crate::services::utils::{reservoir_sample, AliasStripPrefix};
-
 
 #[derive(Deserialize, Debug, Default, Clone, Eq, PartialEq)]
 struct OldQuote {
@@ -17,7 +16,6 @@ struct OldQuote {
     pub channel: String,
 }
 
-
 pub struct ReadQuote {
     rng: SmallRng,
     filename: String,
@@ -25,10 +23,11 @@ pub struct ReadQuote {
 
 impl ReadQuote {
     pub fn new(config: &Value) -> Self {
-        let filename = config.get("file")
-                             .and_then(|d| d.as_str())
-                             .map(|s| s.to_string())
-                             .unwrap_or("csv_quotes.csv".to_string());
+        let filename = config
+            .get("file")
+            .and_then(|d| d.as_str())
+            .map(|s| s.to_string())
+            .unwrap_or("csv_quotes.csv".to_string());
 
         Self {
             rng: SmallRng::from_entropy(),
@@ -36,7 +35,7 @@ impl ReadQuote {
         }
     }
 
-    fn get_quote(&self, id: i32) -> Result<Option<OldQuote>, Box<dyn Error>>{
+    fn get_quote(&self, id: i32) -> Result<Option<OldQuote>, Box<dyn Error>> {
         let mut reader = csv::Reader::from_path(&self.filename)?;
         for result in reader.deserialize() {
             let record: OldQuote = result?;
@@ -55,7 +54,7 @@ impl ReadQuote {
         }
     }
 
-    fn search_quote(&mut self, sub_str: &str) -> Result<Option<OldQuote>, Box<dyn Error>>{
+    fn search_quote(&mut self, sub_str: &str) -> Result<Option<OldQuote>, Box<dyn Error>> {
         let query = sub_str.to_lowercase();
         let mut reader = csv::Reader::from_path(&self.filename)?;
 
@@ -76,7 +75,7 @@ impl ReadQuote {
         Ok(None)
     }
 
-    fn search_quotes(&mut self, sub_str: &str) -> Result<Vec<i32>, Box<dyn Error>>{
+    fn search_quotes(&mut self, sub_str: &str) -> Result<Vec<i32>, Box<dyn Error>> {
         let query = sub_str.to_lowercase();
         let mut reader = csv::Reader::from_path(&self.filename)?;
 
@@ -102,14 +101,12 @@ impl<'a> Node<'a> for ReadQuote {
 
         if let Some(id) = body.alias_strip_prefix(&["oldgetquote ", "ogq "]) {
             resp = Some(match id.parse() {
-                Ok(qid) => {
-                    match self.get_quote(qid) {
-                        Ok(v) => match v {
-                            Some(s) => render_quote(&s),
-                            None => format!("No quote found with id {}", qid),
-                        },
-                        Err(e) => e.to_string(),
-                    }
+                Ok(qid) => match self.get_quote(qid) {
+                    Ok(v) => match v {
+                        Some(s) => render_quote(&s),
+                        None => format!("No quote found with id {}", qid),
+                    },
+                    Err(e) => e.to_string(),
                 },
                 Err(_) => "Invalid quote id".to_string(),
             });
@@ -120,14 +117,15 @@ impl<'a> Node<'a> for ReadQuote {
                 resp = Some(match self.search_quotes(query) {
                     Ok(quote_ids) => {
                         if !quote_ids.is_empty() {
-                            let ids = quote_ids.into_iter()
-                                               .map(|id| id.to_string())
-                                               .collect::<Vec<String>>();
+                            let ids = quote_ids
+                                .into_iter()
+                                .map(|id| id.to_string())
+                                .collect::<Vec<String>>();
                             format!("Found {} quotes: {}", ids.len(), ids.join(", "))
                         } else {
                             format!("No quotes found matching \"{}\"", query)
                         }
-                    },
+                    }
                     Err(e) => e.to_string(),
                 });
             } else {
@@ -165,10 +163,10 @@ impl<'a> Node<'a> for ReadQuote {
     }
 }
 
-
 fn render_quote(quote: &OldQuote) -> String {
     //let datetime: DateTime<Local> = quote.time.into();
-    format!("{}\n{} set by {} {}",
-            quote.text, quote.id, quote.user,
-            quote.timestamp)
+    format!(
+        "{}\n{} set by {} {}",
+        quote.text, quote.id, quote.user, quote.timestamp
+    )
 }

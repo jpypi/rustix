@@ -1,13 +1,12 @@
 use rand::Rng;
+
 use crate::bot::{Bot, Node, RoomEvent};
 
-pub struct Choose {
-}
+pub struct Choose {}
 
 impl Choose {
     pub fn new() -> Self {
-        Self {
-        }
+        Self {}
     }
 }
 
@@ -17,7 +16,6 @@ impl<'a> Node<'a> for Choose {
         if event.is_normal() {
             let body = revent.content["body"].as_str().unwrap();
             if body.starts_with("choose ") {
-
                 let choices: Vec<&str> = body[7..].split_whitespace().collect();
 
                 let mut rng = rand::thread_rng();
