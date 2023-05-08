@@ -67,19 +67,6 @@ impl<'a> Node<'a> for Factoid {
                 let message = codeblock_format(&raw);
                 bot.reply_fmt(&event, &message, &raw).ok();
             }
-        } else if let Some(qid) = body.strip_prefix("delfactoid ") {
-            let response = match qid.parse() {
-                Ok(qid) => {
-                    if self.backend.del_factoid(qid).is_ok() {
-                        format!("Successfully deleted factoid {}", qid)
-                    } else {
-                        format!("Failed to delete factoid {}", qid)
-                    }
-                }
-                Err(_) => "Invalid factoid id".to_string(),
-            };
-
-            bot.reply(&event, &response).ok();
         } else if let Some(groups) = captures {
             let factoid_key = groups.get(1).unwrap().as_str();
             let factoid_kind = groups.get(2).unwrap().as_str();

@@ -19,7 +19,7 @@ use rustix::{
         logging::Logger,
         websearch::WebSearch,
         openai::gpt::GPT,
-        factoid::Factoid,
+        factoid::{Factoid, DelFactoid},
     },
     filters::{
         SelfFilter,
@@ -97,6 +97,7 @@ fn main() {
     }
     if let Some(f_cfg) = config.services.as_ref().and_then(|s| s.get("factoid")) {
         b.register_service("factoid", mt, Box::new(Factoid::new(f_cfg)));
+        b.register_service("del_factoid", pf, Box::new(DelFactoid::new()));
     }
 
     b.register_service("help", pf, Box::new(Help::new()));
