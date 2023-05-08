@@ -19,6 +19,9 @@ file = "csv_quotes.csv"
 
 [services.web_search]
 
+[services.factoid]
+factoid_leader = "rustix,"
+
 [services.openai]
 secret = "<openai api key>"
 backstory_file = "backstory.txt"
