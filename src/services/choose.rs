@@ -12,16 +12,13 @@ impl Choose {
 
 impl<'a> Node<'a> for Choose {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
-        let revent = &event.raw_event;
-        if event.is_normal() {
-            let body = revent.content["body"].as_str().unwrap();
-            if body.starts_with("choose ") {
-                let choices: Vec<&str> = body[7..].split_whitespace().collect();
+        let body = &event.raw_event.content["body"].as_str().unwrap();
+        if let Some(raw_choices) = body.strip_prefix("choose ") {
+            let choices: Vec<&str> = raw_choices.split_whitespace().collect();
 
-                let mut rng = rand::thread_rng();
-                let n = rng.gen_range(0..choices.len());
-                bot.reply(&event, choices[n]).ok();
-            }
+            let mut rng = rand::thread_rng();
+            let n = rng.gen_range(0..choices.len());
+            bot.reply(&event, choices[n]).ok();
         }
     }
 
