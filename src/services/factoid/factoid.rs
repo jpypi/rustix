@@ -130,13 +130,15 @@ impl<'a> Node<'a> for Factoid {
                     .bind::<Text, _>(body)
                     .load(&self.connection)
                     .unwrap();
-            let i = self.rng.gen_range(0..res.len());
-            if let Some(f) = res.get(i) {
-                let msg = &f.value;
-                match f.kind {
-                    models::FactoidKind::Reply => bot.reply(&event, msg).ok(),
-                    models::FactoidKind::Action => bot.reply_action(&event, msg).ok(),
-                };
+            if res.len() > 0 {
+                let i = self.rng.gen_range(0..res.len());
+                if let Some(f) = res.get(i) {
+                    let msg = &f.value;
+                    match f.kind {
+                        models::FactoidKind::Reply => bot.reply(&event, msg).ok(),
+                        models::FactoidKind::Action => bot.reply_action(&event, msg).ok(),
+                    };
+                }
             }
         }
     }
