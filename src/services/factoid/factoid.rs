@@ -126,7 +126,7 @@ impl<'a> Node<'a> for Factoid {
             bot.reply(&event, &response).ok();
         } else {
             let res: Vec<models::Factoid> =
-                sql_query("SELECT * FROM factoids WHERE $1 LIKE '%' || pattern || '%'")
+                sql_query("SELECT * FROM factoids WHERE $1 LIKE pattern || '%'")
                     .bind::<Text, _>(body)
                     .load(&self.connection)
                     .unwrap();

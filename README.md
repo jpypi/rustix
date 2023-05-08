@@ -99,12 +99,12 @@ search API.
 
 ### Enabled via `services.factoid`:
 This service provides functionality for simple pattern matching to simple facts.
-Though enabled by default, it should be noted that this service can quickly
-become very irritating, and it may be wise to put it behind some additional
-filters restricting it to certain rooms or potentially only allowing certain
-users to use some of the functionality. As a reminder, to disable the service,
-simply remove the configuration in the config file.
-You can add mappings by sending:
+Though enabled by default, it should be noted that this service can become very
+irritating, and it may be wise to put it behind some additional filters
+restricting it to certain rooms or potentially only allowing certain users to
+use some of the functionality. As a reminder, to disable the service, simply
+remove the configuration in the config file.
+Mappings can be added by sending:
 
 "rustix, rust is <reply> awesome"
 
@@ -112,11 +112,11 @@ or
 
 "rustix, waves is <action> waves back"
 
-Now, whenever a message containing the word "rust" is sent, rustix will reply
-"awesome".  Similarly, whenever a message containing the word "waves" is sent,
-rustix will send an event which creates a message as though the action was
-performed in third person i.e. "* rustix waves back". This is akin to using "/me
-waves at rustix" in popular matrix or irc clients.
+Now, whenever someone sends a message which starts with the word "rust", rustix
+will reply "awesome". Similarly, whenever a message starts with the word
+"waves", rustix will send an event which creates a message as though the action
+was performed in third person i.e. "* rustix waves back". This is akin to using
+"/me waves at rustix" in popular matrix or irc clients.
 
 Multiple factoids can be assigned to the same "key", and rustix will randomly
 chose one when a match for the key is found. To list all the responses mapped to
