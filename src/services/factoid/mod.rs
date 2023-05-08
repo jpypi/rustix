@@ -1,2 +1,5 @@
 pub(in crate::services) mod models;
-pub mod factoid;
+mod factoid;
+
+// Re-export
+pub use factoid::Factoid;

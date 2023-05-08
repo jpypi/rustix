@@ -26,6 +26,7 @@ use rustix::{
         logging::Logger,
         websearch::WebSearch,
         openai::gpt::GPT,
+        factoid::Factoid,
     },
     filters::{
         SelfFilter,
@@ -101,11 +102,13 @@ fn main() {
         */
         b.register_service("openai", pf, Box::new(GPT::new(oa_cfg)));
     }
+    if let Some(f_cfg) = config.services.as_ref().and_then(|s| s.get("factoid")) {
+        b.register_service("factoid", mt, Box::new(Factoid::new(f_cfg)));
+    }
 
     b.register_service("help", pf, Box::new(Help::new()));
 
-    let adm = b.register_service("admin", pf,
-                                 Box::new(Admin::new(config.bot.admins)));
+    let adm = b.register_service("admin", pf, Box::new(Admin::new(config.bot.admins)));
     b.register_service("join", adm, Box::new(Join::new()));
     b.register_service("leave", adm, Box::new(Leave::new()));
     b.register_service("del_quote", adm, Box::new(DelQuote::new()));
