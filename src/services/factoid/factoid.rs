@@ -30,7 +30,7 @@ pub struct Factoid {
 
 impl Factoid {
     pub fn new(config: &Value) -> Self {
-        let cfg: Config = config.clone().try_into().expect("Bad openai config.");
+        let cfg: Config = config.clone().try_into().expect("Bad factoid config.");
 
         dotenv().ok();
 
