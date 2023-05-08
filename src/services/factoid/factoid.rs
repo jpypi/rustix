@@ -10,6 +10,7 @@ use regex::Regex;
 use toml::Value;
 
 use crate::bot::Node;
+use crate::services::utils::codeblock_format;
 
 use super::super::db::schema::{factoids as fs, users as us};
 use super::super::db::user::{self, User};
@@ -83,8 +84,7 @@ impl<'a> Node<'a> for Factoid {
 
             if response.len() > 0 {
                 let raw = response.join("\n");
-                let sanitized = raw.replace("<", "&lt;").replace(">", "&gt;");
-                let message = format!("<pre><code>{}</code></pre>", &sanitized);
+                let message = codeblock_format(&raw);
                 bot.reply_fmt(&event, &message, &raw).ok();
             }
         } else if let Some(qid) = body.strip_prefix("delfactoid ") {

@@ -2,6 +2,8 @@ use std::any::Any;
 
 use crate::bot::{Bot, Node, RoomEvent};
 
+use super::utils::codeblock_format;
+
 pub struct Help {
     reply_id: Option<String>,
 }
@@ -37,7 +39,8 @@ impl<'a> Node<'a> for Help {
 
         if let Some(e) = &self.reply_id {
             let response = help_strings.join("\n");
-            bot.say(e, &response).ok();
+            let message = codeblock_format(&response);
+            bot.say_fmt(e, &message, &response).ok();
             self.reply_id = None;
         }
     }
