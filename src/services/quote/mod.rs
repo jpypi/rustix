@@ -1,5 +1,9 @@
 mod backend;
 mod models;
 
-pub mod quotes;
-pub mod del_quote;
+mod quotes;
+mod del_quote;
+
+// Re-export
+pub use quotes::Quotes;
+pub use del_quote::DelQuote;
