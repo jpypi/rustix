@@ -81,12 +81,20 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         self.client.borrow_mut().send_msg(room_id, message)
     }
 
+    pub fn say_fmt(&self, room_id: &str, fmt_message: &str, message: &str) -> Result<Response> {
+        self.client.borrow_mut().send_msg_fmt(room_id, fmt_message, message)
+    }
+
     pub fn action(&self, room_id: &str, message: &str) -> Result<Response> {
         self.client.borrow_mut().send_act(room_id, message)
     }
 
     pub fn reply(&self, event: &RoomEvent, message: &str) -> Result<Response> {
         self.say(event.room_id, message)
+    }
+
+    pub fn reply_fmt(&self, event: &RoomEvent, fmt_message: &str, message: &str) -> Result<Response> {
+        self.say_fmt(event.room_id, fmt_message, message)
     }
 
     pub fn reply_action(&self, event: &RoomEvent, message: &str) -> Result<Response> {

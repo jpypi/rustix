@@ -226,6 +226,17 @@ impl MatrixClient {
         self.send(room_id, "m.room.message", Some(&data))
     }
 
+    pub fn send_msg_fmt(&mut self, room_id: &str, fmt_message: &str, message: &str) -> Result<Response> {
+        let data = hashmap! {
+            "format"  => "org.matrix.custom.html",
+            "msgtype" => "m.text",
+            "formatted_body" => fmt_message,
+            "body"    => message,
+        };
+
+        self.send(room_id, "m.room.message", Some(&data))
+    }
+
     pub fn send_act(&mut self, room_id: &str, message: &str) -> Result<Response> {
         let data = hashmap! {
             "msgtype" => "m.emote",
