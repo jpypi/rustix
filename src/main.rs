@@ -4,15 +4,8 @@ use rustix::{
     client::MatrixClient,
     services::{
         echo::Echo,
-        karma::{
-            tracking::KarmaTracker,
-            show_karma::ShowKarma,
-            rank_karma::RankKarma,
-        },
-        quote::{
-            quotes,
-            del_quote::DelQuote
-        },
+        karma::{KarmaTracker, ShowKarma, RankKarma},
+        quote::{Quotes, DelQuote},
         prefix::Prefix,
         choose::Choose,
         roulette::{Roulette, RouletteLevel},
@@ -75,7 +68,7 @@ fn main() {
     b.register_service("show_karma", pf, Box::new(ShowKarma::new()));
     b.register_service("rank_karma", pf, Box::new(RankKarma::new()));
     b.register_service("echo", pf, Box::new(Echo::new()));
-    b.register_service("read_quote", pf, Box::new(quotes::Quotes::new()));
+    b.register_service("read_quote", pf, Box::new(Quotes::new()));
 
     b.register_service("choose", pf, Box::new(Choose::new()));
     b.register_service("roulette", pf, Box::new(Roulette::new(RouletteLevel::Kick)));

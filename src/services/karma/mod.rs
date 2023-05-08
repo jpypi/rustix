@@ -1,5 +1,10 @@
 mod backend;
 mod models;
-pub mod show_karma;
-pub mod rank_karma;
-pub mod tracking;
+mod show_karma;
+mod rank_karma;
+mod tracking;
+
+// Re-export
+pub use show_karma::ShowKarma;
+pub use rank_karma::RankKarma;
+pub use tracking::KarmaTracker;
