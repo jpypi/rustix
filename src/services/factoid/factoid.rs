@@ -1,8 +1,3 @@
-use std::{env, time::SystemTime};
-
-use diesel::sql_types::Text;
-use diesel::{prelude::*, sql_query};
-use diesel::{Connection, PgConnection};
 use dotenv::dotenv;
 use rand::rngs::SmallRng;
 use rand::{Rng, SeedableRng};
@@ -12,9 +7,8 @@ use toml::Value;
 use crate::bot::Node;
 use crate::services::utils::codeblock_format;
 
-use super::super::db::schema::{factoids as fs, users as us};
-use super::super::db::user::{self, User};
 use super::models;
+use super::backend::Backend;
 
 #[derive(Deserialize)]
 struct Config {
@@ -22,7 +16,7 @@ struct Config {
 }
 
 pub struct Factoid {
-    connection: PgConnection,
+    backend: Backend,
     rng: SmallRng,
     leader: String,
     set_pattern: Regex,
@@ -34,25 +28,18 @@ impl Factoid {
 
         dotenv().ok();
 
-        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-        let connection = PgConnection::establish(&database_url)
-            .expect(&format!("Error connecting to {}", database_url));
-
         let leader = cfg.factoid_leader;
         let set_pattern =
             Regex::new(&format!("^{}\\s?(.+?) is (<reply>|<action>) (.+)", &leader)).unwrap();
 
         Self {
-            connection,
+            backend: Backend::new(),
             rng: SmallRng::from_entropy(),
             leader,
             set_pattern,
         }
     }
 
-    fn del_quote(&self, qid: i32) -> QueryResult<models::Factoid> {
-        diesel::delete(fs::dsl::factoids.filter(fs::id.eq(qid))).get_result(&self.connection)
-    }
 }
 
 impl<'a> Node<'a> for Factoid {
@@ -62,20 +49,13 @@ impl<'a> Node<'a> for Factoid {
 
         let captures = self.set_pattern.captures(body);
         if let Some(factoid_key) = body.strip_prefix("literal ") {
-            let res: Vec<models::Factoid> =
-                sql_query("SELECT * FROM factoids WHERE $1 LIKE pattern || '%'")
-                    .bind::<Text, _>(factoid_key)
-                    .load(&self.connection)
-                    .unwrap();
+            let res = self.backend.match_factoids(factoid_key);
             let mut response = vec![format!(
                 "{:>4} - {:^34} - {:^8}: {}",
                 "id", "user", "kind", "factoid"
             )];
             for r in res {
-                let user: User = us::dsl::users
-                    .filter(us::id.eq(r.user_id))
-                    .get_result(&self.connection)
-                    .unwrap();
+                let user = self.backend.get_user(r.user_id);
                 response.push(format!(
                     "{:>4} - {:>34} - {:^8}: {}",
                     r.id, user.user_id, r.kind, r.value
@@ -90,7 +70,7 @@ impl<'a> Node<'a> for Factoid {
         } else if let Some(qid) = body.strip_prefix("delfactoid ") {
             let response = match qid.parse() {
                 Ok(qid) => {
-                    if self.del_quote(qid).is_ok() {
+                    if self.backend.del_factoid(qid).is_ok() {
                         format!("Successfully deleted factoid {}", qid)
                     } else {
                         format!("Failed to delete factoid {}", qid)
@@ -105,32 +85,15 @@ impl<'a> Node<'a> for Factoid {
             let factoid_kind = groups.get(2).unwrap().as_str();
             let factoid_value = groups.get(3).unwrap().as_str();
 
-            let user = user::fetch_or_create(&self.connection, &event.raw_event.sender).unwrap();
-
             let fact_kind = match factoid_kind {
                 "<reply>" => models::FactoidKind::Reply,
                 "<action>" => models::FactoidKind::Action,
                 &_ => panic!("This should never occur"),
             };
 
-            let f = models::NewFactoid {
-                time: SystemTime::now(),
-                user_id: user.id,
-                pattern: factoid_key,
-                kind: fact_kind,
-                value: factoid_value,
-            };
-
-            diesel::insert_into(fs::table)
-                .values(&f)
-                .execute(&self.connection)
-                .ok();
+            self.backend.add_factoid(&event.raw_event.sender, fact_kind, factoid_key, factoid_value);
         } else {
-            let res: Vec<models::Factoid> =
-                sql_query("SELECT * FROM factoids WHERE $1 LIKE pattern || '%'")
-                    .bind::<Text, _>(body)
-                    .load(&self.connection)
-                    .unwrap();
+            let res = self.backend.match_factoids(body);
             if res.len() > 0 {
                 let i = self.rng.gen_range(0..res.len());
                 if let Some(f) = res.get(i) {
