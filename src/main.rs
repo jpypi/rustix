@@ -20,6 +20,7 @@ use rustix::{
         websearch::WebSearch,
         openai::gpt::GPT,
         factoid::{Factoid, DelFactoid},
+        structure::Structure,
     },
     filters::{
         SelfFilter,
@@ -68,6 +69,7 @@ fn main() {
     b.register_service("show_karma", pf, Box::new(ShowKarma::new()));
     b.register_service("rank_karma", pf, Box::new(RankKarma::new()));
     b.register_service("echo", pf, Box::new(Echo::new()));
+    b.register_service("structure", pf, Box::new(Structure::new()));
     b.register_service("read_quote", pf, Box::new(Quotes::new()));
 
     b.register_service("choose", pf, Box::new(Choose::new()));
