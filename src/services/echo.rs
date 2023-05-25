@@ -35,6 +35,6 @@ impl<'a> Node<'a> for Echo<'a> {
     }
 
     fn description(&self) -> Option<String> {
-        Some("echo - Replys with the argument passed.".to_string())
+        Some("echo <any message> - Replys with the argument passed.".to_string())
     }
 }

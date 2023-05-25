@@ -35,4 +35,8 @@ impl<'a> Node<'a> for DelQuote {
 
         resp.map(|s| bot.reply(&event, &s));
     }
+
+    fn description(&self) -> Option<String> {
+        Some("delquote <quote id> - Delete quote by id.".to_string())
+    }
 }

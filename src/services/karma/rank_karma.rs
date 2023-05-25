@@ -155,9 +155,10 @@ impl<'a> Node<'a> for RankKarma {
     }
 
     fn description(&self) -> Option<String> {
-        Some("karmastats <optional word> - View kings of karma\n\
-              badkarmastats - View peasants of karma\n\
-              nickstats <optional user id> - view ranking of things user has given karma\n\
-              badnickstats <optional user id> - view ranking of things user has given negative karma".to_string())
+        Some("karma rankings:\n\
+              \tkarmastats <optional thing> - View kings of karma. Providing no argument will rank all things.\n\
+              \tbadkarmastats - View peasants of karma.\n\
+              \tnickstats <optional user id> - View ranking of things user has given karma.\n\
+              \tbadnickstats <optional user id> - View ranking of things user has given karma... but from the other end.".to_string())
     }
 }

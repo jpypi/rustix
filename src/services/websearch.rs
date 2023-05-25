@@ -79,6 +79,6 @@ impl<'a> Node<'a> for WebSearch {
     }
 
     fn description(&self) -> Option<String> {
-        Some("s - search the internet for something".to_string())
+        Some("s <query> - Search the internet for something.".to_string())
     }
 }
