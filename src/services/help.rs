@@ -37,6 +37,8 @@ impl<'a> Node<'a> for Help {
             }
         }
 
+        help_strings.sort();
+
         if let Some(e) = &self.reply_id {
             let response = help_strings.join("\n");
             let message = codeblock_format(&response);
