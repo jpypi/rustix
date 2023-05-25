@@ -1,8 +1,17 @@
+# System
 .DS_Store
+
+# Editor
+*.swp
+.vscode
+
+# Rust related
 /target/
 **/*.rs.bk
-*.swp
-.env
+.cargo
 
+# Rustix specific
+.env
 var
 .pw_lock
+
