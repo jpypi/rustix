@@ -40,5 +40,5 @@ impl AliasStripPrefix for str {
 
 pub fn codeblock_format(message: &str) -> String {
     let sanitized = message.replace("<", "&lt;").replace(">", "&gt;");
-    format!("<pre><code>{}</code></pre>", &sanitized)
+    format!("<pre><code class=\"language-text\">{}</code></pre>", &sanitized)
 }

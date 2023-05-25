@@ -163,6 +163,10 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         keys.map(|k| *k).collect()
     }
 
+    pub fn get_root_services(&self) -> &Vec<&str> {
+        &self.root_services
+    }
+
     // Two stage query all method
     pub fn delay_service_query<T: Fn(&mut dyn Node) -> Box<dyn Any> + 'c>(&self, node: &'c str, func: T) {
         self.delayed_queries.borrow_mut().insert(node, Box::new(func));
