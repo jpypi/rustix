@@ -209,6 +209,6 @@ impl<'a> Node<'a> for GPT {
     }
 
     fn description(&self) -> Option<String> {
-        Some("chat <message> - talk to rustix".to_string())
+        Some("chat <message> - Talk to the bot. Historical room messages are sent so the response is more likely to be useful.".to_string())
     }
 }

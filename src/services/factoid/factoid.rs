@@ -96,19 +96,12 @@ impl<'a> Node<'a> for Factoid {
     }
 
     fn description(&self) -> Option<String> {
-        /*
-        rustix, pizza is <reply> some link
-
-        rustix, factoid key is <fact type> factoid value (the angle brackets are part of the syntax in this case).
-        <reply> means respond directly with the factoid value when the factoid key is written in chat
-        <action> respond with equivalent of /me
-
-        - Allow multiple factoids with the same key.
-        literal <factoid key> 	Show who set which factoids associated with the given key when
-        */
         Some(format!(
-            "factoids - e.g. {} something something is <reply> some response",
-            self.leader
+            "factoids:\n\
+            \t{} something something is <reply> some response\n\
+            \t{} another thing is <action> does a thing\n\
+            \t!literal <string> - display any factoids that would trigger on <string>",
+            self.leader, self.leader
         ))
     }
 }

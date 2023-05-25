@@ -69,7 +69,7 @@ impl<'a> Node<'a> for TryFile {
     fn description(&self) -> Option<String> {
         match fs::read_dir(&self.directory) {
             Ok(paths) => {
-                Some(paths.map(|p| {
+                let files = paths.map(|p| {
                                     let mut path = p.unwrap().path();
                                     path.set_extension("");
                                     path.iter()
@@ -80,7 +80,11 @@ impl<'a> Node<'a> for TryFile {
                                         .to_string()
                                })
                           .collect::<Vec<String>>()
-                          .join("\n"))
+                          .join("\n\t");
+                match files.len() {
+                    0 => None,
+                    _ => Some(format!("random line files:\n\t{files}"))
+                }
             }
             Err(_) => {
                 None

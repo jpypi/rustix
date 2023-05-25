@@ -29,7 +29,7 @@ impl<'a> Node<'a> for CryptoCoin {
     }
 
     fn description(&self) -> Option<String> {
-        Some("p - Get the price of any cryptocurrency traded on bitfinex by ticker.".to_string())
+        Some("p <ticker> - Get the price of any cryptocurrency traded on bitfinex.".to_string())
     }
 }
 

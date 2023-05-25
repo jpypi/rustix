@@ -36,6 +36,6 @@ impl<'a> Node<'a> for DelFactoid {
     }
 
     fn description(&self) -> Option<String> {
-        Some("delfactoid <id> - Delete a factoid by id".to_string())
+        Some("delfactoid <id> - Delete a factoid by id.".to_string())
     }
 }
