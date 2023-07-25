@@ -1,7 +1,7 @@
 FROM rust:1.59-alpine AS build
 
 RUN apk add --no-cache openssl-dev libpq-dev musl-dev &&\
-    RUSTFLAGS=-Ctarget-feature=-crt-static cargo install --root /app diesel_cli --no-default-features --features "postgres"
+    RUSTFLAGS=-Ctarget-feature=-crt-static cargo install --root /app --version 2.0.1 diesel_cli --no-default-features --features "postgres"
 
 
 ######################
