@@ -19,7 +19,7 @@ use rustix::{
         logging::Logger,
         websearch::WebSearch,
         openai::gpt::GPT,
-        factoid::{Factoid, DelFactoid},
+        factoid::{Factoid, DelFactoid, ListAllFactoid},
         structure::Structure,
     },
     filters::{
@@ -101,6 +101,12 @@ fn main() {
     if let Some(f_cfg) = config.services.as_ref().and_then(|s| s.get("factoid")) {
         b.register_service("factoid", mt, Box::new(Factoid::new(f_cfg)));
         b.register_service("del_factoid", pf, Box::new(DelFactoid::new()));
+
+        if let Some(lc_cfg) = f_cfg.get("list_all_channels") {
+            let channels: Vec<String> = lc_cfg.clone().try_into().expect("Invalid factoids list_all_channels config");
+            let cf = b.register_service("channel_filter", pf, Box::new(ChannelFilter::new(channels, true)));
+            b.register_service("list_factoids", cf, Box::new(ListAllFactoid::new()));
+        }
     }
 
     b.register_service("help", pf, Box::new(Help::new()));

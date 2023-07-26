@@ -125,6 +125,11 @@ a key send: "literal <key>" e.g. "literal waves", and you will get a list of
 factoids (including the factoid metadata i.e. creator, id, etc.). To remove a
 factoid simply send "delfactoid <id>" and rustix will remove that factoid.
 
+The `allfactoids` command is behind a whitelist channel filter, to prevent spam.
+This command enables users to view all factoids set, but is only allowed in the
+channels with ids listed in `list_all_channels`. If the `list_all_channels`
+config is empty or missing, then the command will not be available.
+
 ### Enabled via `services.openai`:
 The `chat` command, which enables interaction with openai's gpt models. Very
 similar to having your own ChatGPT that everyone can interact with in a shared
@@ -164,6 +169,7 @@ seid = "<google custom search id>"
 
 [services.factoid]
 factoid_leader = "rustix,"
+list_all_channels = ["!XYmmdisZsVrOTGLmoIO:matrix.my.domain.com"]
 
 [services.openai]
 secret = "<openai api key>"
