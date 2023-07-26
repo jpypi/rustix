@@ -55,4 +55,8 @@ impl Backend {
             .get_result(&self.connection)
             .unwrap()
     }
+
+    pub fn all_factoids(&self) -> Vec<Factoid> {
+        fs::dsl::factoids.load(&self.connection).ok().unwrap_or(Vec::new())
+    }
 }
