@@ -26,6 +26,7 @@ use rustix::{
         SelfFilter,
         UserFilter,
         MessageTypeFilter,
+        ChannelFilter,
     }
 };
 
