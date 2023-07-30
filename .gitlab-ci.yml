@@ -63,8 +63,8 @@ deploy:
   stage: deploy
   script:
     - mkdir ~/.ssh
-    - echo $DEPLOY_KEY > ~/.ssh/id_rsa
-    - echo $DEPLOY_KNOWN_HOST > ~/.ssh/known_hosts
+    - cat $DEPLOY_KEY > ~/.ssh/id_rsa
+    - cat $DEPLOY_KNOWN_HOST > ~/.ssh/known_hosts
     - cat ~/.ssh/known_hosts
     - scp Makefile $DEPLOY_USER@$DEPLOY_HOST:rustix/Makefile
     - ssh $DEPLOY_USER@$DEPLOY_HOST "cd rustix ; make update"
