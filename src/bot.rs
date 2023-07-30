@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 use std::{result, thread};
 use std::cell::{RefCell, RefMut};
@@ -193,23 +195,18 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         }
     }
 
-    pub fn run(&mut self, initial_rooms: &Vec<String>) {
-        for room in initial_rooms {
-            if let Some(rid) = self.client.borrow().get_public_room_id(room) {
-                println!("Joining {} id: {}", &room, &rid);
-                if self.join(&rid).is_err() {
-                    println!("Could not join room");
-                }
-            } else {
-                println!("Failure to find public room {}", &room);
-            }
+    fn on_exit(&self) {
+        for (_, service) in &self.all_services {
+            service.borrow().on_exit();
         }
+    }
 
+    pub fn run(&mut self, exit_flag: &Arc<AtomicBool>) {
         let mut next_batch: String = self.client.borrow().sync(None).unwrap().next_batch;
 
         let delay = Duration::from_millis(500);
 
-        loop {
+        while !exit_flag.load(Ordering::Relaxed) {
             let sync = self.client.borrow().sync(Some(&next_batch));
 
             match sync {
@@ -272,6 +269,9 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
 
             thread::sleep(delay);
         }
+
+        println!("Allowing services to exit cleanly...");
+        self.on_exit();
     }
 }
 
