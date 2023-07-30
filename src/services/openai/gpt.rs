@@ -5,9 +5,9 @@ use reqwest;
 use rust_tokenizers::tokenizer::{TruncationStrategy, Gpt2Tokenizer, Tokenizer};
 use sha3::Digest;
 use toml::Value;
-use serde::{Deserialize};
+use serde::Deserialize;
 
-use crate::bot::{Bot, Node, RoomEvent};
+use crate::{bot::{Bot, Node, RoomEvent}, services::utils};
 use super::types::*;
 
 const BASE_URL: &str = "https://api.openai.com/v1/completions";
@@ -104,7 +104,7 @@ impl GPT {
                 Response::Error(e) => Ok(Response::Error(e))
             }
         })
-    } 
+    }
 
     fn build_context(&self, bot: &Bot, room_id: &str, username: &str, message: &str) -> (String, u32) {
         let mut to_complete = String::new();
@@ -210,5 +210,23 @@ impl<'a> Node<'a> for GPT {
 
     fn description(&self) -> Option<String> {
         Some("chat <message> - Talk to the bot. Historical room messages are sent so the response is more likely to be useful.".to_string())
+    }
+
+    fn on_load(&mut self, service_name: &str) {
+        let saved_state = utils::load_state(service_name);
+        if let Some(state) = saved_state {
+            let mut parsed = state.split(" ");
+
+            if let Some(s) = parsed.next() {
+                self.token_budget = s.parse().expect("Unable to parse token budget from save state");
+            }
+            if let Some(s) = parsed.next() {
+                self.used_tokens = s.parse().expect("Unable to parse used tokens from save state");
+            }
+        }
+    }
+
+    fn on_exit(&self, service_name: &str) {
+        utils::save_state(service_name, &format!("{} {}", self.token_budget, self.used_tokens));
     }
 }
