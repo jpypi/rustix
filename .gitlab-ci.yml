@@ -66,6 +66,7 @@ deploy:
     - cat $DEPLOY_KEY > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - cat $DEPLOY_KNOWN_HOST > ~/.ssh/known_hosts
+    - scp docker-compose.yml $DEPLOY_USER@$DEPLOY_HOST:rustix/docker-compose.yml
     - scp Makefile $DEPLOY_USER@$DEPLOY_HOST:rustix/Makefile
     - ssh $DEPLOY_USER@$DEPLOY_HOST "cd rustix ; make update"
   rules:
