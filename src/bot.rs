@@ -6,7 +6,7 @@ use std::{result, thread};
 use std::cell::{RefCell, RefMut};
 use std::any::Any;
 
-use reqwest::blocking::{Response};
+use reqwest::blocking::Response;
 
 use crate::errors::Error;
 use crate::client::MatrixClient;
@@ -148,7 +148,7 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
             None => self.root_services.push(name),
         };
 
-        service.on_load();
+        service.on_load(name);
 
         self.all_services.insert(name, RefCell::new(service));
 
@@ -196,8 +196,8 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
     }
 
     fn on_exit(&self) {
-        for (_, service) in &self.all_services {
-            service.borrow().on_exit();
+        for (name, service) in &self.all_services {
+            service.borrow().on_exit(name);
         }
     }
 
@@ -305,7 +305,9 @@ pub trait Node<'a> {
     fn recieve_all_node_post(&mut self, bot: &Bot, result: Vec<(&str, Box<dyn Any>)>) {
     }
 
-    fn on_load(&mut self) { }
+    #[allow(unused_variables)]
+    fn on_load(&mut self, service_name: &str) { }
 
-    fn on_exit(&self) { }
+    #[allow(unused_variables)]
+    fn on_exit(&self, service_name: &str) { }
 }
