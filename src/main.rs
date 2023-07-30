@@ -1,3 +1,8 @@
+use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
+
+use signal_hook::consts::signal::{SIGINT, SIGTERM};
+
 use rustix::{
     bot,
     config,
@@ -117,6 +122,22 @@ fn main() {
     b.register_service("del_quote", adm, Box::new(DelQuote::new()));
     b.register_service("get_joined", adm, Box::new(GetJoined::new()));
 
+
+    // Join bot to initial rooms
+    for room in &config.bot.rooms {
+        println!("Joining {}", &room);
+        if b.join_public(room).is_err() {
+            println!("Could not join room");
+        }
+    }
+
+    // Set up SIGTERM signal handler
+    let term = Arc::new(AtomicBool::new(false));
+    signal_hook::flag::register(SIGINT, Arc::clone(&term))
+                       .expect("Failed to setup SIGINT handler.");
+    signal_hook::flag::register(SIGTERM, Arc::clone(&term))
+                       .expect("Failed to setup SIGTERM handler.");
+
     // Start bot main loop
-    b.run(&config.bot.rooms);
+    b.run(&term);
 }
