@@ -190,6 +190,14 @@ configuration will disable the service in rustix and not cause an error.
 - factoid
 - openai
 
+# State
+
+All nodes may have `on_load` and `on_exit` method, which gets called once the
+node has been registered with the bot, and when the bot is cleanly shut down,
+respectively. These methods may be used to save state when stopping/starting the
+bot. All the state gets saved in various files under the `.rustix` folder which
+gets created the first time a node which saves state actually saves state.
+
 # Docker - Pre-built (recommended/easiest)
 
 There are pre-built rustix docker images in this gitlab project which the
