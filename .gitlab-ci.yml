@@ -64,6 +64,7 @@ deploy:
   script:
     - mkdir ~/.ssh
     - cat $DEPLOY_KEY > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
     - cat $DEPLOY_KNOWN_HOST > ~/.ssh/known_hosts
     - cat ~/.ssh/known_hosts
     - scp Makefile $DEPLOY_USER@$DEPLOY_HOST:rustix/Makefile
