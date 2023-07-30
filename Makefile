@@ -28,7 +28,7 @@ setup:
 	@if [ ! -f .pw_lock ]; then\
 		head -c 16 /dev/random | base64 > .pw_lock;\
 	fi
-	POSTGRES_PASSWORD=$(shell cat .pw_lock) docker-compose --profile=setup up -d
+	POSTGRES_PASSWORD=$(shell cat .pw_lock) docker compose --profile=setup up -d
 	mkdir -p var
 	docker rm rustix-db-migration-1
 
