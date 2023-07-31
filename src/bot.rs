@@ -141,10 +141,8 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
                             parent: Option<&'a str>,
                             mut service: Box<dyn Node<'a>>) -> Option<&'a str> {
         match parent {
-            Some(p) => {
-                self.all_services.get_mut(p).expect("Invalid parent node")
-                    .borrow_mut().register_child(name)
-            },
+            Some(p) => self.all_services.get_mut(p).expect("Invalid parent node")
+                           .borrow_mut().register_child(name),
             None => self.root_services.push(name),
         };
 
