@@ -18,5 +18,4 @@ pub mod openai;
 pub mod factoid;
 pub mod structure;
 
-mod utils;
 mod db;

@@ -7,7 +7,7 @@ use sha3::Digest;
 use toml::Value;
 use serde::Deserialize;
 
-use crate::{bot::{Bot, Node, RoomEvent}, services::utils};
+use crate::{bot::{Bot, Node, RoomEvent}, utils};
 use super::types::*;
 
 const BASE_URL: &str = "https://api.openai.com/v1/completions";

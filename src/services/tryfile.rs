@@ -8,7 +8,7 @@ use regex::Regex;
 use toml::value::Value;
 
 use crate::bot::{Bot, Node, RoomEvent};
-use crate::services::utils::reservoir_sample;
+use crate::utils::reservoir_sample;
 
 
 pub struct TryFile {

@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
-use crate::bot::{Bot, Node, RoomEvent};
+use crate::{
+    bot::{Bot, Node, RoomEvent},
+    utils::codeblock_format
+};
 
-use super::utils::codeblock_format;
 
 pub struct Structure {
     reply_room: Option<String>,
