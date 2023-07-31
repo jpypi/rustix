@@ -312,4 +312,7 @@ pub trait Node<'a> {
 
     #[allow(unused_variables)]
     fn on_exit(&self, service_name: &str) { }
+
+    #[allow(unused_variables)]
+    fn configure(&self, command: &str) { }
 }
