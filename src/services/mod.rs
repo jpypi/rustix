@@ -17,6 +17,6 @@ pub mod websearch;
 pub mod openai;
 pub mod factoid;
 pub mod structure;
+pub mod nodectrl;
 
-mod utils;
 mod db;

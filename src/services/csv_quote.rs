@@ -5,7 +5,7 @@ use rand::{Rng, SeedableRng};
 use toml::value::Value;
 
 use crate::bot::{Bot, Node, RoomEvent};
-use crate::services::utils::{reservoir_sample, AliasStripPrefix};
+use crate::utils::{reservoir_sample, AliasStripPrefix};
 
 #[derive(Deserialize, Debug, Default, Clone, Eq, PartialEq)]
 struct OldQuote {

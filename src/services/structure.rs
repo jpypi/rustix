@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
-use crate::bot::{Bot, Node, RoomEvent};
+use crate::{
+    bot::{Bot, Node, RoomEvent},
+    utils::codeblock_format
+};
 
-use super::utils::codeblock_format;
 
 pub struct Structure {
     reply_room: Option<String>,
@@ -97,7 +99,7 @@ impl<'a> Node<'a> for Structure {
 
         if body.starts_with("structure") {
             self.reply_room = Some(event.room_id.to_string());
-            bot.delay_service_query("structure", query);
+            bot.delay_service_query("structure", None, query);
         }
     }
 
