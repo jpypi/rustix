@@ -26,6 +26,7 @@ use rustix::{
         openai::gpt::GPT,
         factoid::{Factoid, DelFactoid, ListAllFactoid},
         structure::Structure,
+        nodectrl::Configure,
     },
     filters::{
         SelfFilter,
@@ -121,6 +122,7 @@ fn main() {
     b.register_service("leave", adm, Box::new(Leave::new()));
     b.register_service("del_quote", adm, Box::new(DelQuote::new()));
     b.register_service("get_joined", adm, Box::new(GetJoined::new()));
+    b.register_service("nodectl", adm, Box::new(Configure::new()));
 
 
     // Join bot to initial rooms

@@ -314,5 +314,5 @@ pub trait Node<'a> {
     fn on_exit(&self, service_name: &str) { }
 
     #[allow(unused_variables)]
-    fn configure(&self, command: &str) { }
+    fn configure(&mut self, command: &str, event: RoomEvent) { }
 }
