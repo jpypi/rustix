@@ -22,7 +22,7 @@ impl<'a> Node<'a> for Help {
             if body.starts_with("help") {
                 // Save the last event so it can be used to reply with the help text
                 self.reply_id = Some(event.room_id.to_string());
-                bot.delay_service_query("help", |s| Box::new(s.description()));
+                bot.delay_service_query("help", None, |s| Box::new(s.description()));
             }
         }
     }

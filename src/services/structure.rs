@@ -97,7 +97,7 @@ impl<'a> Node<'a> for Structure {
 
         if body.starts_with("structure") {
             self.reply_room = Some(event.room_id.to_string());
-            bot.delay_service_query("structure", query);
+            bot.delay_service_query("structure", None, query);
         }
     }
 

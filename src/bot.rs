@@ -34,7 +34,7 @@ pub struct Bot<'a, 'b, 'c> {
     client: RefCell<&'b mut MatrixClient>,
     root_services: Vec<&'a str>,
     all_services: HashMap<&'a str, RefCell<Box<dyn Node<'a>>>>,
-    delayed_queries: RefCell<HashMap<&'c str, Box<NodeProcessFn<'c>>>>,
+    delayed_queries: RefCell<HashMap<&'c str, (Option<String>, Box<NodeProcessFn<'c>>)>>,
     display_name: String,
 }
 
@@ -170,15 +170,19 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
     }
 
     // Two stage query all method
-    pub fn delay_service_query<T: Fn(&mut dyn Node) -> Box<dyn Any> + 'c>(&self, node: &'c str, func: T) {
-        self.delayed_queries.borrow_mut().insert(node, Box::new(func));
+    pub fn delay_service_query<T: Fn(&mut dyn Node) -> Box<dyn Any> + 'c>(&self, node: &'c str, target: Option<String>, func: T) {
+        self.delayed_queries.borrow_mut().insert(node, (target, Box::new(func)));
     }
 
     fn process_delayed_queries(&mut self) {
-        for (query_service_name, func) in self.delayed_queries.borrow().iter() {
+        for (query_service_name, (target, func)) in self.delayed_queries.borrow().iter() {
             let mut results: Vec<(&str, Box<dyn Any>)> = Vec::new();
-            for (service_name, service) in &self.all_services {
-                results.push((service_name, func(&mut **service.borrow_mut())));
+            if let Some(t) = target {
+                results.push((t, func(&mut **self.get_service(&t))));
+            } else {
+                for (service_name, service) in &self.all_services {
+                    results.push((service_name, func(&mut **service.borrow_mut())));
+                }
             }
             // Get the service
             self.get_service(query_service_name).recieve_all_node_post(self, results);
