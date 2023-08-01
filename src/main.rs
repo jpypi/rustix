@@ -33,6 +33,7 @@ use rustix::{
         UserFilter,
         MessageTypeFilter,
         ChannelFilter,
+        ForwardFilter,
     }
 };
 
@@ -57,12 +58,15 @@ fn main() {
                                         &config.connection.username,
                                         &config.connection.server
                                     )));
+
     let uf = b.register_service("user_filter", sf,
                                 Box::new(UserFilter::new(config.bot.ignore.clone())));
 
-    b.register_service("accept_invite", uf, Box::new(AcceptInvite::new()));
+    let ff = b.register_service("forward_filter", uf, Box::new(ForwardFilter::new()));
 
-    let mt = b.register_service("message_type_filter", uf,
+    b.register_service("accept_invite", ff, Box::new(AcceptInvite::new()));
+
+    let mt = b.register_service("message_type_filter", ff,
                                 Box::new(MessageTypeFilter::new()));
 
     b.register_service("karma_tracker", mt,
