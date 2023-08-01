@@ -17,13 +17,16 @@ impl<'a> Node<'a> for Configure {
             if let Some((target, command)) = args.trim().split_once(' ') {
                 let cmd = command.to_string();
                 let room_id = event.room_id.to_string();
+                let from = event.from.to_string();
                 let rev = event.raw_event.clone();
                 bot.delay_service_query("nodectl",
                                         Some(target.to_string()),
                                         move |n| {
-                                            let rid = &room_id;
-                                            let rev_ptr = &rev;
-                                            let ev = RoomEvent { room_id: rid, raw_event: rev_ptr.clone() };
+                                            let ev = RoomEvent {
+                                                room_id: &room_id,
+                                                from: &from,
+                                                raw_event: (&rev).clone()
+                                            };
                                             n.configure(&cmd, ev);
                                             Box::new(0)
                                         });

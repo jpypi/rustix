@@ -16,9 +16,10 @@ use crate::matrix_types::*;
 type Result<T> = result::Result<T, Error>;
 
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct RoomEvent<'a> {
     pub room_id: &'a str,
+    pub from: &'a str,
     pub raw_event: Event,
 }
 
@@ -229,6 +230,7 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
                             self.propagate_event(
                                 &RoomEvent{
                                     room_id: &room_id,
+                                    from: &"join",
                                     raw_event: raw_event.clone()
                                 });
                         }
@@ -239,6 +241,7 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
                             self.propagate_event(
                                 &RoomEvent{
                                     room_id: &room_id,
+                                    from: &"invite",
                                     raw_event: raw_event.clone()
                                 });
                         }
@@ -249,6 +252,7 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
                             self.propagate_event(
                                 &RoomEvent{
                                     room_id: &room_id,
+                                    from: &"leave",
                                     raw_event: raw_event.clone()
                                 });
                         }
