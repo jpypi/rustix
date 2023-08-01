@@ -67,7 +67,7 @@ impl AcceptInvite {
 impl<'a> Node<'a> for AcceptInvite {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         let revent = &event.raw_event;
-        if revent.type_ == "m.room.member" {
+        if revent.type_ == "m.room.member" && event.from == "invite" {
             if let Some(value) = revent.content.get("membership") {
                 if value.is_string() && value.as_str().unwrap() == "invite" {
                     println!("Joining room {} via invitation from {}", &event.room_id, revent.sender);
