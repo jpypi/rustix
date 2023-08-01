@@ -110,7 +110,7 @@ fn main() {
 
         if let Some(lc_cfg) = f_cfg.get("list_all_channels") {
             let channels: Vec<String> = lc_cfg.clone().try_into().expect("Invalid factoids list_all_channels config");
-            let cf = b.register_service("channel_filter", pf, Box::new(ChannelFilter::new(channels, true)));
+            let cf = b.register_service("all_factoids_channel_filter", pf, Box::new(ChannelFilter::new(channels, true)));
             b.register_service("list_factoids", cf, Box::new(ListAllFactoid::new()));
         }
     }
