@@ -171,6 +171,9 @@ seid = "<google custom search id>"
 factoid_leader = "rustix,"
 list_all_channels = ["!XYmmdisZsVrOTGLmoIO:matrix.my.domain.com"]
 
+[services.karma]
+max_per_message = 10
+
 [services.openai]
 secret = "<openai api key>"
 backstory_file = "backstory.txt"
