@@ -16,14 +16,17 @@ impl Help {
 
 impl<'a> Node<'a> for Help {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
-        let revent = &event.raw_event;
-        if event.is_normal() {
-            let body = revent.content["body"].as_str().unwrap();
-            if body.starts_with("help") {
-                // Save the last event so it can be used to reply with the help text
-                self.reply_id = Some(event.room_id.to_string());
-                bot.delay_service_query("help", None, |s| Box::new(s.description()));
+        let body = &event.raw_event.content["body"].as_str().unwrap();
+        if let Some(mut service_name) = body.strip_prefix("help") {
+            service_name = service_name.trim();
+            let mut target = None;
+            if !service_name.is_empty() {
+                target = Some(service_name.to_string());
             }
+
+            // Save the last event so it can be used to reply with the help text
+            self.reply_id = Some(event.room_id.to_string());
+            bot.delay_service_query("help", target, |s| Box::new(s.description()));
         }
     }
 
@@ -40,6 +43,12 @@ impl<'a> Node<'a> for Help {
         help_strings.sort();
 
         if let Some(e) = &self.reply_id {
+            // Exit early. Avoids sending useless response.
+            if help_strings.is_empty() {
+                bot.say(e, &format!("No help found.")).ok();
+                return;
+            }
+
             let response = help_strings.join("\n");
             let message = codeblock_format(&response);
             bot.say_fmt(e, &message, &response).ok();
@@ -48,6 +57,6 @@ impl<'a> Node<'a> for Help {
     }
 
     fn description(&self) -> Option<String> {
-        Some("help - Get a list of commands or view help for a specific command.".to_string())
+        Some("help <?service name> - Get a list of commands or view help for a specific command.".to_string())
     }
 }
