@@ -1,6 +1,8 @@
 use std::{collections::HashSet, iter::FromIterator};
 use itertools::Itertools;
 
+use crate::utils::TrimMatch;
+
 use crate::{
     bot::{Bot, Node, RoomEvent},
     utils
@@ -40,32 +42,41 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
     }
 
     fn configure(&mut self, command: &str, event: RoomEvent) {
-        if let Some(add_args) = command.strip_prefix("add ") {
+        if let Some(mut add_args) = command.strip_prefix("add ") {
             if add_args == "here" {
-                self.channels.insert(event.room_id.to_string());
-            } else {
-                self.channels.insert(add_args.to_string());
+                add_args = event.room_id;
             }
-
-        } else if let Some(add_args) = command.strip_prefix("rm ") {
-            if add_args == "here" {
-                self.channels.remove(event.room_id);
-            } else {
-                self.channels.remove(add_args);
+            self.channels.insert(add_args.to_string());
+        } else if let Some(mut rm_args) = command.strip_prefix("rm ") {
+            if rm_args == "here" {
+                rm_args = event.room_id
             }
+            self.channels.remove(rm_args);
+        } else if let Some(arg) = command.trim_match(&["allow", "deny"]) {
+            match arg {
+                "allow" => self.allow = true,
+                "deny" => self.allow = false,
+                _ => panic!("Invalid argument passed to channel filter configure allow/deny."),
+            };
         }
     }
 
     fn on_load(&mut self, service_name: &str) {
         let saved_state = utils::load_state(service_name);
         if let Some(state) = saved_state {
-            for c in state.split(",") {
+            let mut real_channels = state.as_str();
+            if let Some((allow, channels)) = state.split_once("|") {
+                self.allow = allow.parse().expect("Invalid value for channel filter allow state");
+                real_channels = channels;
+            }
+
+            for c in real_channels.split(",") {
                 self.channels.insert(c.to_string());
             }
         }
     }
 
     fn on_exit(&self, service_name: &str) {
-        utils::save_state(service_name, &self.channels.iter().join(","));
+        utils::save_state(service_name, &format!("{}|{}", self.allow, self.channels.iter().join(",")));
     }
 }

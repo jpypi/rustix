@@ -38,6 +38,25 @@ impl AliasStripPrefix for str {
                 return Some(res);
             }
         }
+
+        None
+    }
+}
+
+
+pub trait TrimMatch {
+    fn trim_match<'a>(&'a self, variants: &[&str]) -> Option<&'a str>;
+}
+
+impl TrimMatch for str {
+    fn trim_match<'a>(&'a self, variants: &[&str]) -> Option<&'a str> {
+        let trimmed = self.trim();
+        for variant in variants {
+            if trimmed == *variant {
+                return Some(trimmed);
+            }
+        }
+
         None
     }
 }
