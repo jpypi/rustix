@@ -154,8 +154,8 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
     }
 
     // TODO: This should be a Result and use ? instead of .unwrap()
-    pub fn get_service(&self, name: &str) -> RefMut<Box<dyn Node<'a>>> {
-        self.all_services.get(name).unwrap().borrow_mut()
+    pub fn get_service(&self, name: &str) -> Option<RefMut<Box<dyn Node<'a>>>> {
+        Some(self.all_services.get(name)?.borrow_mut())
     }
 
     pub fn get_service_names(&self) -> Vec<&str> {
@@ -176,14 +176,19 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         for (query_service_name, (target, func)) in self.delayed_queries.borrow().iter() {
             let mut results: Vec<(&str, Box<dyn Any>)> = Vec::new();
             if let Some(t) = target {
-                results.push((t, func(&mut **self.get_service(&t))));
+                if let Some(mut service) = self.get_service(&t) {
+                    results.push((t, func(&mut **service)));
+                }
             } else {
                 for (service_name, service) in &self.all_services {
                     results.push((service_name, func(&mut **service.borrow_mut())));
                 }
             }
+
             // Get the service
-            self.get_service(query_service_name).recieve_all_node_post(self, results);
+            if let Some(mut service) = self.get_service(query_service_name) {
+                service.recieve_all_node_post(self, results);
+            }
         }
 
         self.delayed_queries = RefCell::new(HashMap::new());
@@ -294,7 +299,9 @@ pub trait Node<'a> {
     fn propagate_event(&self, bot: &Bot, event: &RoomEvent) {
         if let Some(children) = self.children() {
             for child in children {
-                bot.get_service(child).handle(bot, event.clone());
+                if let Some(mut service) = bot.get_service(child) {
+                    service.handle(bot, event.clone());
+                }
             }
         }
     }
