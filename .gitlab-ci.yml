@@ -78,8 +78,10 @@ release:
   stage: release
   script:
     - tag=$(echo $CI_COMMIT_TAG | sed s/v//)
+    - docker pull $CI_REGISTRY_IMAGE/rustix-db-migration:latest
     - docker tag $CI_REGISTRY_IMAGE/rustix-db-migration:latest $CI_REGISTRY_IMAGE/rustix-db-migration:${tag}
     - docker push $CI_REGISTRY_IMAGE/rustix-db-migration:${tag}
+    - docker pull $CI_REGISTRY_IMAGE/rustix:latest
     - docker tag $CI_REGISTRY_IMAGE/rustix:latest $CI_REGISTRY_IMAGE/rustix:${tag}
     - docker push $CI_REGISTRY_IMAGE/rustix:${tag}
   rules:
