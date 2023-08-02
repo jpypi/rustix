@@ -1,6 +1,7 @@
 stages:
   - build
   - deploy
+  - release
 
 .docker-build:
   # official docker image
@@ -23,7 +24,7 @@ build-latest-rustix:
         tag=""
         echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
       else
-        tag=":$CI_COMMIT_REF_SLUG"
+        tag=":branch-$CI_COMMIT_REF_SLUG"
         echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
       fi
     - docker build --build-arg BuildEnv=prod --pull -t "$CI_REGISTRY_IMAGE/rustix${tag}" -f rustix.Dockerfile .
@@ -71,3 +72,15 @@ deploy:
     - ssh $DEPLOY_USER@$DEPLOY_HOST "cd rustix ; make update"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+release:
+  extends: .docker-build
+  stage: release
+  script:
+    - tag=$(echo $CI_COMMIT_TAG | sed s/v//)
+    - docker tag $CI_REGISTRY_IMAGE/rustix-db-migrations:latest $CI_REGISTRY_IMAGE/rustix-db-migrations:${tag}
+    - docker push $CI_REGISTRY_IMAGE/rustix-db-migrations:${tag}
+    - docker tag $CI_REGISTRY_IMAGE/rustix:latest $CI_REGISTRY_IMAGE/rustix-db-migrations:${tag}
+    - docker push $CI_REGISTRY_IMAGE/rustix:${tag}
+  rules:
+    - if: $CI_COMMIT_TAG ~= /v.+/
