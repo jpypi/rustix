@@ -74,6 +74,7 @@ deploy:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   needs:
     - job: build-rustix
+      optional: true
 
 release:
   extends: .docker-build
