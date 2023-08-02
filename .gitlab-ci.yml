@@ -13,7 +13,7 @@ stages:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
 
-build-latest-rustix:
+build-rustix:
   extends: .docker-build
   stage: build
   # Default branch leaves tag empty (= latest tag)
@@ -36,7 +36,7 @@ build-latest-rustix:
         - Cargo.lock
         - src/**/*.rs
 
-build-latest-rustix-db-migration:
+build-db-migration:
   extends: .docker-build
   stage: build
   # Default branch leaves tag empty (= latest tag)
@@ -72,6 +72,8 @@ deploy:
     - ssh $DEPLOY_USER@$DEPLOY_HOST "cd rustix ; make update"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  needs:
+    - job: build-rustix
 
 release:
   extends: .docker-build
