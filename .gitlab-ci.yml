@@ -72,9 +72,13 @@ deploy:
     - ssh $DEPLOY_USER@$DEPLOY_HOST "cd rustix ; make update"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  needs:
-    - job: build-rustix
-      optional: true
+      changes:
+        - rustix.Dockerfile
+        - migration.Dockerfile
+        - Cargo.lock
+        - diesel.toml
+        - src/**/*.rs
+        - migrations/**/*.sql
 
 release:
   extends: .docker-build
