@@ -30,7 +30,7 @@ impl<'a> RoomEvent<'a> {
 }
 
 
-type NodeProcessFn<'a> = dyn Fn(&mut dyn Node) -> Box<dyn Any> + 'a;
+type NodeProcessFn<'a> = dyn Fn(&Bot, &mut dyn Node) -> Box<dyn Any> + 'a;
 pub struct Bot<'a, 'b, 'c> {
     client: RefCell<&'b mut MatrixClient>,
     root_services: Vec<&'a str>,
@@ -169,7 +169,7 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
     }
 
     // Two stage query all method
-    pub fn delay_service_query<T: Fn(&mut dyn Node) -> Box<dyn Any> + 'c>(&self, node: &'c str, target: Option<String>, func: T) {
+    pub fn delay_service_query<T: Fn(&Bot, &mut dyn Node) -> Box<dyn Any> + 'c>(&self, node: &'c str, target: Option<String>, func: T) {
         self.delayed_queries.borrow_mut().insert(node, (target, Box::new(func)));
     }
 
@@ -178,11 +178,11 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
             let mut results: Vec<(&str, Box<dyn Any>)> = Vec::new();
             if let Some(t) = target {
                 if let Some(mut service) = self.get_service(&t) {
-                    results.push((t, func(&mut **service)));
+                    results.push((t, func(&self, &mut **service)));
                 }
             } else {
                 for (service_name, service) in &self.all_services {
-                    results.push((service_name, func(&mut **service.borrow_mut())));
+                    results.push((service_name, func(&self, &mut **service.borrow_mut())));
                 }
             }
 
@@ -325,5 +325,5 @@ pub trait Node<'a> {
     fn on_exit(&self, service_name: &str) { }
 
     #[allow(unused_variables)]
-    fn configure(&mut self, command: &str, event: RoomEvent) { }
+    fn configure(&mut self, bot: &Bot, command: &str, event: RoomEvent) { }
 }

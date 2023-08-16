@@ -21,13 +21,13 @@ impl<'a> Node<'a> for Configure {
                 let rev = event.raw_event.clone();
                 bot.delay_service_query("nodectl",
                                         Some(target.to_string()),
-                                        move |n| {
+                                        move |b, n| {
                                             let ev = RoomEvent {
                                                 room_id: &room_id,
                                                 from: &from,
                                                 raw_event: (&rev).clone()
                                             };
-                                            n.configure(&cmd, ev);
+                                            n.configure(b, &cmd, ev);
                                             Box::new(0)
                                         });
             }

@@ -82,7 +82,7 @@ impl Structure {
     }
 }
 
-fn query(n: &mut dyn Node) -> Box<dyn std::any::Any> {
+fn query(_: &Bot, n: &mut dyn Node) -> Box<dyn std::any::Any> {
     let mut kids = Box::new(Vec::new());
     if let Some(children) = n.children() {
         for c in children.iter() {

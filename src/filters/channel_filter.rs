@@ -41,7 +41,7 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
         }
     }
 
-    fn configure(&mut self, command: &str, event: RoomEvent) {
+    fn configure(&mut self, bot: &Bot, command: &str, event: RoomEvent) {
         if let Some(mut add_args) = command.strip_prefix("add ") {
             if add_args == "here" {
                 add_args = event.room_id;
@@ -52,6 +52,10 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
                 rm_args = event.room_id
             }
             self.channels.remove(rm_args);
+        } else if command.starts_with("status") {
+            let chan_list = self.channels.iter().join(", ");
+            let allow = match self.allow { true => "allow", false => "deny" };
+            bot.reply(&event, &format!("{allow}: {chan_list}")).ok();
         } else if let Some(arg) = command.trim_match(&["allow", "deny"]) {
             match arg {
                 "allow" => self.allow = true,
