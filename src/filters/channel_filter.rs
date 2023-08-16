@@ -65,6 +65,14 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
         }
     }
 
+    fn configure_description(&self) -> Option<String> {
+        Some("add <\"here\" | channel id> - add channel to filter list\n\
+              rm  <\"here\" | channel id> - remove channel from filter list\n\
+              allow  - change filter mode to only allow in configured channels\n\
+              deny   - change filter mode to deny configured channels\n\
+              status - view the current configuration state of the filter".to_string())
+    }
+
     fn on_load(&mut self, service_name: &str) {
         let saved_state = utils::load_state(service_name);
         if let Some(state) = saved_state {
