@@ -42,7 +42,7 @@ impl<'a> Node<'a> for Help {
 
         help_strings.sort();
 
-        if let Some(e) = &self.reply_id {
+        if let Some(ref e) = self.reply_id {
             // Exit early. Avoids sending useless response.
             if help_strings.is_empty() {
                 bot.say(e, &format!("No help found.")).ok();
