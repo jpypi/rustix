@@ -326,4 +326,8 @@ pub trait Node<'a> {
 
     #[allow(unused_variables)]
     fn configure(&mut self, bot: &Bot, command: &str, event: RoomEvent) { }
+
+    fn configure_description(&self) -> Option<String> {
+        None
+    }
 }
