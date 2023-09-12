@@ -43,8 +43,8 @@ impl Backend {
     }
 
     pub fn match_factoids(&self, query: &str) -> Vec<Factoid> {
-        sql_query("SELECT * FROM factoids WHERE $1 ILIKE pattern || '%'")
-            .bind::<Text, _>(query)
+        sql_query("SELECT * FROM factoids WHERE $1 ~* ('\\m' || pattern || '\\M_*')")
+            .bind::<Text, _>(&query)
             .load(&self.connection)
             .unwrap()
     }
