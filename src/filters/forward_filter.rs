@@ -33,7 +33,6 @@ impl<'a> Node<'a> for ForwardFilter<'a> {
             if event_time > last_channel_time.saturating_sub(self.threshold) {
                 self.channels.insert(event.room_id.to_string(), event_time);
                 self.propagate_event(bot, &event)
-            } else {
             }
         } else {
             self.propagate_event(bot, &event)
