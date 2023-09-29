@@ -80,7 +80,7 @@ deploy:
         - src/**/*.rs
         - migrations/**/*.sql
 
-release:
+publish-containers:
   extends: .docker-build
   stage: release
   script:
@@ -91,5 +91,17 @@ release:
     - docker pull $CI_REGISTRY_IMAGE/rustix:latest
     - docker tag $CI_REGISTRY_IMAGE/rustix:latest $CI_REGISTRY_IMAGE/rustix:${tag}
     - docker push $CI_REGISTRY_IMAGE/rustix:${tag}
+  rules:
+    - if: $CI_COMMIT_TAG =~ /v.+/
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  script:
+    - tag=$(echo $CI_COMMIT_TAG | sed s/v//)
+    - |
+      release-cli create --name "Rustix - ${tag}" --tag-name $CI_COMMIT_TAG \
+        --assets-link "{\"name\":\"Rustix Container\",\"url\":\"https://gitlab.com/jpypi/rustix/container_registry/3842543\",\"link_type\":\"image\"}" \
+        --assets-link "{\"name\":\"Rustix DB Migrations Container\",\"url\":\"https://gitlab.com/jpypi/rustix/container_registry/3842544\",\"link_type\":\"image\"}"
   rules:
     - if: $CI_COMMIT_TAG =~ /v.+/
