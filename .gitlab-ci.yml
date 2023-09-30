@@ -2,6 +2,7 @@ stages:
   - build
   - deploy
   - publish
+  - release
 
 .docker-build:
   # official docker image
