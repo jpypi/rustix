@@ -100,7 +100,7 @@ impl<'a> Node<'a> for Factoid {
             "factoids:\n\
             \t{} something something is <reply> some response\n\
             \t{} another thing is <action> does a thing\n\
-            \t!literal <string> - display any factoids that would trigger on <string>",
+            \tliteral <string> - display any factoids that would trigger on <string>",
             self.leader, self.leader
         ))
     }

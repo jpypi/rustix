@@ -65,12 +65,22 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - \*join \<public channel display name\>
 - \*leave \<public channel display name\>
 - \*joined
-- help
+- \*node config \<service/node name\> \<command\>
+- \*node help \<service/node name\>
+- help \<optional service name\>
 
 \**Command is under the admin node and requires message sender to be in the
 admin list specified in `config.toml`*
 
-Quote related commands such as "addquote" also have aliases e.g. "aq".
+Quote related commands such as `addquote` also have aliases e.g. `aq`.
+
+The node command has two sub commands `config` and `help`, which can be used to
+configure nodes in the processing graph. The `help` sub command will be useful
+to understand what commands can be passed to the node when using the `config`
+sub command. Note that "service/node name" is the name of the service/node
+internal to the bot message processing graph, not the text string used to
+trigger a command. The names of the services/nodes are visible via the
+`structure` command.
 
 ## Optional Commands (if configured)
 
@@ -107,23 +117,23 @@ use some of the functionality. As a reminder, to disable the service, simply
 remove the configuration in the config file.
 Mappings can be added by sending:
 
-"rustix, rust is <reply> awesome"
+"rustix, rust is \<reply\> awesome"
 
 or
 
-"rustix, waves is <action> waves back"
+"rustix, waves is \<action\> waves back"
 
 Now, whenever someone sends a message which starts with the word "rust", rustix
 will reply "awesome". Similarly, whenever a message starts with the word
 "waves", rustix will send an event which creates a message as though the action
 was performed in third person i.e. "* rustix waves back". This is akin to using
-"/me waves at rustix" in popular matrix or irc clients.
+"/me waves at rustix" in many matrix or irc clients.
 
 Multiple factoids can be assigned to the same "key", and rustix will randomly
 chose one when a match for the key is found. To list all the responses mapped to
-a key send: "literal <key>" e.g. "literal waves", and you will get a list of
-factoids (including the factoid metadata i.e. creator, id, etc.). To remove a
-factoid simply send "delfactoid <id>" and rustix will remove that factoid.
+a key send: "literal \<key\>" e.g. "literal waves", and you will get a list of
+factoids and factoid metadata (e.g. creator, id, etc.). To remove a
+factoid simply send "delfactoid \<id\>" and rustix will remove that factoid.
 
 The `allfactoids` command is behind a whitelist channel filter, to prevent spam.
 This command enables users to view all factoids set, but is only allowed in the
@@ -133,7 +143,8 @@ config is empty or missing, then the command will not be available.
 ### Enabled via `services.openai`:
 The `chat` command, which enables interaction with openai's gpt models. Very
 similar to having your own ChatGPT that everyone can interact with in a shared
-channel.
+channel. This command pulls in recent chat history in the channel to provide
+context to your message.
 
 - chat \<whatever you want to say to rustix\>
 
