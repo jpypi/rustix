@@ -74,12 +74,12 @@ admin list specified in `config.toml`*
 
 Quote related commands such as `addquote` also have aliases e.g. `aq`.
 
-The node command has two sub commands `config` and `help`, which can be used to
-configure nodes in the processing graph. The `help` sub command will be useful
-to understand what commands can be passed to the node when using the `config`
-sub command. Note that "service/node name" is the name of the service/node
-internal to the bot message processing graph, not the text string used to
-trigger a command. The names of the services/nodes are visible via the
+The `node` command has two sub commands `config` and `help`, which can be used
+to configure nodes in the processing graph. The `help` sub command will be
+useful to understand what commands can be passed to the node when using the
+`config` sub command. Note that "service/node name" is the name of the
+service/node internal to the bot message processing graph, not the text string
+used to trigger a command. The names of the services/nodes are visible via the
 `structure` command.
 
 ## Optional Commands (if configured)
