@@ -110,7 +110,7 @@ impl Backend {
                                                .load(&self.connection)
     }
 
-    pub fn votes_rank(&self, item: &str, n: i64) -> QueryResult<Vec<(String, i32, i32)>> {
+    pub fn votes_rank(&self, item: &str, n: i64, top: bool) -> QueryResult<Vec<(String, i32, i32)>> {
         /*
         SELECT votes.up,votes.down,users.user_id FROM
             votes
@@ -125,15 +125,19 @@ impl Backend {
         LIMIT $n
         */
 
-        votes::table.inner_join(users::table)
-                    .inner_join(voteables::table)
-                    .select((users::user_id,
-                             votes::up,
-                             votes::down))
-                    .filter(voteables::value.eq(item))
-                    .order((votes::up - votes::down).desc())
-                    .limit(n)
-                    .load(&self.connection)
+        let query = votes::table.inner_join(users::table)
+                                .inner_join(voteables::table)
+                                .select((users::user_id,
+                                         votes::up,
+                                         votes::down))
+                                .filter(voteables::value.eq(item));
+
+        let diff = votes::up - votes::down;
+        if top {
+            query.order(diff.desc()).limit(n).load(&self.connection)
+        } else {
+            query.order(diff.asc()).limit(n).load(&self.connection)
+        }
     }
 
     pub fn user_ranks(&self, user: &str, n: i64) -> QueryResult<Vec<(String, i32, i32)>>{

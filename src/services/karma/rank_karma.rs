@@ -7,6 +7,7 @@ use super::backend::Backend;
 pub struct RankKarma {
     vote_db: Backend,
     karmastats_re: Regex,
+    badkarmastats_re: Regex,
     nickstats_re: Regex,
     badnickstats_re: Regex,
 }
@@ -16,6 +17,7 @@ impl RankKarma {
         Self {
             vote_db: Backend::new(),
             karmastats_re: Regex::new(r"^karmastats(?: (.+))?$").unwrap(),
+            badkarmastats_re: Regex::new(r"^badkarmastats(?: (.+))?$").unwrap(),
             nickstats_re: Regex::new(r"^nickstats(?: (.+))?$").unwrap(),
             badnickstats_re: Regex::new(r"^badnickstats(?: (.+))?$").unwrap(),
         }
@@ -35,7 +37,7 @@ impl<'a> Node<'a> for RankKarma {
             if let Some(captures) = self.karmastats_re.captures(body) {
                 if let Some(query) = captures.get(1) {
                     let clean_query = query.as_str().trim();
-                    if let Ok(rankings) = self.vote_db.votes_rank(clean_query, 10) {
+                    if let Ok(rankings) = self.vote_db.votes_rank(clean_query, 10, true) {
                         response += &format!("Top upvoters for '{}': ", clean_query);
                         for (i, (user, up, down)) in rankings.iter().enumerate() {
                             let item = format!("{}. {} with {} (+{}/-{})",
@@ -65,8 +67,23 @@ impl<'a> Node<'a> for RankKarma {
             }
 
 
-            if body.starts_with("badkarmastats") {
-                if let Ok(rankings) = self.vote_db.voteables_rank_asc(10) {
+            if let Some(captures) = self.badkarmastats_re.captures(body) {
+                if let Some(query) = captures.get(1) {
+                    let clean_query = query.as_str().trim();
+                    if let Ok(rankings) = self.vote_db.votes_rank(clean_query, 10, false) {
+                        response += &format!("Top downvoters for '{}': ", clean_query);
+                        for (i, (user, up, down)) in rankings.iter().enumerate() {
+                            let item = format!("{}. {} with {} (+{}/-{})",
+                                               i + 1, user, up - down, up, down);
+                            if i > 0 {
+                                response += "; ";
+                            }
+                            response += &item;
+                        }
+
+                        bot.reply(&event, &response).ok();
+                    }
+                } else if let Ok(rankings) = self.vote_db.voteables_rank_asc(10) {
                     response += "All time most downvoted: ";
                     for (i, r) in rankings.iter().enumerate() {
                         let item = format!("{}. '{}' with {} (+{}/-{})",

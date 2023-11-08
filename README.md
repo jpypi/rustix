@@ -58,7 +58,7 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - structure
 - karma \<entity\>
 - karmastats \<optional entity\>
-- badkarmastats
+- badkarmastats \<optional entity\>
 - nickstats \<optional matrix user id\>
 - badnickstats \<optional matrix user id\>
 - p \<crypto currency ticker\>
