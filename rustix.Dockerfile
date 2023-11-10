@@ -1,5 +1,5 @@
 ARG BuildEnv
-FROM rust:1.67-alpine as build
+FROM rust:1.69-alpine as build
 
 RUN apk add --no-cache openssl-dev libpq-dev musl-dev
 
