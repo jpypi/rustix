@@ -4,6 +4,7 @@ use reqwest;
 use regex::Regex;
 use rand::seq::IteratorRandom;
 use html_escape;
+use toml::Value;
 
 use crate::bot::{Bot, Node, RoomEvent};
 
@@ -12,13 +13,20 @@ const RANDOM_BQ_URL: &str = "https://www.bonequest.com/random/?_";
 
 pub struct Bonequest {
     dialog_regex: Regex,
+    profanity: Vec<String>
 }
 
+#[derive(Deserialize)]
+struct Config {
+    profanity: Vec<String>
+}
 
 impl Bonequest {
-    pub fn new() -> Self {
+    pub fn new(config: &Value) -> Self {
+        let cfg: Config = config.clone().try_into().expect("Bad bonequest config.");
         Self {
-            dialog_regex: Regex::new("(?s)<div style=\"margin-left: 40px; margin-right: 40px; font-family: monospace; white-space: pre-wrap; text-align: left;\">(.+?)</div>").unwrap()
+            dialog_regex: Regex::new("(?s)<div style=\"margin-left: 40px; margin-right: 40px; font-family: monospace; white-space: pre-wrap; text-align: left;\">(.+?)</div>").unwrap(),
+            profanity: cfg.profanity.iter().map(|p| p.to_lowercase()).collect(),
         }
     }
 
@@ -35,8 +43,7 @@ impl Bonequest {
                 if let Some(content) = captures.get(1) {
                     let lines = content.as_str().split("\n");
                     let line = lines.choose(&mut rng)
-                                    .and_then(|l| l.split(": ")
-                                                   .nth(1));
+                                    .and_then(|l| l.split(": ").nth(1));
                     return match line {
                         Some(l) => Ok(l.to_owned()),
                         None => Ok("Error".to_owned()),
@@ -44,7 +51,7 @@ impl Bonequest {
                 }
             }
 
-            Ok("".to_owned())
+            Ok("Error".to_owned())
         })
     }
 }
@@ -57,16 +64,26 @@ impl<'a> Node<'a> for Bonequest {
         if body.starts_with("bq") {
             bot.indicate_typing(&event.room_id, Some(Duration::from_secs(10))).ok();
 
-            match self.get_line() {
-                Ok(l) => {
-                    let escaped = html_escape::decode_html_entities(&l);
-                    bot.reply(&event, &escaped).ok();
-                },
-                Err(e) => {
-                    if e.is_timeout() {
-                        bot.reply(&event, &"bq timed out").ok();
-                    } else {
-                        println!("{:?}", e);
+            'attempts: for _ in 0..10 {
+                match self.get_line() {
+                    Ok(l) => {
+                        let escaped = html_escape::decode_html_entities(&l);
+                        let lowered = escaped.to_lowercase();
+                        for word in self.profanity.iter() {
+                            if lowered.contains(word) {
+                                continue 'attempts;
+                            }
+                        }
+                        bot.reply(&event, &escaped).ok();
+                        break;
+                    },
+                    Err(e) => {
+                        if e.is_timeout() {
+                            bot.reply(&event, &"bq timed out").ok();
+                        } else {
+                            println!("{:?}", e);
+                        }
+                        break;
                     }
                 }
             }

@@ -89,8 +89,10 @@ fn main() {
     b.register_service("rroulette",   pf, Box::new(Roulette::new(RouletteLevel::Ban)));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
 
-    let bq_cf = b.register_service("bq_channel_filter", pf, Box::new(ChannelFilter::new(vec![], false)));
-    b.register_service("bonequest", bq_cf, Box::new(Bonequest::new()));
+    if let Some(bq_profanity) = config.services.as_ref().and_then(|s| s.get("bonequest")) {
+        let bq_cf = b.register_service("bq_channel_filter", pf, Box::new(ChannelFilter::new(vec![], false)));
+        b.register_service("bonequest", bq_cf, Box::new(Bonequest::new(bq_profanity)));
+    }
 
     // Optional configurable services
     if let Some(csv_quote_cfg) = config.services.as_ref().and_then(|s| s.get("csv_quote")) {

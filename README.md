@@ -63,7 +63,6 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - nickstats \<optional matrix user id\>
 - badnickstats \<optional matrix user id\>
 - p \<crypto currency ticker\>
-- bq
 - \*join \<public channel display name\>
 - \*leave \<public channel display name\>
 - \*joined
@@ -150,11 +149,23 @@ context to your message.
 
 - chat \<whatever you want to say to rustix\>
 
+### Enabled via `services.bonequest`:
+This command is disabled in the default config as it has the potential to return
+some ofensive language. You must specify a list for the `profanity` config
+variable, though it may be empty if your group isn't offended by any words. The
+profanity filter normalizes the comic text and blacklist words when performing
+the check. This command is also behind a channel filter node so you can control
+and limit the channels may be used in.
+
+- bq
 
 # Config
 
 Rustix expects a file named `config.toml` to be in the current working
-directory. This file should look something like this:
+directory. Below is an example config file with all possible config options
+specified for documentation sake (with dummy values), however the default file
+in the repository has some of these left out by default as they have additional
+concerns or requirements.
 
 ```
 [connection]
@@ -186,6 +197,9 @@ list_all_channels = ["!XYmmdisZsVrOTGLmoIO:matrix.my.domain.com"]
 
 [services.karma]
 max_per_message = 10
+
+[services.bonequest]
+profanity = ["badword"]
 
 [services.openai]
 secret = "<openai api key>"
