@@ -18,5 +18,6 @@ pub mod openai;
 pub mod factoid;
 pub mod structure;
 pub mod nodectrl;
+pub mod bonequest;
 
 mod db;

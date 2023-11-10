@@ -27,6 +27,7 @@ use rustix::{
         factoid::{Factoid, DelFactoid, ListAllFactoid},
         structure::Structure,
         nodectrl::Configure,
+        bonequest::Bonequest,
     },
     filters::{
         SelfFilter,
@@ -78,16 +79,16 @@ fn main() {
 
     b.register_service("logging", pf, Box::new(Logger::new()));
 
-    b.register_service("show_karma", pf, Box::new(ShowKarma::new()));
-    b.register_service("rank_karma", pf, Box::new(RankKarma::new()));
-    b.register_service("echo", pf, Box::new(Echo::new()));
-    b.register_service("structure", pf, Box::new(Structure::new()));
-    b.register_service("read_quote", pf, Box::new(Quotes::new()));
-
-    b.register_service("choose", pf, Box::new(Choose::new()));
-    b.register_service("roulette", pf, Box::new(Roulette::new(RouletteLevel::Kick)));
-    b.register_service("rroulette", pf, Box::new(Roulette::new(RouletteLevel::Ban)));
+    b.register_service("show_karma",  pf, Box::new(ShowKarma::new()));
+    b.register_service("rank_karma",  pf, Box::new(RankKarma::new()));
+    b.register_service("echo",        pf, Box::new(Echo::new()));
+    b.register_service("structure",   pf, Box::new(Structure::new()));
+    b.register_service("read_quote",  pf, Box::new(Quotes::new()));
+    b.register_service("choose",      pf, Box::new(Choose::new()));
+    b.register_service("roulette",    pf, Box::new(Roulette::new(RouletteLevel::Kick)));
+    b.register_service("rroulette",   pf, Box::new(Roulette::new(RouletteLevel::Ban)));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
+    b.register_service("bonequest",   pf, Box::new(Bonequest::new()));
 
     // Optional configurable services
     if let Some(csv_quote_cfg) = config.services.as_ref().and_then(|s| s.get("csv_quote")) {

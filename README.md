@@ -62,6 +62,7 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - nickstats \<optional matrix user id\>
 - badnickstats \<optional matrix user id\>
 - p \<crypto currency ticker\>
+- bq
 - \*join \<public channel display name\>
 - \*leave \<public channel display name\>
 - \*joined
