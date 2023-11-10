@@ -132,11 +132,10 @@ impl Backend {
                                          votes::down))
                                 .filter(voteables::value.eq(item));
 
-        let diff = votes::up - votes::down;
         if top {
-            query.order(diff.desc()).limit(n).load(&self.connection)
+            query.order((votes::up - votes::down).desc()).limit(n).load(&self.connection)
         } else {
-            query.order(diff.asc()).limit(n).load(&self.connection)
+            query.order(votes::down.desc()).limit(n).load(&self.connection)
         }
     }
 
