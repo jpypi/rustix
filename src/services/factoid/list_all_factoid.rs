@@ -23,15 +23,15 @@ impl<'a> Node<'a> for ListAllFactoid {
             let factoids = self.backend.all_factoids();
 
             let mut response = vec![format!(
-                "{:>4} - {:^34} - {:^8}: {}",
-                "id", "user", "kind", "factoid"
+                "{:>4} - {:^34} - {:^34} : {:^8} : {}",
+                "id", "user", "pattern", "kind", "factoid"
             )];
 
             for f in factoids {
                 let user = self.backend.get_user(f.user_id);
                 response.push(format!(
-                    "{:>4} - {:>34} - {:^8}: {}",
-                    f.id, user.user_id, f.kind, f.value
+                    "{:>4} - {:^34} - {:^34} : {:^8}: {}",
+                    f.id, user.user_id, f.pattern, f.kind, f.value
                 ));
             }
 
