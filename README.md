@@ -48,7 +48,7 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 `config.toml`)
 
 - addquote \<quote here\>
-- getquote \<quote number\>
+- getquote \<comma separated list of up to 5 ids\>
 - \*delquote \<quote number\>
 - randquote \<optional string search\>
 - searchquote \<string to search\>
