@@ -86,7 +86,7 @@ impl<'a> Node<'a> for Quotes {
 
     fn description(&self) -> Option<String> {
         Some("quotes:\n\
-              \taddquote (alt: aq) <quote> - Add a quote to the database. (Please format as: <nick> phrase<newline><othernick> phrase)\n\
+              \taddquote (alt: quote, aq, q) <quote> - Add a quote to the database. (Please format as: <nick> phrase<newline><othernick> phrase)\n\
               \tgetquote (alt: gq) <quote id> - Get a specific quote by providing a valid integer quote id.\n\
               \tsearchquote (alt: sq) <search string> - Performs string search across quotes and returns all quote ids.\n\
               \trandquote (alt: rq) <optional search string> - Returns a random quote, optionally from the set of quotes which match a given query.".to_string())
