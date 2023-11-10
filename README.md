@@ -1,5 +1,6 @@
 # About
 [![pipeline status](https://gitlab.com/jpypi/rustix/badges/master/pipeline.svg?key_text=build+(master)&key_width=100)](https://gitlab.com/jpypi/rustix/-/pipelines/latest)
+[![latest release](https://gitlab.com/jpypi/rustix/-/badges/release.svg)](https://gitlab.com/jpypi/rustix/-/releases/permalink/latest)
 
 
 Rustix is a [matrix](https://matrix.org) bot/library/framework written in
