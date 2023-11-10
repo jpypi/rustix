@@ -54,7 +54,7 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - searchquote \<string to search\>
 - roulette
 - rroulette
-- choose \<item1\> \<item2\> ... \<itemN\>
+- choose \<item1\>, \<item2\>, ... \<itemN\>
 - echo \<string\>
 - structure
 - karma \<entity\>
