@@ -97,69 +97,70 @@ impl<'a> Node<'a> for ReadQuote {
         let revent = &event.raw_event;
         let body = revent.content["body"].as_str().unwrap();
 
-        let mut resp: Option<String> = None;
-
-        if let Some(id) = body.alias_strip_prefix(&["oldgetquote ", "ogq "]) {
-            resp = Some(match id.parse() {
-                Ok(qid) => match self.get_quote(qid) {
-                    Ok(v) => match v {
-                        Some(s) => render_quote(&s),
-                        None => format!("No quote found with id {}", qid),
+        if let Some(ids) = body.alias_strip_prefix(&["oldgetquote ", "ogq "]) {
+            for (i, (orig, id)) in ids.split(",").map(|s| (s, s.trim().parse())).enumerate() {
+                // Limit the max number of quotes to get at a time to 5
+                if i > 4 {
+                    break;
+                }
+                bot.reply(&event, &match id {
+                    Ok(qid) => match self.get_quote(qid) {
+                        Ok(v) => match v {
+                            Some(s) => render_quote(&s),
+                            None => format!("No quote found with id {}", qid),
+                        },
+                        Err(e) => e.to_string(),
                     },
-                    Err(e) => e.to_string(),
-                },
-                Err(_) => "Invalid quote id".to_string(),
-            });
+                    Err(e) => format!("Invalid quote id: '{orig}' - {e}"),
+                }).ok();
+            }
         } else if let Some(mut query) = body.alias_strip_prefix(&["oldsearchquote ", "osq "]) {
             query = query.trim();
 
             if !query.is_empty() {
-                resp = Some(match self.search_quotes(query) {
+                bot.reply(&event, &match self.search_quotes(query) {
                     Ok(quote_ids) => {
                         if !quote_ids.is_empty() {
-                            let ids = quote_ids
-                                .into_iter()
-                                .map(|id| id.to_string())
-                                .collect::<Vec<String>>();
+                            let ids = quote_ids.into_iter()
+                                               .map(|id| id.to_string())
+                                               .collect::<Vec<String>>();
                             format!("Found {} quotes: {}", ids.len(), ids.join(", "))
                         } else {
-                            format!("No quotes found matching \"{}\"", query)
+                            format!("No quotes found matching \"{query}\"")
                         }
-                    }
-                    Err(e) => e.to_string(),
-                });
+                    },
+                    Err(_) => format!("Error while looking for quote matching \"{query}\""),
+                }).ok();
             } else {
-                resp = Some("oldsearchquote requires search terms".to_string());
+                bot.reply(&event, "oldsearchquote requires search terms").ok();
             }
         } else if let Some(mut query) = body.alias_strip_prefix(&["oldrandquote", "orq"]) {
             query = query.trim();
 
             if !query.is_empty() {
-                resp = Some(match self.search_quote(query) {
+                bot.reply(&event, &match self.search_quote(query) {
                     Ok(v) => match v {
                         Some(s) => render_quote(&s),
-                        None => format!("No quote found matching {}", query),
+                        None => format!("No quote found matching {query}"),
                     },
                     Err(e) => e.to_string(),
-                });
+                }).ok();
             } else {
-                resp = Some(match self.rand_quote() {
+                bot.reply(&event, &match self.rand_quote() {
                     Ok(v) => match v {
                         Some(s) => render_quote(&s),
                         None => "No quote found".to_string(),
                     },
                     Err(e) => e.to_string(),
-                });
+                }).ok();
             }
         }
-
-        resp.map(|s| bot.reply(&event, &s));
     }
 
     fn description(&self) -> Option<String> {
-        Some("oldgetquote (ogq) - Get a specific quote by id. Pass a valid integer quote id as the only argument.\n\
-              oldsearchquote (osq) - Performs string search using provided argument (may contain spaces) and returns all quote ids.\n\
-              oldrandquote (orq) - Returns a random quote. Random quotes can be filtered by a string search using an optional provided argument.".to_string())
+        Some("oldgetquote (alt: ogq) <quote id 0>, <quote id 1> - Get up to 5 specific quotes by providing valid integer quote ids.\n\
+              oldsearchquote (alt: osq) <search string> - Performs string search across quotes and returns all quote ids.\n\
+              oldrandquote (alt: orq) <optional search string> - Returns a random quote, optionally from the set of quotes which match a given query.".to_string())
     }
 }
 

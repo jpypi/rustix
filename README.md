@@ -50,7 +50,7 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - addquote \<quote here\>
 - getquote \<comma separated list of up to 5 ids\>
 - \*delquote \<quote number\>
-- randquote \<optional string search\>
+- randquote \<optional string to search\>
 - searchquote \<string to search\>
 - roulette
 - rroulette
@@ -90,9 +90,9 @@ These commands will look up quotes stored in a csv file. New quotes must be
 manually added to this file.
 
 The expected column layout is: `id,text,user,timestamp,channel`
-- oldgetquote \<quote number\>
-- oldrandquote \<optional string search\>
-- oldsearchquote \<string search\>
+- oldgetquote \<comma separated list of up to 5 ids\>
+- oldrandquote \<optional string to search\>
+- oldsearchquote \<string to search\>
 
 ### Enabled via `services.try_file`:
 The TryFile service attempts to interpret `!<command name>` as referring to a
