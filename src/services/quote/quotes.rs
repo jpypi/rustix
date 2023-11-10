@@ -50,7 +50,7 @@ impl<'a> Node<'a> for Quotes {
         } else if let Some(mut query) = body.alias_strip_prefix(&["searchquote ", "sq "]) {
             query = query.trim();
 
-            if query.len() > 0 {
+            if !query.is_empty() {
                 bot.reply(&event, &match self.quote_db.search_quotes(query) {
                     Ok(quotes) => {
                         let n_quotes = quotes.len();
@@ -78,7 +78,7 @@ impl<'a> Node<'a> for Quotes {
                         }
                 false => match self.quote_db.search_quote(query) {
                              Ok((quoter, quote)) => render_quote(&quote, &quoter),
-                             Err(_) => format!("No quote found matching {}", query),
+                             Err(_) => format!("No quote found matching {query}"),
                          },
             }).ok();
         }
