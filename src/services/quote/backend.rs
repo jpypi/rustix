@@ -66,10 +66,10 @@ impl Backend {
                              .get_result(&self.connection)
     }
 
-    pub fn random_quote(&mut self) -> QueryResult<Option<(User, Quote)>> {
+    pub fn random_quote(&mut self) -> QueryResult<(User, Quote)> {
         let n_quotes = quotes.count().get_result(&self.connection)?;
         if n_quotes == 0 {
-            return Ok(None);
+            return Err(diesel::result::Error::NotFound);
         }
 
         let offset = self.rng.gen_range(0..n_quotes);
@@ -78,7 +78,7 @@ impl Backend {
         let qres: Quote = quotes.offset(offset).first(&self.connection)?;
         let ures = users.filter(us::dsl::id.eq(qres.quoter_id))
                             .first(&self.connection)?;
-        Ok(Some((ures, qres)))
+        Ok((ures, qres))
     }
 
     pub fn search_quote(&mut self, text: &str) -> QueryResult<(User, Quote)> {

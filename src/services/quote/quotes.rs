@@ -73,8 +73,8 @@ impl<'a> Node<'a> for Quotes {
 
             bot.reply(&event, &match query.is_empty() {
                 true => match self.quote_db.random_quote() {
-                            Ok(Some((quoter, quote))) => render_quote(&quote, &quoter),
-                            Ok(None) | Err(_) => "No quote found.".to_string(),
+                            Ok((quoter, quote)) => render_quote(&quote, &quoter),
+                            Err(_) => "No quote found.".to_string(),
                         }
                 false => match self.quote_db.search_quote(query) {
                              Ok((quoter, quote)) => render_quote(&quote, &quoter),
