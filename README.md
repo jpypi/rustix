@@ -52,6 +52,7 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - \*delquote \<quote number\>
 - randquote \<optional string to search\>
 - searchquote \<string to search\>
+- quoteby \<user nickname\>
 - roulette
 - rroulette
 - choose \<item1\>, \<item2\>, ... \<itemN\>
