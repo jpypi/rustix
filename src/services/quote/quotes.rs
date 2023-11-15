@@ -73,13 +73,29 @@ impl<'a> Node<'a> for Quotes {
 
             bot.reply(&event, &match query.is_empty() {
                 true => match self.quote_db.random_quote() {
-                            Ok(Some((quoter, quote))) => render_quote(&quote, &quoter),
-                            Ok(None) | Err(_) => "No quote found.".to_string(),
+                            Ok((quoter, quote)) => render_quote(&quote, &quoter),
+                            Err(_) => "No quote found.".to_string(),
                         }
                 false => match self.quote_db.search_quote(query) {
                              Ok((quoter, quote)) => render_quote(&quote, &quoter),
                              Err(_) => format!("No quote found matching {query}"),
                          },
+            }).ok();
+        } else if let Some(mut query) = body.alias_strip_prefix(&["quoteby", "qb"]) {
+            query = query.trim();
+
+            bot.reply(&event, &match query.is_empty() {
+                true => "Please specify a user".to_string(),
+                false => match bot.uid_from_displayname(query) {
+                    Ok(uid) => {
+                        if let Ok((quoter, quote)) = self.quote_db.quote_by(&uid) {
+                            render_quote(&quote, &quoter)
+                        } else {
+                            "No quotes found.".to_string()
+                        }
+                    },
+                    Err(_) => "Unable to identify user.".to_string(),
+                },
             }).ok();
         }
     }
@@ -89,7 +105,8 @@ impl<'a> Node<'a> for Quotes {
               \taddquote (alt: quote, aq, q) <quote> - Add a quote to the database. (Please format as: <nick> phrase<newline><othernick> phrase)\n\
               \tgetquote (alt: gq) <quote id 0>, <quote id 1> - Get up to 5 specific quotes by providing valid integer quote ids.\n\
               \tsearchquote (alt: sq) <search string> - Performs string search across quotes and returns all quote ids.\n\
-              \trandquote (alt: rq) <optional search string> - Returns a random quote, optionally from the set of quotes which match a given query.".to_string())
+              \trandquote (alt: rq) <optional search string> - Returns a random quote, optionally from the set of quotes which match a given query.\n\
+              \tquoteby (alt: qb) <user nickname> - Returns a random quote set by the given user.".to_string())
     }
 }
 

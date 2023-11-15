@@ -3,7 +3,7 @@ use diesel::PgConnection;
 
 use super::schema::users::{self, dsl::*};
 
-#[derive(Queryable, Identifiable)]
+#[derive(Queryable, Identifiable, Debug, Clone)]
 pub struct User {
     pub id: i32,
     pub user_id: String,

@@ -1,7 +1,7 @@
 use std::time::SystemTime;
 use super::super::db::schema::quotes;
 
-#[derive(Queryable, Identifiable, AsChangeset)]
+#[derive(Queryable, Identifiable, AsChangeset, Debug, Clone)]
 pub struct Quote {
     pub id: i32,
     pub quoter_id: i32,
