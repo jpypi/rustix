@@ -74,7 +74,7 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
         if let Some(state) = saved_state {
             let mut real_channels = state.as_str();
             if let Some((allow, channels)) = state.split_once("|") {
-                self.allow = allow.parse().expect("Invalid value for channel filter allow state");
+                self.allow = allow.parse().expect("Channel filter allow state value should parse to bool");
                 real_channels = channels;
             }
 
