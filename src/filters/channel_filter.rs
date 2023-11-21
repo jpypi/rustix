@@ -1,6 +1,7 @@
 use std::{collections::HashSet, iter::FromIterator};
 use itertools::Itertools;
 
+use crate::state;
 use crate::utils::TrimMatch;
 
 use crate::{
@@ -74,7 +75,7 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
     }
 
     fn on_load(&mut self, service_name: &str) {
-        let saved_state = utils::load_state(service_name);
+        let saved_state = state::load_state(service_name);
         if let Some(state) = saved_state {
             let mut real_channels = state.as_str();
             if let Some((allow, channels)) = state.split_once("|") {
@@ -89,6 +90,6 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
     }
 
     fn on_exit(&self, service_name: &str) {
-        utils::save_state(service_name, &format!("{}|{}", self.allow, self.channels.iter().join(",")));
+        state::save_state(service_name, &format!("{}|{}", self.allow, self.channels.iter().join(",")));
     }
 }
