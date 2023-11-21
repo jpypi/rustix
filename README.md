@@ -182,6 +182,9 @@ admins = ["@myself:matrix.my.domain.com"]
 ignore = ["@bot1:matrix.my.domain.com", "@bot2:matrix.my.domain.com"]
 
 [services]
+[services.karma]
+max_per_message = 10
+
 [services.try_file]
 directory = "/usr/share/rustix"
 
@@ -195,9 +198,6 @@ seid = "<google custom search id>"
 [services.factoid]
 factoid_leader = "rustix,"
 list_all_channels = ["!XYmmdisZsVrOTGLmoIO:matrix.my.domain.com"]
-
-[services.karma]
-max_per_message = 10
 
 [services.bonequest]
 profanity = ["badword"]
@@ -219,11 +219,12 @@ configuration will disable the service in rustix and not cause an error.
 - csv_quote
 - web_search
 - factoid
+- bonequest
 - openai
 
 # State
 
-All nodes may have `on_load` and `on_exit` method, which gets called once the
+All nodes may have `on_load` and `on_exit` methods, which gets called once the
 node has been registered with the bot, and when the bot is cleanly shut down,
 respectively. These methods may be used to save state when stopping/starting the
 bot. All the state gets saved in various files under the `.rustix` folder which

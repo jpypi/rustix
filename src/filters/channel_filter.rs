@@ -1,12 +1,8 @@
 use std::{collections::HashSet, iter::FromIterator};
 use itertools::Itertools;
 
-use crate::utils::TrimMatch;
+use crate::{state, utils::TrimMatch, bot::{Bot, Node, RoomEvent}};
 
-use crate::{
-    bot::{Bot, Node, RoomEvent},
-    utils
-};
 
 pub struct ChannelFilter<'a> {
     children: Vec<&'a str>,
@@ -36,7 +32,7 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         let contains = self.channels.contains(&event.room_id.to_string());
 
-        if (self.allow && contains) || (!self.allow && !contains) {
+        if !(self.allow ^ contains) {
             self.propagate_event(bot, &event);
         }
     }
@@ -74,11 +70,11 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
     }
 
     fn on_load(&mut self, service_name: &str) {
-        let saved_state = utils::load_state(service_name);
+        let saved_state = state::load_state(service_name);
         if let Some(state) = saved_state {
             let mut real_channels = state.as_str();
             if let Some((allow, channels)) = state.split_once("|") {
-                self.allow = allow.parse().expect("Invalid value for channel filter allow state");
+                self.allow = allow.parse().expect("Channel filter allow state value should parse to bool");
                 real_channels = channels;
             }
 
@@ -89,6 +85,6 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
     }
 
     fn on_exit(&self, service_name: &str) {
-        utils::save_state(service_name, &format!("{}|{}", self.allow, self.channels.iter().join(",")));
+        state::save_state(service_name, &format!("{}|{}", self.allow, self.channels.iter().join(",")));
     }
 }

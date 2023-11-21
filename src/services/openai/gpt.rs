@@ -7,7 +7,7 @@ use sha3::Digest;
 use toml::Value;
 use serde::Deserialize;
 
-use crate::{bot::{Bot, Node, RoomEvent}, utils};
+use crate::{bot::{Bot, Node, RoomEvent}, state};
 use super::types::*;
 
 const BASE_URL: &str = "https://api.openai.com/v1/completions";
@@ -213,7 +213,7 @@ impl<'a> Node<'a> for GPT {
     }
 
     fn on_load(&mut self, service_name: &str) {
-        let saved_state = utils::load_state(service_name);
+        let saved_state = state::load_state(service_name);
         if let Some(state) = saved_state {
             let mut parsed = state.split(" ");
 
@@ -227,6 +227,6 @@ impl<'a> Node<'a> for GPT {
     }
 
     fn on_exit(&self, service_name: &str) {
-        utils::save_state(service_name, &format!("{} {}", self.token_budget, self.used_tokens));
+        state::save_state(service_name, &format!("{} {}", self.token_budget, self.used_tokens));
     }
 }
