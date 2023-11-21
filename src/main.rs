@@ -61,7 +61,7 @@ fn main() {
                                     )));
 
     let uf = b.register_service("user_filter", sf,
-                                Box::new(UserFilter::new(config.bot.ignore.clone())));
+                                Box::new(UserFilter::new(config.bot.ignore.clone(), false)));
 
     let ff = b.register_service("forward_filter", uf, Box::new(ForwardFilter::new()));
 
