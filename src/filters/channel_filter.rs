@@ -32,7 +32,7 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         let contains = self.channels.contains(&event.room_id.to_string());
 
-        if (self.allow && contains) || (!self.allow && !contains) {
+        if !(self.allow ^ contains) {
             self.propagate_event(bot, &event);
         }
     }
