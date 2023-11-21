@@ -1,13 +1,8 @@
 use std::{collections::HashSet, iter::FromIterator};
 use itertools::Itertools;
 
-use crate::state;
-use crate::utils::TrimMatch;
+use crate::{state, utils::TrimMatch, bot::{Bot, Node, RoomEvent}};
 
-use crate::{
-    bot::{Bot, Node, RoomEvent},
-    utils
-};
 
 pub struct ChannelFilter<'a> {
     children: Vec<&'a str>,
