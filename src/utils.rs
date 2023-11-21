@@ -27,6 +27,10 @@ pub trait AliasStripPrefix {
 }
 
 impl AliasStripPrefix for str {
+    /// Check's a string for multiple `prefixes` and upon match returns a string
+    /// slice with the prefix removed.
+    ///
+    /// If the string does not start with any of the `prefixes`, return `None`.
     fn alias_strip_prefix<'a>(&'a self, aliases: &[&str]) -> Option<&'a str> {
         for alias in aliases {
             if let Some(res) = self.strip_prefix(alias) {
@@ -44,6 +48,12 @@ pub trait TrimMatch {
 }
 
 impl TrimMatch for str {
+    /// Trim's the string and strict compares it to all variants for a match
+    ///
+    /// # Arguments
+    ///
+    /// * `variants` - Reference to a slice of string references to compare the
+    ///                base string against
     fn trim_match<'a>(&'a self, variants: &[&str]) -> Option<&'a str> {
         let trimmed = self.trim();
         for variant in variants {
