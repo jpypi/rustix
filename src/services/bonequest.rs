@@ -25,7 +25,7 @@ impl Bonequest {
     pub fn new(config: &Value) -> Self {
         let cfg: Config = config.clone().try_into().expect("Bad bonequest config.");
         Self {
-            dialog_regex: Regex::new("(?s)<div style=\"margin-left: 40px; margin-right: 40px; font-family: monospace; white-space: pre-wrap; text-align: left;\">(.+?)</div>").unwrap(),
+            dialog_regex: Regex::new("(?s)<div class=\"acre\" style=\"margin-left: 40px; margin-right: 40px; font-family: monospace; white-space: pre-wrap; text-align: left;\">(.+?)</div>").unwrap(),
             profanity: cfg.profanity.iter().map(|p| p.to_lowercase()).collect(),
         }
     }
@@ -46,12 +46,12 @@ impl Bonequest {
                                     .and_then(|l| l.split(": ").nth(1));
                     return match line {
                         Some(l) => Ok(l.to_owned()),
-                        None => Ok("Error".to_owned()),
+                        None => Ok("Line parsing error".to_owned()),
                     }
                 }
             }
 
-            Ok("Error".to_owned())
+            Ok("Regex error".to_owned())
         })
     }
 }
