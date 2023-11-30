@@ -105,8 +105,12 @@ impl<'a> Node<'a> for RankKarma {
                         let q = query.as_str().trim();
                         match bot.uid_from_displayname(q) {
                             Ok(r) => r,
+                            Err(crate::errors::Error::Generic(_)) => {
+                                bot.reply(&event, &format!("Unable to determine user id for: {}", q)).ok();
+                                return;
+                            },
                             Err(e) => {
-                                bot.reply(&event, &format!("{:?}", e)).ok();
+                                println!("{:?}", e);
                                 return;
                             }
                         }
@@ -140,8 +144,12 @@ impl<'a> Node<'a> for RankKarma {
                         let q = query.as_str().trim();
                         match bot.uid_from_displayname(q) {
                             Ok(r) => r,
+                            Err(crate::errors::Error::Generic(_)) => {
+                                bot.reply(&event, &format!("Unable to determine user id for: {}", q)).ok();
+                                return;
+                            },
                             Err(e) => {
-                                bot.reply(&event, &format!("{:?}", e)).ok();
+                                println!("{:?}", e);
                                 return;
                             }
                         }
@@ -174,7 +182,7 @@ impl<'a> Node<'a> for RankKarma {
     fn description(&self) -> Option<String> {
         Some("karma rankings:\n\
               \tkarmastats <optional thing> - View kings of karma. Providing no argument will rank all things.\n\
-              \tbadkarmastats - View peasants of karma.\n\
+              \tbadkarmastats <optional thing> - View peasants of karma.\n\
               \tnickstats <optional user id> - View ranking of things user has given karma.\n\
               \tbadnickstats <optional user id> - View ranking of things user has given karma... but from the other end.".to_string())
     }
