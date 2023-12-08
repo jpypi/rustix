@@ -13,7 +13,7 @@ use rustix::{
         quote::{Quotes, DelQuote},
         prefix::Prefix,
         choose::Choose,
-        roulette::{Roulette, RouletteLevel},
+        roulette::Roulette,
         crypto_coin::CryptoCoin,
         tryfile::TryFile,
         membership::{Join, Leave, AcceptInvite},
@@ -86,8 +86,8 @@ fn main() {
     b.register_service("structure",   pf, Box::new(Structure::new()));
     b.register_service("read_quote",  pf, Box::new(Quotes::new()));
     b.register_service("choose",      pf, Box::new(Choose::new()));
-    b.register_service("roulette",    pf, Box::new(Roulette::new(RouletteLevel::Kick)));
-    b.register_service("rroulette",   pf, Box::new(Roulette::new(RouletteLevel::Ban)));
+    b.register_service("roulette",    pf, Box::new(Roulette::new(config::RemovalMode::Kick)));
+    b.register_service("rroulette",   pf, Box::new(Roulette::new(config::RemovalMode::Ban)));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
     b.register_service("votekick",    pf, Box::new(Votekick::new(5, 5)));
 

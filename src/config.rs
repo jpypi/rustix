@@ -35,3 +35,10 @@ pub fn load_config(filename: &str) -> Config {
 
     toml::from_str(&config_data).expect("Bad config file formatting")
 }
+
+
+#[derive(PartialEq)]
+pub enum RemovalMode {
+    Kick,
+    Ban,
+}
