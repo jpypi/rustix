@@ -19,6 +19,6 @@ pub mod factoid;
 pub mod structure;
 pub mod nodectrl;
 pub mod bonequest;
-pub mod votekick;
+pub mod voteremove;
 
 mod db;
