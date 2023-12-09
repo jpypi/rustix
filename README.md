@@ -12,6 +12,9 @@ HTTP requests are made directly to a matrix server via the reqwest library.
 
 # Running
 
+*The recommended way to run rustix is to use docker. Instructions for running via
+docker can be found near the bottom of this document.*
+
 To run rustix there must be a matrix user account with a password set up. The
 username and password should be put in `config.toml`. Rustix uses a database to
 keep quotes and track "karma" (e.g. rust++ or cabbage--) to record likes and
@@ -24,7 +27,7 @@ DATABASE_URL=postgres://user:password@localhost/rustix
 (Note: This assumes a database user has been set up and has proper permissions
 on the proper database.)
 
-Next, run the database migrations and comple + run rustix!
+Next, run the database migrations and compile + run rustix!
 ```
 $ diesel migration run
 $ cargo run
@@ -64,6 +67,7 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - nickstats \<optional matrix user id\>
 - badnickstats \<optional matrix user id\>
 - p \<crypto currency ticker\>
+- votekick \<username\>
 - \*join \<public channel display name\>
 - \*leave \<public channel display name\>
 - \*joined
