@@ -1,28 +1,22 @@
 use rand::Rng;
 
-use crate::bot::{Bot, Node, RoomEvent};
+use crate::{config::RemovalMode, bot::{Bot, Node, RoomEvent}};
 
 const SIZE:usize = 6;
-
-#[derive(PartialEq)]
-pub enum RouletteLevel{
-    Kick,
-    Ban,
-}
 
 pub struct Roulette {
     rounds: [u8; SIZE],
     state: u8,
-    level: RouletteLevel,
+    mode: RemovalMode,
 }
 
 impl Roulette {
     // If no value is provided, default to false
-    pub fn new(level: RouletteLevel) -> Self {
+    pub fn new(mode: RemovalMode) -> Self {
         let mut x = Self {
             rounds: [0; SIZE],
             state: 0,
-            level,
+            mode,
         };
 
         Self::reset(&mut x);
@@ -52,16 +46,16 @@ impl<'a> Node<'a> for Roulette {
         if event.is_normal() {
             let body = revent.content["body"].as_str().unwrap();
 
-            if (self.level == RouletteLevel::Ban && body.starts_with("rroulette")) ||
-               (self.level == RouletteLevel::Kick && body.starts_with("roulette")) {
+            if (self.mode == RemovalMode::Ban && body.starts_with("rroulette")) ||
+               (self.mode == RemovalMode::Kick && body.starts_with("roulette")) {
                 println!("Found roulette state: {}, rounds: {:?}", self.state, self.rounds);
 
                 match self.fire() {
                     true => {
                         self.reset();
-                        match &self.level {
-                            RouletteLevel::Kick => bot.kick(event.room_id, &revent.sender, Some("Bang!")),
-                            RouletteLevel::Ban => bot.ban(event.room_id, &revent.sender, Some("Bang!")),
+                        match &self.mode {
+                            RemovalMode::Kick => bot.kick(event.room_id, &revent.sender, Some("Bang!")),
+                            RemovalMode::Ban => bot.ban(event.room_id, &revent.sender, Some("Bang!")),
                         }.ok();
                         bot.reply(&event, "Bang!").ok()
                     },
@@ -72,9 +66,9 @@ impl<'a> Node<'a> for Roulette {
     }
 
     fn description(&self) -> Option<String> {
-        match &self.level {
-            RouletteLevel::Kick => Some("roulette - Six chambers; don't mostly die.".to_string()),
-            RouletteLevel::Ban => Some("rroulette - Six chambers; don't die.".to_string()),
+        match &self.mode {
+            RemovalMode::Kick => Some("roulette - Six chambers; don't mostly die.".to_string()),
+            RemovalMode::Ban => Some("rroulette - Six chambers; don't die.".to_string()),
         }
     }
 }
