@@ -145,3 +145,8 @@ pub struct RoomChunks {
     pub end: Option<String>,
     pub state: Option<Vec<Event>>,
 }
+
+#[derive(Deserialize, Debug)]
+pub struct RoomMembers {
+    pub joined: HashMap<String, Value>,
+}

@@ -124,6 +124,10 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         }
     }
 
+    pub fn room_members(&self, room_id: &str) -> Result<Vec<String>> {
+        self.client.borrow().room_members(room_id)
+    }
+
     pub fn set_displayname(&mut self, name: &str) -> Result<Response> {
         self.display_name = name.to_string();
         self.client.borrow_mut().set_displayname(name)

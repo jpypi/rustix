@@ -9,6 +9,7 @@ use reqwest::blocking::Response;
 use reqwest::header;
 use http::Method;
 use serde::Serialize;
+use serde_json::Value;
 
 use crate::errors::Error;
 use crate::matrix_types::*;
@@ -300,6 +301,16 @@ impl MatrixClient {
 
         self.auth_query(Method::POST, "/user_directory/search", None, Some(&data), None)
             .and_then(|o| o.json().or_else(|e| Err(e.into())))
+    }
+
+    pub fn room_members(&self, room_id: &str) -> Result<Vec<String>> {
+        self.auth_get(&format!("/rooms/{}/joined_members", room_id), None, None).and_then(|o| {
+            o.json::<RoomMembers>()
+             .and_then(|obj| {
+                Ok(obj.joined.into_keys().collect())
+             })
+             .or_else(|e| Err(e.into()))
+        })
     }
 
     pub fn get_room_events(&self, room_id: &str, n: u32, from: Option<&str>) -> Result<RoomChunks> {
