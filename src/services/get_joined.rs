@@ -1,4 +1,9 @@
-use crate::bot::{Bot, Node, RoomEvent};
+use crate::{
+    bot::{Bot, Node, RoomEvent},
+    utils::codeblock_format
+};
+
+use itertools::Itertools;
 
 pub struct GetJoined;
 impl GetJoined {
@@ -14,8 +19,19 @@ impl<'a> Node<'a> for GetJoined {
             if body.starts_with("joined") {
                 match bot.get_joined() {
                     Ok(rooms) => {
-                        let resp = format!("Currently in rooms: {}", rooms.joined_rooms.join(", "));
-                        bot.reply(&event, &resp).ok();
+                        let room_names = rooms.joined_rooms.iter().map(|r|{
+                            match bot.room_name(&r) {
+                                Ok(name) => name,
+                                Err(_) => {
+                                    let members = bot.room_members(&r).unwrap();
+                                    format!("{} ({})", r.to_string(), members.join(", "))
+                                },
+                            }
+                        }).sorted().join("\n");
+
+                        let resp = format!("Currently in rooms:\n{}", room_names);
+                        let fmt_resp = codeblock_format(&resp);
+                        bot.reply_fmt(&event, &fmt_resp, &resp).ok();
                     }
                     Err(e) => {
                         let resp = format!("{:?}", e);

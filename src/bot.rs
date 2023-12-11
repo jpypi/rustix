@@ -124,6 +124,10 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         }
     }
 
+    pub fn room_members(&self, room_id: &str) -> Result<Vec<String>> {
+        self.client.borrow().room_members(room_id)
+    }
+
     pub fn set_displayname(&mut self, name: &str) -> Result<Response> {
         self.display_name = name.to_string();
         self.client.borrow_mut().set_displayname(name)
@@ -135,6 +139,10 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
 
     pub fn get_room_events(&self, room_id: &str, n: u32, from: Option<&str>) -> Result<RoomChunks> {
         self.client.borrow().get_room_events(room_id, n, from)
+    }
+
+    pub fn room_name(&self, room_id: &str) -> Result<String> {
+        self.client.borrow().get_room_name(room_id)
     }
 
     pub fn register_service(&mut self,

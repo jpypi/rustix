@@ -115,6 +115,11 @@ pub struct RoomAlias {
     pub servers: Vec<String>,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct RoomName {
+    pub name: String,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CreatedRoom {
     pub room_id: String,
@@ -139,4 +144,9 @@ pub struct RoomChunks {
     pub start: String,
     pub end: Option<String>,
     pub state: Option<Vec<Event>>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct RoomMembers {
+    pub joined: HashMap<String, Value>,
 }
