@@ -137,6 +137,10 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         self.client.borrow().get_room_events(room_id, n, from)
     }
 
+    pub fn room_name(&self, room_id: &str) -> Result<String> {
+        self.client.borrow().get_room_name(room_id)
+    }
+
     pub fn register_service(&mut self,
                             name: &'a str,
                             parent: Option<&'a str>,

@@ -279,6 +279,13 @@ impl MatrixClient {
             .and_then(|o| o.json().or_else(|e| Err(e.into())))
     }
 
+    pub fn get_room_name(&self, room_id: &str) -> Result<String> {
+        let path = format!("/rooms/{}/state/m.room.name/", room_id);
+        let res: Result<RoomName> = self.auth_get(&path, None, None)
+                                        .and_then(|o| o.json().or_else(|e| Err(e.into())));
+        res.and_then(|v| Ok(v.name))
+    }
+
     pub fn get_directory(&self, search_term: &str, limit: Option<u32>) -> Result<UserDirectory> {
         #[derive(Serialize)]
         struct Query<'a> {

@@ -115,6 +115,11 @@ pub struct RoomAlias {
     pub servers: Vec<String>,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct RoomName {
+    pub name: String,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CreatedRoom {
     pub room_id: String,
