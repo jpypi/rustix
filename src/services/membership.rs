@@ -56,6 +56,37 @@ impl<'a> Node<'a> for Leave {
 }
 
 
+pub struct EmptyCleanup;
+
+impl EmptyCleanup {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl<'a> Node<'a> for EmptyCleanup {
+    fn handle(&mut self, bot: &Bot, event: RoomEvent) {
+        let body = &event.raw_event.content["body"].as_str().unwrap();
+        if body.starts_with("emptycleanup") {
+            if let Ok(joined) = bot.get_joined() {
+                for room_id in joined.joined_rooms {
+                    bot.room_members(&room_id)
+                       .map(|m| {
+                            if m.len() == 1 {
+                                bot.leave(&room_id).ok();
+                            }
+                       }).ok();
+                }
+            }
+        }
+    }
+
+    fn description(&self) -> Option<String> {
+        Some("emptycleanup - Leave all rooms where bot is the only member.".to_string())
+    }
+}
+
+
 pub struct AcceptInvite;
 
 impl AcceptInvite {

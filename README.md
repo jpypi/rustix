@@ -70,6 +70,7 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - votekick \<username\>
 - \*join \<public channel display name\>
 - \*leave \<public channel display name\>
+- \*emptycleanup
 - \*joined
 - \*node config \<service/node name\> \<command\>
 - \*node help \<service/node name\>

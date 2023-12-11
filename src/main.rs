@@ -16,7 +16,7 @@ use rustix::{
         roulette::Roulette,
         crypto_coin::CryptoCoin,
         tryfile::TryFile,
-        membership::{Join, Leave, AcceptInvite},
+        membership::{Join, Leave, EmptyCleanup, AcceptInvite},
         admin::Admin,
         get_joined::GetJoined,
         csv_quote::ReadQuote,
@@ -130,11 +130,12 @@ fn main() {
     b.register_service("help", pf, Box::new(Help::new()));
 
     let adm = b.register_service("admin", pf, Box::new(Admin::new(config.bot.admins)));
-    b.register_service("join", adm, Box::new(Join::new()));
-    b.register_service("leave", adm, Box::new(Leave::new()));
-    b.register_service("del_quote", adm, Box::new(DelQuote::new()));
-    b.register_service("get_joined", adm, Box::new(GetJoined::new()));
-    b.register_service("nodectl", adm, Box::new(Configure::new()));
+    b.register_service("join",         adm, Box::new(Join::new()));
+    b.register_service("leave",        adm, Box::new(Leave::new()));
+    b.register_service("emptycleanup", adm, Box::new(EmptyCleanup::new()));
+    b.register_service("del_quote",    adm, Box::new(DelQuote::new()));
+    b.register_service("get_joined",   adm, Box::new(GetJoined::new()));
+    b.register_service("nodectl",      adm, Box::new(Configure::new()));
 
 
     // Join bot to initial rooms
