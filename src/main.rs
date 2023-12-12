@@ -90,7 +90,7 @@ fn main() {
     b.register_service("roulette",    pf, Box::new(Roulette::new(config::RemovalMode::Kick)));
     b.register_service("rroulette",   pf, Box::new(Roulette::new(config::RemovalMode::Ban)));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
-    b.register_service("votekick",    pf, Box::new(Voteremove::new(5, 5)));
+    b.register_service("votekick",    pf, Box::new(Voteremove::new(5, 5, config::RemovalMode::Kick)));
 
     if let Some(bq_profanity) = config.services.as_ref().and_then(|s| s.get("bonequest")) {
         let bq_cf = b.register_service("bq_channel_filter", pf, Box::new(ChannelFilter::new(vec![], false)));

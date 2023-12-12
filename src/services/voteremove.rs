@@ -28,12 +28,12 @@ pub struct Voteremove {
 
 impl<'a> Voteremove {
     // If no value is provided, default to false
-    pub fn new(votes_required: usize, wait_minutes: u64) -> Self {
+    pub fn new(votes_required: usize, wait_minutes: u64, mode: RemovalMode) -> Self {
         Self {
             votes: Arc::new(Mutex::new(HashMap::new())),
             votes_required,
             timeout: Duration::new(wait_minutes * 60, 0),
-            mode: RemovalMode::Kick,
+            mode: mode,
             votekick_re: Regex::new(r"^votekick(?: (.+))?$").unwrap(),
             voteban_re: Regex::new(r"^voteban(?: (.+))?$").unwrap(),
         }
