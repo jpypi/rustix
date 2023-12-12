@@ -68,12 +68,12 @@ impl<'a> Node<'a> for EmptyCleanup {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         let body = &event.raw_event.content["body"].as_str().unwrap();
         if body.starts_with("emptycleanup") {
-            if let Ok(joined) = bot.get_joined() {
+            if let Ok(joined) = bot.client().get_joined() {
                 for room_id in joined.joined_rooms {
-                    bot.room_members(&room_id)
+                    bot.client().get_members(&room_id)
                        .map(|m| {
                             if m.len() == 1 {
-                                bot.leave(&room_id).ok();
+                                bot.client().leave(&room_id).ok();
                             }
                        }).ok();
                 }
