@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 use std::sync::atomic::AtomicBool;
 
 use signal_hook::consts::signal::{SIGINT, SIGTERM};
@@ -45,13 +45,14 @@ fn main() {
     let config = config::load_config("config.toml");
 
     // Set up a matrix HTTP client
-    let mut m = MatrixClient::new(&config.connection.server);
+    let m = Arc::new(RwLock::new(MatrixClient::new(&config.connection.server)));
 
-    m.login(&config.connection.username,
+    m.write().unwrap()
+     .login(&config.connection.username,
             &config.connection.password).expect("login failed!");
 
     // Create a new bot
-    let mut b = bot::Bot::new(&mut m);
+    let mut b = bot::Bot::new(Arc::clone(&m));
     b.set_displayname(&config.bot.display_name).unwrap();
 
     // Register services with the bot

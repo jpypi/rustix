@@ -54,8 +54,8 @@ impl<'a> Node<'a> for Roulette {
                     true => {
                         self.reset();
                         match &self.mode {
-                            RemovalMode::Kick => bot.kick(event.room_id, &revent.sender, Some("Bang!")),
-                            RemovalMode::Ban => bot.ban(event.room_id, &revent.sender, Some("Bang!")),
+                            RemovalMode::Kick => bot.client().kick(event.room_id, &revent.sender, Some("Bang!")),
+                            RemovalMode::Ban => bot.client().ban(event.room_id, &revent.sender, Some("Bang!")),
                         }.ok();
                         bot.reply(&event, "Bang!").ok()
                     },

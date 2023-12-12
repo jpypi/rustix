@@ -115,7 +115,7 @@ impl GPT {
 
         let mut messages = Vec::<String>::new();
 
-        if let Ok(e) = bot.get_room_events(room_id, 100, None) {
+        if let Ok(e) = bot.client().get_room_events(room_id, 100, None) {
             for event in e.chunk.iter().skip(1) {
                 if !(event.type_ == "m.room.message" && event.content["msgtype"] == "m.text") {
                     continue;
@@ -164,14 +164,14 @@ impl<'a> Node<'a> for GPT {
             self.last_query = std::time::Instant::now();
 
             if let Some(message) = body.strip_prefix("chat ") {
-                bot.indicate_typing(&event.room_id, Some(Duration::from_secs(60))).ok();
+                bot.client().indicate_typing(&event.room_id, Some(Duration::from_secs(60))).ok();
 
                 let uname = trim_name(&revent.sender);
                 let (context, _) = self.build_context(bot, event.room_id, uname, message);
 
                 let count = self.count_tokens(&context);
                 if  count as f64 > self.token_budget {
-                    bot.indicate_typing(&event.room_id, None).ok();
+                    bot.client().indicate_typing(&event.room_id, None).ok();
                     bot.reply(&event, &format!("Sorry. Rate limited. :(\n{} tokens > token budget of {:.0}", count, self.token_budget)).ok();
                     return;
                 }
@@ -198,7 +198,7 @@ impl<'a> Node<'a> for GPT {
                     }
                 }
 
-                bot.indicate_typing(&event.room_id, None).ok();
+                bot.client().indicate_typing(&event.room_id, None).ok();
             }
 
             if let Some(_) = body.strip_prefix("budget") {

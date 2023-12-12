@@ -62,7 +62,7 @@ impl<'a> Node<'a> for Bonequest {
         let body = &revent.content["body"].as_str().unwrap();
 
         if body.starts_with("bq") {
-            bot.indicate_typing(&event.room_id, Some(Duration::from_secs(10))).ok();
+            bot.client().indicate_typing(&event.room_id, Some(Duration::from_secs(10))).ok();
 
             'attempts: for _ in 0..10 {
                 match self.get_line() {
@@ -88,7 +88,7 @@ impl<'a> Node<'a> for Bonequest {
                 }
             }
 
-            bot.indicate_typing(&event.room_id, None).ok();
+            bot.client().indicate_typing(&event.room_id, None).ok();
         }
     }
 

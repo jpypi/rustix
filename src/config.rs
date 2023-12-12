@@ -42,3 +42,12 @@ pub enum RemovalMode {
     Kick,
     Ban,
 }
+
+impl RemovalMode {
+    pub fn as_str(&self) -> &str {
+        match self {
+            RemovalMode::Kick => "kick",
+            RemovalMode::Ban => "ban",
+        }
+    }
+}

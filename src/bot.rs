@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock, RwLockWriteGuard};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 use std::{result, thread};
@@ -31,18 +31,18 @@ impl<'a> RoomEvent<'a> {
 
 
 type NodeProcessFn<'a> = dyn Fn(&Bot, &mut dyn Node) -> Box<dyn Any> + 'a;
-pub struct Bot<'a, 'b, 'c> {
-    client: RefCell<&'b mut MatrixClient>,
+pub struct Bot<'a, 'c> {
+    p_client: Arc<RwLock<MatrixClient>>,
     root_services: Vec<&'a str>,
     all_services: HashMap<&'a str, RefCell<Box<dyn Node<'a>>>>,
     delayed_queries: RefCell<HashMap<&'c str, (Option<String>, Box<NodeProcessFn<'c>>)>>,
     display_name: String,
 }
 
-impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
-    pub fn new(client: &'b mut MatrixClient) -> Self {
+impl<'a, 'c> Bot<'a, 'c> {
+    pub fn new(client_ref: Arc<RwLock<MatrixClient>>) -> Self {
         Bot {
-            client: RefCell::new(client),
+            p_client: client_ref,
             root_services: Vec::new(),
             all_services: HashMap::new(),
             delayed_queries: RefCell::new(HashMap::new()),
@@ -50,99 +50,59 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
         }
     }
 
-    pub fn join(&self, room_id: &str) -> Result<Response> {
-        self.client.borrow().join(room_id)
+    pub fn client(&self) -> RwLockWriteGuard<MatrixClient> {
+        self.p_client.write().unwrap()
+    }
+
+    pub fn arc_client(&self) -> Arc<RwLock<MatrixClient>>{
+        Arc::clone(&self.p_client)
     }
 
     pub fn join_public(&self, room_id: &str) -> Result<Response> {
-        let pub_room = self.client.borrow().get_public_room_id(room_id);
+        let pub_room = self.p_client.read().unwrap().get_public_room_id(room_id);
 
         match pub_room {
-            Some(id) => self.join(&id),
+            Some(id) => self.p_client.read().unwrap().join(&id),
             None => Err("Could not join invalid room.".into()),
         }
     }
 
-    pub fn leave(&self, room_id: &str) -> Result<Response> {
-        self.client.borrow().leave(room_id)
-    }
-
     pub fn leave_public(&self, room_name: &str) -> Result<Response> {
-        let pub_room = self.client.borrow().get_public_room_id(room_name);
+        let pub_room = self.p_client.read().unwrap().get_public_room_id(room_name);
 
         match pub_room {
-            Some(id) => self.leave(&id),
+            Some(id) => self.p_client.read().unwrap().leave(&id),
             None => Err(format!("Could not find room: {}", room_name).into()),
         }
     }
 
-    pub fn get_joined(&self) -> Result<JoinedRooms> {
-        self.client.borrow().get_joined()
-    }
-
-    pub fn say(&self, room_id: &str, message: &str) -> Result<Response> {
-        self.client.borrow_mut().send_msg(room_id, message)
-    }
-
-    pub fn say_fmt(&self, room_id: &str, fmt_message: &str, message: &str) -> Result<Response> {
-        self.client.borrow_mut().send_msg_fmt(room_id, fmt_message, message)
-    }
-
-    pub fn action(&self, room_id: &str, message: &str) -> Result<Response> {
-        self.client.borrow_mut().send_act(room_id, message)
-    }
-
     pub fn reply(&self, event: &RoomEvent, message: &str) -> Result<Response> {
-        self.say(event.room_id, message)
+        self.p_client.write().unwrap().send_msg(event.room_id, message)
     }
 
     pub fn reply_fmt(&self, event: &RoomEvent, fmt_message: &str, message: &str) -> Result<Response> {
-        self.say_fmt(event.room_id, fmt_message, message)
+        self.p_client.write().unwrap().send_msg_fmt(event.room_id, fmt_message, message)
     }
 
     pub fn reply_action(&self, event: &RoomEvent, message: &str) -> Result<Response> {
-        self.action(event.room_id, message)
-    }
-
-    pub fn kick(&self, room_id: &str, user_id: &str, reason: Option<&str>) -> Result<Response> {
-        self.client.borrow().kick(room_id, user_id, reason)
-    }
-
-    pub fn ban(&self, room_id: &str, user_id: &str, reason: Option<&str>) -> Result<Response> {
-        self.client.borrow().ban(room_id, user_id, reason)
-    }
-
-    pub fn indicate_typing(&self, room_id: &str, length: Option<Duration>) -> Result<Response> {
-        self.client.borrow().indicate_typing(room_id, length)
+        self.p_client.write().unwrap().send_action(event.room_id, message)
     }
 
     pub fn uid_from_displayname(&self, name_query: &str) -> Result<String> {
-        let res = self.client.borrow().get_directory(name_query, Some(10))?;
+        let res = self.p_client.read().unwrap().get_directory(name_query, Some(10))?;
         match res.results.first() {
             Some(n) => Ok(n.user_id.clone()),
             None => Err(Error::Generic("Empty".to_owned())),
         }
     }
 
-    pub fn room_members(&self, room_id: &str) -> Result<Vec<String>> {
-        self.client.borrow().room_members(room_id)
-    }
-
     pub fn set_displayname(&mut self, name: &str) -> Result<Response> {
         self.display_name = name.to_string();
-        self.client.borrow_mut().set_displayname(name)
+        self.p_client.write().unwrap().set_displayname(name)
     }
 
     pub fn get_displayname(&self) -> &str {
         &self.display_name
-    }
-
-    pub fn get_room_events(&self, room_id: &str, n: u32, from: Option<&str>) -> Result<RoomChunks> {
-        self.client.borrow().get_room_events(room_id, n, from)
-    }
-
-    pub fn room_name(&self, room_id: &str) -> Result<String> {
-        self.client.borrow().get_room_name(room_id)
     }
 
     pub fn register_service(&mut self,
@@ -218,12 +178,12 @@ impl<'a, 'b, 'c> Bot<'a, 'b, 'c> {
     }
 
     pub fn run(&mut self, exit_flag: &Arc<AtomicBool>) {
-        let mut next_batch: String = self.client.borrow().sync(None).unwrap().next_batch;
+        let mut next_batch: String = self.p_client.read().unwrap().sync(None).unwrap().next_batch;
 
         let delay = Duration::from_millis(500);
 
         while !exit_flag.load(Ordering::Relaxed) {
-            let sync = self.client.borrow().sync(Some(&next_batch));
+            let sync = self.p_client.read().unwrap().sync(Some(&next_batch));
 
             match sync {
                 Ok(sync_data) => {
