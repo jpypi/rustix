@@ -66,7 +66,7 @@ impl<'a> Node<'a> for UserFilter<'a> {
     }
 
     fn configure_description(&self) -> Option<String> {
-        Some("add <user id> - add usser to filter list\n\
+        Some("add <user id> - add user to filter list\n\
               rm  <user id> - remove user from filter list\n\
               allow  - change filter mode to only allow configured users\n\
               deny   - change filter mode to deny configured users\n\
