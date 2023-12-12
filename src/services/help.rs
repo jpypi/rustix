@@ -45,13 +45,13 @@ impl<'a> Node<'a> for Help {
         if let Some(ref e) = self.reply_id {
             // Exit early. Avoids sending useless response.
             if help_strings.is_empty() {
-                bot.say(e, &format!("No help found.")).ok();
+                bot.client().send_msg(e, &format!("No help found.")).ok();
                 return;
             }
 
             let response = help_strings.join("\n");
             let message = codeblock_format(&response);
-            bot.say_fmt(e, &message, &response).ok();
+            bot.client().send_msg_fmt(e, &message, &response).ok();
             self.reply_id = None;
         }
     }

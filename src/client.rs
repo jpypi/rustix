@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use std::time::Duration;
-use std::{result};
+use std::result;
 use std::collections::HashMap;
 
 use reqwest;
@@ -9,7 +9,6 @@ use reqwest::blocking::Response;
 use reqwest::header;
 use http::Method;
 use serde::Serialize;
-use serde_json::Value;
 
 use crate::errors::Error;
 use crate::matrix_types::*;
@@ -170,7 +169,7 @@ impl MatrixClient {
             "dir"  => "f"
         };
 
-        self.auth_get("/publicRooms", Some(params), None) 
+        self.auth_get("/publicRooms", Some(params), None)
             .and_then(|o| o.json().or_else(|e| Err(e.into())))
     }
 
@@ -238,7 +237,7 @@ impl MatrixClient {
         self.send(room_id, "m.room.message", Some(&data))
     }
 
-    pub fn send_act(&mut self, room_id: &str, message: &str) -> Result<Response> {
+    pub fn send_action(&mut self, room_id: &str, message: &str) -> Result<Response> {
         let data = hashmap! {
             "msgtype" => "m.emote",
             "body"    => message,
@@ -303,7 +302,7 @@ impl MatrixClient {
             .and_then(|o| o.json().or_else(|e| Err(e.into())))
     }
 
-    pub fn room_members(&self, room_id: &str) -> Result<Vec<String>> {
+    pub fn get_members(&self, room_id: &str) -> Result<Vec<String>> {
         self.auth_get(&format!("/rooms/{}/joined_members", room_id), None, None).and_then(|o| {
             o.json::<RoomMembers>()
              .and_then(|obj| {

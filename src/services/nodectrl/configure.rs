@@ -54,12 +54,12 @@ impl<'a> Node<'a> for Configure {
             if let Some((_, value)) = result.into_iter().next() {
                 let mut opt_v = value.downcast::<Option<String>>().unwrap();
                 if let Some(v) = opt_v.take() {
-                    bot.say_fmt(rid, &codeblock_format(&v), &v).ok();
+                    bot.client().send_msg_fmt(rid, &codeblock_format(&v), &v).ok();
                 } else {
-                    bot.say(rid, &"No config help found.").ok();
+                    bot.client().send_msg(rid, &"No config help found.").ok();
                 }
             } else {
-                bot.say(rid, &"Node not found.").ok();
+                bot.client().send_msg(rid, &"Node not found.").ok();
             }
         }
 

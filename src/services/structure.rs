@@ -114,7 +114,7 @@ impl<'a> Node<'a> for Structure {
         if let Some(ref room_id) = self.reply_room {
             let raw_msg = self.structure(bot, &children);
             let msg = codeblock_format(&raw_msg);
-            bot.say_fmt(room_id, &msg, &raw_msg).ok();
+            bot.client().send_msg_fmt(room_id, &msg, &raw_msg).ok();
 
             self.reply_room = None;
         }

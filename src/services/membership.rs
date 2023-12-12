@@ -40,7 +40,7 @@ impl<'a> Node<'a> for Leave {
         if let Some(channel) = body.strip_prefix("leave") {
             let room_name = &channel.trim_start();
             if room_name.is_empty() {
-                bot.leave(event.room_id).ok();
+                bot.client().leave(event.room_id).ok();
             }
 
             if bot.leave_public(room_name).is_err() {
@@ -102,7 +102,7 @@ impl<'a> Node<'a> for AcceptInvite {
             if let Some(value) = revent.content.get("membership") {
                 if value.is_string() && value.as_str().unwrap() == "invite" {
                     println!("Joining room {} via invitation from {}", &event.room_id, revent.sender);
-                    bot.join(event.room_id).ok();
+                    bot.client().join(event.room_id).ok();
                 }
             }
         }

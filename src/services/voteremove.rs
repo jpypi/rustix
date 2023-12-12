@@ -13,7 +13,6 @@ use crate::config::RemovalMode;
 struct Vote {
     start: Instant,
     voters: HashSet<String>,
-    timer: thread::JoinHandle<()>,
 }
 
 
@@ -50,18 +49,22 @@ impl<'a> Voteremove {
             let t_sleep = self.timeout.clone();
             let t_votes = Arc::clone(&self.votes);
             let t_target = target.to_string();
+            let t_room_id = event.room_id.to_string();
+            let t_mode = self.mode.as_str().to_string();
+            let t_client = bot.arc_client();
 
-            let th = thread::spawn(move || {
+            thread::spawn(move || {
                 thread::sleep(t_sleep);
                 let mut votes_map = t_votes.lock().expect("Poisoned");
                 votes_map.remove(&t_target);
-                //bot.reply(&event, &format!("Votekick for {} expired.", &t_target)).ok();
+                let mut client = t_client.write().unwrap();
+
+                client.send_msg(&t_room_id, &format!("Vote to {} {} expired.", &t_mode, &t_target)).ok();
             });
 
             let kv = Vote {
                 start: std::time::Instant::now(),
                 voters: hashset![source.to_string()],
-                timer: th,
             };
 
             votes.insert(target.to_string(), kv);
@@ -108,8 +111,8 @@ impl<'a> Node<'a> for Voteremove {
                         if cur_votes >= self.votes_required {
                             self.votes.lock().expect("Poisoned").remove(&uid);
                             match self.mode {
-                                RemovalMode::Kick => bot.kick(event.room_id, &uid, Some("Votekicked")),
-                                RemovalMode::Ban => bot.ban(event.room_id, &uid, Some("Votebanned"))
+                                RemovalMode::Kick => bot.client().kick(event.room_id, &uid, Some("Votekicked")),
+                                RemovalMode::Ban => bot.client().ban(event.room_id, &uid, Some("Votebanned"))
                             }.ok();
                         } else {
                             let mode = match self.mode {
