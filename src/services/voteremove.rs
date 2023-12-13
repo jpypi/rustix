@@ -170,10 +170,8 @@ impl<'a> Node<'a> for Voteremove {
     }
 
     fn description(&self) -> Option<String> {
-        Some(match self.mode {
-            RemovalMode::Kick => "votekick <user> - Vote to kick a user.",
-            RemovalMode::Ban => "voteban <user> - Vote to ban a user."
-        }.to_string())
+        let mode = self.mode.as_str();
+        Some(format!("vote{mode} <user> - Vote to {mode} a user. ({} votes in {})", self.votes_required, render_dur(self.timeout)))
     }
 }
 
