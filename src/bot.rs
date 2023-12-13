@@ -115,7 +115,9 @@ impl<'a, 'c> Bot<'a, 'c> {
             None => self.root_services.push(name),
         };
 
-        service.on_load(name);
+        if let Err(e) = service.on_load(name) {
+            println!("Encountered error when loading `{}` service: {}", name, e);
+        }
 
         self.all_services.insert(name, RefCell::new(service));
 
