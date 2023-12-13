@@ -70,8 +70,7 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
     }
 
     fn on_load(&mut self, service_name: &str) -> Result<(), String>{
-        let saved_state = state::load_state(service_name);
-        if let Some(state) = saved_state {
+        if let Some(state) = state::load_state(service_name) {
             let mut real_channels = state.as_str();
             if let Some((allow, channels)) = state.split_once("|") {
                 match allow.parse() {
