@@ -7,7 +7,7 @@ use std::{
 
 use regex::Regex;
 
-use crate::bot::{Bot, Node, RoomEvent};
+use crate::{bot::{Bot, Node, RoomEvent}, state};
 use crate::config::RemovalMode;
 
 struct Vote {
@@ -172,6 +172,40 @@ impl<'a> Node<'a> for Voteremove {
     fn description(&self) -> Option<String> {
         let mode = self.mode.as_str();
         Some(format!("vote{mode} <user> - Vote to {mode} a user. ({} votes in {})", self.votes_required, render_dur(self.timeout)))
+    }
+
+    fn on_load(&mut self, service_name: &str) -> Result<(), String> {
+        if let Some(state) = state::load_state(service_name) {
+            let mut values = state.as_str().split("|");
+            self.mode = match values.next() {
+                Some(v) if v == "kick" => RemovalMode::Kick,
+                Some(v) if v == "ban" => RemovalMode::Ban,
+                Some(_) => return Err("Invalid removal mode specified in voteremove state".to_string()),
+                None => return Err("Invalid voteremove state".to_string()),
+            };
+
+            self.votes_required = match values.next() {
+                Some(v) => match v.parse(){
+                    Ok(p) => p,
+                    Err(_) => return Err("Voteremove votes required state value should parse to usize".to_string()),
+                },
+                None => return Err("Invalid voteremove state".to_string()),
+            };
+
+            self.timeout = match values.next() {
+                Some(v) => match v.parse(){
+                    Ok(p) => Duration::from_secs(p),
+                    Err(_) => return Err("Voteremove timeout state value should parse to u64".to_string()),
+                },
+                None => return Err("Invalid voteremove state".to_string()),
+            };
+        }
+
+        Ok(())
+    }
+
+    fn on_exit(&self, service_name: &str) {
+        state::save_state(service_name, &format!("{}|{}|{}", self.mode.as_str(), self.votes_required, self.timeout.as_secs()));
     }
 }
 
