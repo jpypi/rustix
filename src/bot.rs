@@ -287,7 +287,9 @@ pub trait Node<'a> {
     }
 
     #[allow(unused_variables)]
-    fn on_load(&mut self, service_name: &str) { }
+    fn on_load(&mut self, service_name: &str) -> result::Result<(), String> {
+        Ok(())
+    }
 
     #[allow(unused_variables)]
     fn on_exit(&self, service_name: &str) { }

@@ -73,12 +73,15 @@ impl<'a> Node<'a> for UserFilter<'a> {
               status - view the current configuration state of the filter".to_string())
     }
 
-    fn on_load(&mut self, service_name: &str) {
+    fn on_load(&mut self, service_name: &str) -> Result<(), String>{
         let saved_state = state::load_state(service_name);
         if let Some(state) = saved_state {
             let mut real_channels = state.as_str();
             if let Some((allow, channels)) = state.split_once("|") {
-                self.allow = allow.parse().expect("User filter allow state value should parse to bool");
+                match allow.parse() {
+                    Ok(v) => self.allow = v,
+                    Err(_) => return Err("User filter allow state value should parse to bool".to_string()),
+                };
                 real_channels = channels;
             }
 
@@ -86,6 +89,8 @@ impl<'a> Node<'a> for UserFilter<'a> {
                 self.users.insert(c.to_string());
             }
         }
+
+        Ok(())
     }
 
     fn on_exit(&self, service_name: &str) {

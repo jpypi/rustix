@@ -212,18 +212,27 @@ impl<'a> Node<'a> for GPT {
         Some("chat <message> - Talk to the bot. Historical room messages are sent so the response is more likely to be useful.".to_string())
     }
 
-    fn on_load(&mut self, service_name: &str) {
+    fn on_load(&mut self, service_name: &str) -> Result<(), String> {
         let saved_state = state::load_state(service_name);
         if let Some(state) = saved_state {
             let mut parsed = state.split(" ");
 
             if let Some(s) = parsed.next() {
-                self.token_budget = s.parse().expect("Unable to parse token budget from save state");
+                match s.parse() {
+                    Ok(v) => self.token_budget = v,
+                    Err(_) => return Err("Token budget should parse to f64 from save state".to_string()),
+                };
             }
+
             if let Some(s) = parsed.next() {
-                self.used_tokens = s.parse().expect("Unable to parse used tokens from save state");
+                match s.parse() {
+                    Ok(v) => self.used_tokens = v,
+                    Err(_) => return Err("Used tokens should parse to u64 from save state".to_string()),
+                };
             }
         }
+
+        Ok(())
     }
 
     fn on_exit(&self, service_name: &str) {
