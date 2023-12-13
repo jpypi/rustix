@@ -27,6 +27,10 @@ impl<'a> RoomEvent<'a> {
     pub fn is_normal(&self) -> bool {
         self.raw_event.type_ == "m.room.message" && self.raw_event.content["msgtype"] == "m.text"
     }
+
+    pub fn body(&self) -> Option<&str> {
+        self.raw_event.content["body"].as_str()
+    }
 }
 
 
