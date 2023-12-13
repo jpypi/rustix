@@ -56,10 +56,10 @@ impl<'a> Voteremove {
             thread::spawn(move || {
                 thread::sleep(t_sleep);
                 let mut votes_map = t_votes.lock().expect("Poisoned");
-                votes_map.remove(&t_target);
-                let mut client = t_client.write().unwrap();
-
-                client.send_msg(&t_room_id, &format!("Vote to {} {} expired.", &t_mode, &t_target)).ok();
+                if let Some(_) = votes_map.remove(&t_target) {
+                    let mut client = t_client.write().unwrap();
+                    client.send_msg(&t_room_id, &format!("Vote to {} {} expired.", &t_mode, &t_target)).ok();
+                }
             });
 
             let kv = Vote {
@@ -103,28 +103,29 @@ impl<'a> Node<'a> for Voteremove {
 
                         let w = self.timeout.clone();
                         self.vote_user(bot, &event, &revent.sender, &uid);
-                        let vl = self.votes.lock().expect("Poisoned");
-                        let vote_res = vl.get(&uid).unwrap();
-                        let cur_votes = vote_res.voters.len();
-                        let waited = Instant::now() - vote_res.start;
+                        let mut vl = self.votes.lock().expect("Poisoned");
+                        if let Some(vote_res) = vl.get(&uid) {
+                            let cur_votes = vote_res.voters.len();
+                            let waited = Instant::now() - vote_res.start;
 
-                        if cur_votes >= self.votes_required {
-                            self.votes.lock().expect("Poisoned").remove(&uid);
-                            match self.mode {
-                                RemovalMode::Kick => bot.client().kick(event.room_id, &uid, Some("Votekicked")),
-                                RemovalMode::Ban => bot.client().ban(event.room_id, &uid, Some("Votebanned"))
-                            }.ok();
-                        } else {
-                            let mode = match self.mode {
-                                RemovalMode::Kick => "Votekick",
-                                RemovalMode::Ban => "Voteban",
-                            };
-                            bot.reply(&event, &format!("{} for {} - {} of {} votes needed, time remaining: {}.",
-                                                       mode,
-                                                       uid,
-                                                       cur_votes,
-                                                       self.votes_required,
-                                                       render_dur(w - waited))).ok();
+                            if cur_votes == self.votes_required {
+                                vl.remove(&uid);
+                                match self.mode {
+                                    RemovalMode::Kick => bot.client().kick(event.room_id, &uid, Some("Votekicked")),
+                                    RemovalMode::Ban => bot.client().ban(event.room_id, &uid, Some("Votebanned"))
+                                }.ok();
+                            } else {
+                                let mode = match self.mode {
+                                    RemovalMode::Kick => "Votekick",
+                                    RemovalMode::Ban => "Voteban",
+                                };
+                                bot.reply(&event, &format!("{} for {} - {} of {} votes needed, time remaining: {}.",
+                                                        mode,
+                                                        uid,
+                                                        cur_votes,
+                                                        self.votes_required,
+                                                        render_dur(w - waited))).ok();
+                            }
                         }
                     },
                     None => {
