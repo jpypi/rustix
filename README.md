@@ -68,6 +68,7 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - badnickstats \<optional matrix user id\>
 - p \<crypto currency ticker\>
 - votekick \<username\>
+- roll \<integer\>
 - \*join \<public channel display name\>
 - \*leave \<public channel display name\>
 - \*emptycleanup

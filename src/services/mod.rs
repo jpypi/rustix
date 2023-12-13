@@ -20,5 +20,6 @@ pub mod structure;
 pub mod nodectrl;
 pub mod bonequest;
 pub mod voteremove;
+pub mod roll;
 
 mod db;
