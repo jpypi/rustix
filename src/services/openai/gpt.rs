@@ -164,14 +164,14 @@ impl<'a> Node<'a> for GPT {
             self.last_query = std::time::Instant::now();
 
             if let Some(message) = body.strip_prefix("chat ") {
-                bot.client().indicate_typing(&event.room_id, Some(Duration::from_secs(60))).ok();
+                bot.client().indicate_typing(event.room_id, Some(Duration::from_secs(60))).ok();
 
                 let uname = trim_name(&revent.sender);
                 let (context, _) = self.build_context(bot, event.room_id, uname, message);
 
                 let count = self.count_tokens(&context);
                 if  count as f64 > self.token_budget {
-                    bot.client().indicate_typing(&event.room_id, None).ok();
+                    bot.client().indicate_typing(event.room_id, None).ok();
                     bot.reply(&event, &format!("Sorry. Rate limited. :(\n{} tokens > token budget of {:.0}", count, self.token_budget)).ok();
                     return;
                 }
@@ -185,20 +185,20 @@ impl<'a> Node<'a> for GPT {
                                 self.token_budget -= s.usage.total_tokens as f64;
                                 println!("total tokens: {}", s.usage.total_tokens);
                                 //println!("-----------\n{}{}\ntotal tokens: {}\n-----------", &context, txt, s.usage.total_tokens);
-                                bot.reply(&event, &txt).ok();
+                                bot.reply(&event, txt).ok();
                             }
                         }
                     },
                     Err(e) => {
                         if e.is_timeout() {
-                            bot.reply(&event, &"Chat response timed out.").ok();
+                            bot.reply(&event, "Chat response timed out.").ok();
                         } else {
                             println!("{:?}", e);
                         }
                     }
                 }
 
-                bot.client().indicate_typing(&event.room_id, None).ok();
+                bot.client().indicate_typing(event.room_id, None).ok();
             }
 
             if let Some(_) = body.strip_prefix("budget") {
@@ -215,7 +215,7 @@ impl<'a> Node<'a> for GPT {
     fn on_load(&mut self, service_name: &str) -> Result<(), String> {
         let saved_state = state::load_state(service_name);
         if let Some(state) = saved_state {
-            let mut parsed = state.split(" ");
+            let mut parsed = state.split(' ');
 
             if let Some(s) = parsed.next() {
                 match s.parse() {

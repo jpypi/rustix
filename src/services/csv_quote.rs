@@ -67,7 +67,7 @@ impl ReadQuote {
             }
         }
 
-        if quotes.len() > 0 {
+        if !quotes.is_empty() {
             let index = self.rng.gen_range(0..quotes.len());
             return Ok(Some(quotes[index].clone()));
         }
@@ -98,7 +98,7 @@ impl<'a> Node<'a> for ReadQuote {
         let body = revent.content["body"].as_str().unwrap();
 
         if let Some(ids) = body.alias_strip_prefix(&["oldgetquote ", "ogq "]) {
-            for (i, (orig, id)) in ids.split(",").map(|s| (s, s.trim().parse())).enumerate() {
+            for (i, (orig, id)) in ids.split(',').map(|s| (s, s.trim().parse())).enumerate() {
                 // Limit the max number of quotes to get at a time to 5
                 if i > 4 {
                     break;

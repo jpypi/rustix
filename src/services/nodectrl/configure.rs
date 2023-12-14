@@ -56,10 +56,10 @@ impl<'a> Node<'a> for Configure {
                 if let Some(v) = opt_v.take() {
                     bot.client().send_msg_fmt(rid, &codeblock_format(&v), &v).ok();
                 } else {
-                    bot.client().send_msg(rid, &"No config help found.").ok();
+                    bot.client().send_msg(rid, "No config help found.").ok();
                 }
             } else {
-                bot.client().send_msg(rid, &"Node not found.").ok();
+                bot.client().send_msg(rid, "Node not found.").ok();
             }
         }
 

@@ -16,7 +16,7 @@ impl<'a> Node<'a> for Choose {
         if let Some(raw_choices) = body.strip_prefix("choose ") {
             let mut rng = rand::thread_rng();
             if let Some(choice) = raw_choices.split(",").map(|c| c.trim()).choose(&mut rng) {
-                bot.reply(&event, &choice).ok();
+                bot.reply(&event, choice).ok();
             }
         }
     }

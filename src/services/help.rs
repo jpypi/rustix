@@ -45,7 +45,7 @@ impl<'a> Node<'a> for Help {
         if let Some(ref e) = self.reply_id {
             // Exit early. Avoids sending useless response.
             if help_strings.is_empty() {
-                bot.client().send_msg(e, &format!("No help found.")).ok();
+                bot.client().send_msg(e, "No help found.").ok();
                 return;
             }
 

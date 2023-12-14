@@ -204,7 +204,7 @@ impl<'a, 'c> Bot<'a, 'c> {
                             self.propagate_event(
                                 &RoomEvent{
                                     room_id: &room_id,
-                                    from: &"join",
+                                    from: "join",
                                     raw_event: raw_event.clone()
                                 });
                         }
@@ -215,7 +215,7 @@ impl<'a, 'c> Bot<'a, 'c> {
                             self.propagate_event(
                                 &RoomEvent{
                                     room_id: &room_id,
-                                    from: &"invite",
+                                    from: "invite",
                                     raw_event: raw_event.clone()
                                 });
                         }
@@ -226,7 +226,7 @@ impl<'a, 'c> Bot<'a, 'c> {
                             self.propagate_event(
                                 &RoomEvent{
                                     room_id: &room_id,
-                                    from: &"leave",
+                                    from: "leave",
                                     raw_event: raw_event.clone()
                                 });
                         }

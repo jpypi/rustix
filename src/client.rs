@@ -338,7 +338,7 @@ impl MatrixClient {
 
         let data = Data {
             typing: length.is_some(),
-            timeout: timeout,
+            timeout,
         };
 
         let path = format!("/rooms/{}/typing/{}", room_id,

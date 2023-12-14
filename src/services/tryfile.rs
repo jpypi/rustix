@@ -44,7 +44,7 @@ impl<'a> Node<'a> for TryFile {
         if self.safe_re.is_match(body) {
             // Build path to file to try
             // canonicalize normalizes the path and validates that it exists
-            let path = match (&self.directory).join(body).with_extension("txt").canonicalize() {
+            let path = match (self.directory).join(body).with_extension("txt").canonicalize() {
                 Ok(p) => p,
                 Err(_) => return,
             };

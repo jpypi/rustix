@@ -72,7 +72,7 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
     fn on_load(&mut self, service_name: &str) -> Result<(), String>{
         if let Some(state) = state::load_state(service_name) {
             let mut real_channels = state.as_str();
-            if let Some((allow, channels)) = state.split_once("|") {
+            if let Some((allow, channels)) = state.split_once('|') {
                 match allow.parse() {
                     Ok(v) => self.allow = v,
                     Err(_) => return Err("Channel filter allow state value should parse to bool".to_string()),
@@ -80,7 +80,7 @@ impl<'a> Node<'a> for ChannelFilter<'a> {
                 real_channels = channels;
             }
 
-            for c in real_channels.split(",") {
+            for c in real_channels.split(',') {
                 self.channels.insert(c.to_string());
             }
         }

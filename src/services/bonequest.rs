@@ -41,7 +41,7 @@ impl Bonequest {
         res.and_then(|r| {
             if let Some(captures) = self.dialog_regex.captures(&r) {
                 if let Some(content) = captures.get(1) {
-                    let lines = content.as_str().split("\n");
+                    let lines = content.as_str().split('\n');
                     let line = lines.choose(&mut rng)
                                     .and_then(|l| l.split(": ").nth(1));
                     return match line {
@@ -62,7 +62,7 @@ impl<'a> Node<'a> for Bonequest {
         let body = &revent.content["body"].as_str().unwrap();
 
         if body.starts_with("bq") {
-            bot.client().indicate_typing(&event.room_id, Some(Duration::from_secs(10))).ok();
+            bot.client().indicate_typing(event.room_id, Some(Duration::from_secs(10))).ok();
 
             'attempts: for _ in 0..10 {
                 match self.get_line() {
@@ -79,7 +79,7 @@ impl<'a> Node<'a> for Bonequest {
                     },
                     Err(e) => {
                         if e.is_timeout() {
-                            bot.reply(&event, &"bq timed out").ok();
+                            bot.reply(&event, "bq timed out").ok();
                         } else {
                             println!("{:?}", e);
                         }
@@ -88,7 +88,7 @@ impl<'a> Node<'a> for Bonequest {
                 }
             }
 
-            bot.client().indicate_typing(&event.room_id, None).ok();
+            bot.client().indicate_typing(event.room_id, None).ok();
         }
     }
 

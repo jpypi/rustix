@@ -31,11 +31,10 @@ impl<'a> Node<'a> for Prefix<'a> {
     fn handle(&mut self, bot: &Bot, mut event: RoomEvent) {
         if event.raw_event.type_ == "m.room.message" &&
            event.raw_event.content["msgtype"] == "m.text" &&
-           event.raw_event.content["body"].as_str().unwrap().starts_with(&self.prefix)
+           event.body().unwrap().starts_with(&self.prefix)
         {
             event.raw_event.content["body"] =
-                Value::String(event.raw_event.content["body"].as_str()
-                              .unwrap()[self.prefix_n..].to_string().clone());
+                Value::String(event.body().unwrap()[self.prefix_n..].to_string());
             self.propagate_event(bot, &event);
         }
     }

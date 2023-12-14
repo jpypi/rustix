@@ -22,12 +22,9 @@ impl<'a> Node<'a> for Echo<'a> {
     }
 
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
-        let revent = &event.raw_event;
-
         if event.is_normal() {
-            let body = &revent.content["body"].as_str().unwrap();
-            if body.starts_with("echo ") {
-                bot.reply(&event, &body[5..]).ok();
+            if let Some(content) = event.body().unwrap().strip_prefix("echo ") {
+                bot.reply(&event, content).ok();
             }
         }
 

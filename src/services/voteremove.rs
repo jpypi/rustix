@@ -33,7 +33,7 @@ impl<'a> Voteremove {
             votes: Arc::new(Mutex::new(HashMap::new())),
             votes_required,
             timeout: Duration::new(wait_minutes * 60, 0),
-            mode: mode,
+            mode,
             votekick_re: Regex::new(r"^votekick(?: (.+))?$").unwrap(),
             voteban_re: Regex::new(r"^voteban(?: (.+))?$").unwrap(),
         }
