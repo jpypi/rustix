@@ -70,7 +70,7 @@ impl MatrixClient {
 
         let nothing = HashMap::<String, String>::new();
 
-        let builder = self.client.request(method.clone(), &url);
+        let builder = self.client.request(method.clone(), url);
 
         let request = match method {
             Method::POST | Method::PUT => {
@@ -170,14 +170,14 @@ impl MatrixClient {
         };
 
         self.auth_get("/publicRooms", Some(params), None)
-            .and_then(|o| o.json().or_else(|e| Err(e.into())))
+            .and_then(|o| o.json().map_err(|e| e.into()))
     }
 
     pub fn get_public_room_id(&self, name: &str) -> Option<String> {
         if let Ok(v) = self.get_public_rooms() {
             for room in v.chunk {
                 if room.name == name {
-                    return Some(room.room_id.clone());
+                    return Some(room.room_id);
                 }
             }
         }
@@ -276,14 +276,14 @@ impl MatrixClient {
 
     pub fn get_joined(&self) -> Result<JoinedRooms> {
         self.auth_get("/joined_rooms", None, None)
-            .and_then(|o| o.json().or_else(|e| Err(e.into())))
+            .and_then(|o| o.json().map_err(|e| e.into()))
     }
 
     pub fn get_room_name(&self, room_id: &str) -> Result<String> {
         let path = format!("/rooms/{}/state/m.room.name/", room_id);
         let res: Result<RoomName> = self.auth_get(&path, None, None)
-                                        .and_then(|o| o.json().or_else(|e| Err(e.into())));
-        res.and_then(|v| Ok(v.name))
+                                        .and_then(|o| o.json().map_err(|e| e.into()));
+        res.map(|v| v.name)
     }
 
     pub fn get_directory(&self, search_term: &str, limit: Option<u32>) -> Result<UserDirectory> {
@@ -299,7 +299,7 @@ impl MatrixClient {
         };
 
         self.auth_query(Method::POST, "/user_directory/search", None, Some(&data), None)
-            .and_then(|o| o.json().or_else(|e| Err(e.into())))
+            .and_then(|o| o.json().map_err(|e| e.into()))
     }
 
     pub fn get_members(&self, room_id: &str) -> Result<Vec<String>> {

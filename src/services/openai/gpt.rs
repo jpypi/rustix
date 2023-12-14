@@ -201,7 +201,7 @@ impl<'a> Node<'a> for GPT {
                 bot.client().indicate_typing(event.room_id, None).ok();
             }
 
-            if let Some(_) = body.strip_prefix("budget") {
+            if body.starts_with("budget") {
                 bot.reply(&event, &format!("tokens used: {}\ntokens/second: {:.4}\ntoken budget: {:.0}",
                                            self.used_tokens, self.tokens_per_second, self.token_budget)).ok();
             }

@@ -151,12 +151,12 @@ impl<'a, 'c> Bot<'a, 'c> {
         for (query_service_name, (target, func)) in self.delayed_queries.borrow().iter() {
             let mut results: Vec<(&str, Box<dyn Any>)> = Vec::new();
             if let Some(t) = target {
-                if let Some(mut service) = self.get_service(&t) {
-                    results.push((t, func(&self, &mut **service)));
+                if let Some(mut service) = self.get_service(t) {
+                    results.push((t, func(self, &mut **service)));
                 }
             } else {
                 for (service_name, service) in &self.all_services {
-                    results.push((service_name, func(&self, &mut **service.borrow_mut())));
+                    results.push((service_name, func(self, &mut **service.borrow_mut())));
                 }
             }
 

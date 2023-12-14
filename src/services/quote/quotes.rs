@@ -32,7 +32,7 @@ impl<'a> Node<'a> for Quotes {
                 Err(_) => "Failed to add quote.".to_string(),
             }).ok();
         } else if let Some(ids) = body.alias_strip_prefix(&["getquote ", "gq "]) {
-            for (i, (orig, id)) in ids.split(",").map(|s| (s, s.trim().parse())).enumerate() {
+            for (i, (orig, id)) in ids.split(',').map(|s| (s, s.trim().parse())).enumerate() {
                 // Limit the max number of quotes to get at a time to 5
                 if i > 4 {
                     break;

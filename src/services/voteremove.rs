@@ -26,7 +26,7 @@ pub struct Voteremove {
 }
 
 
-impl<'a> Voteremove {
+impl Voteremove {
     // If no value is provided, default to false
     pub fn new(votes_required: usize, wait_minutes: u64, mode: RemovalMode) -> Self {
         Self {
@@ -46,7 +46,7 @@ impl<'a> Voteremove {
         if let Some(v) = item {
             v.voters.insert(source.to_string());
         } else {
-            let t_sleep = self.timeout.clone();
+            let t_sleep = self.timeout;
             let t_votes = Arc::clone(&self.votes);
             let t_target = target.to_string();
             let t_room_id = event.room_id.to_string();
@@ -101,7 +101,6 @@ impl<'a> Node<'a> for Voteremove {
                             }
                         };
 
-                        let w = self.timeout.clone();
                         self.vote_user(bot, &event, &revent.sender, &uid);
                         let mut vl = self.votes.lock().expect("Poisoned");
                         if let Some(vote_res) = vl.get(&uid) {
@@ -124,7 +123,7 @@ impl<'a> Node<'a> for Voteremove {
                                                         uid,
                                                         cur_votes,
                                                         self.votes_required,
-                                                        render_dur(w - waited))).ok();
+                                                        render_dur(self.timeout - waited))).ok();
                             }
                         }
                     },
@@ -176,7 +175,7 @@ impl<'a> Node<'a> for Voteremove {
 
     fn on_load(&mut self, service_name: &str) -> Result<(), String> {
         if let Some(state) = state::load_state(service_name) {
-            let mut values = state.as_str().split("|");
+            let mut values = state.as_str().split('|');
             self.mode = match values.next() {
                 Some(v) if v == "kick" => RemovalMode::Kick,
                 Some(v) if v == "ban" => RemovalMode::Ban,

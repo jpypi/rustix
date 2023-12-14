@@ -30,7 +30,7 @@ impl<'a> Node<'a> for Configure {
                                             let ev = RoomEvent {
                                                 room_id: &room_id,
                                                 from: &from,
-                                                raw_event: (&rev).clone()
+                                                raw_event: rev.clone()
                                             };
                                             n.configure(b, &cmd, ev);
                                             Box::new(0)
