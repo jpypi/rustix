@@ -38,20 +38,20 @@ impl Bonequest {
 
         let mut rng = rand::thread_rng();
 
-        res.and_then(|r| {
+        res.map(|r| {
             if let Some(captures) = self.dialog_regex.captures(&r) {
                 if let Some(content) = captures.get(1) {
                     let lines = content.as_str().split('\n');
                     let line = lines.choose(&mut rng)
                                     .and_then(|l| l.split(": ").nth(1));
                     return match line {
-                        Some(l) => Ok(l.to_owned()),
-                        None => Ok("Line parsing error".to_owned()),
+                        Some(l) => l.to_string(),
+                        None => "Line parsing error".to_string(),
                     }
                 }
             }
 
-            Ok("Regex error".to_owned())
+            "Regex error".to_string()
         })
     }
 }

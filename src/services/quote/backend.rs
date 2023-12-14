@@ -103,7 +103,7 @@ impl Backend {
 
     pub fn search_quotes(&mut self, text: &str) -> QueryResult<Vec<Quote>> {
         let qfilter = quotes.filter(qu::dsl::value.ilike(format!("%{}%", text)));
-        Ok(qfilter.load(&self.connection)?)
+        qfilter.load(&self.connection)
     }
 
     pub fn quote_by(&mut self, user_id: &str) -> QueryResult<(User, Quote)> {

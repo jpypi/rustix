@@ -93,19 +93,14 @@ impl MatrixClient {
                   data: Option<&T>,
                   version: Option<&str>) -> Result<Response> {
 
-        let mut real_params = match params {
-            Some(v) => v,
-            None => HashMap::new(),
-        };
+        let mut real_params = params.unwrap_or(HashMap::new());
 
         match self.access_token {
             Some(ref v) => {
                 real_params.insert("access_token", v);
                 self.query(method, path, Some(&real_params), data, version)
             },
-            None => {
-                Err(Error::Generic("User must be authenticated first.".to_string()))
-            },
+            None => Err("User must be authenticated first.".into()),
         }
     }
 
@@ -148,18 +143,8 @@ impl MatrixClient {
             params.insert("since", v);
         }
 
-        match self.auth_get("/sync", Some(params), None) {
-            Ok(resp) => {
-                match resp.json() {
-                    Ok(v) => Ok(v),
-                    Err(e) => {
-                        let err = format!("problem syncing: {:?}", e);
-                        Err(err.into())
-                    },
-                }
-            },
-            Err(e) => Err(e.into())
-        }
+        self.auth_get("/sync", Some(params), None)
+            .and_then(|r| r.json().map_err(|e| format!("Problem syncing: {:?}", e).into()) )
     }
 
     //TODO: Validate this
@@ -170,7 +155,7 @@ impl MatrixClient {
         };
 
         self.auth_get("/publicRooms", Some(params), None)
-            .and_then(|o| o.json().map_err(|e| e.into()))
+            .and_then(|r| r.json().map_err(|e| e.into()))
     }
 
     pub fn get_public_room_id(&self, name: &str) -> Option<String> {
@@ -305,10 +290,8 @@ impl MatrixClient {
     pub fn get_members(&self, room_id: &str) -> Result<Vec<String>> {
         self.auth_get(&format!("/rooms/{}/joined_members", room_id), None, None).and_then(|o| {
             o.json::<RoomMembers>()
-             .and_then(|obj| {
-                Ok(obj.joined.into_keys().collect())
-             })
-             .or_else(|e| Err(e.into()))
+             .map(|obj| obj.joined.into_keys().collect())
+             .map_err(|e| e.into())
         })
     }
 
@@ -324,7 +307,7 @@ impl MatrixClient {
         }
 
         self.auth_get(&format!("/rooms/{}/messages", room_id), Some(params), None)
-            .and_then(|o| o.json().or_else(|e| Err(e.into())))
+            .and_then(|o| o.json().map_err(|e| e.into()))
     }
 
     pub fn indicate_typing(&self, room_id: &str, length: Option<Duration>) -> Result<Response> {

@@ -13,15 +13,15 @@ pub struct Roulette {
 impl Roulette {
     // If no value is provided, default to false
     pub fn new(mode: RemovalMode) -> Self {
-        let mut x = Self {
+        let mut new_self = Self {
             rounds: [0; SIZE],
             state: 0,
             mode,
         };
 
-        Self::reset(&mut x);
+        Self::reset(&mut new_self);
 
-        return x;
+        new_self
     }
 
     fn fire(&mut self) -> bool {

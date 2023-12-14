@@ -193,12 +193,6 @@ impl<'a, 'c> Bot<'a, 'c> {
 
             match sync {
                 Ok(sync_data) => {
-                    /*
-                    if let Ok(x) = serde_json::to_string_pretty(&sync_data) {
-                        println!("{}", x);
-                    }
-                    */
-
                     for (room_id, room) in sync_data.rooms.join {
                         for raw_event in &room.timeline.events {
                             self.propagate_event(

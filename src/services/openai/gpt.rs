@@ -95,13 +95,13 @@ impl GPT {
 
         self.used_tokens += msg_tokens as u64;
 
-        res.and_then(|r| {
+        res.map(|r| {
             match r {
                 Response::Success(s) => {
                     self.used_tokens += self.count_tokens(&s.choices[0].text) as u64;
-                    Ok(Response::Success(s))
+                    Response::Success(s)
                 },
-                Response::Error(e) => Ok(Response::Error(e))
+                Response::Error(e) => Response::Error(e)
             }
         })
     }

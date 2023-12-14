@@ -90,7 +90,7 @@ fn query(_: &Bot, n: &mut dyn Node) -> Box<dyn std::any::Any> {
         }
     }
 
-    return kids;
+    kids
 }
 
 impl<'a> Node<'a> for Structure {

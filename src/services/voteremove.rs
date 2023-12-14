@@ -56,7 +56,7 @@ impl Voteremove {
             thread::spawn(move || {
                 thread::sleep(t_sleep);
                 let mut votes_map = t_votes.lock().expect("Poisoned");
-                if let Some(_) = votes_map.remove(&t_target) {
+                if votes_map.remove(&t_target).is_some() {
                     let mut client = t_client.write().unwrap();
                     client.send_msg(&t_room_id, &format!("Vote to {} {} expired.", &t_mode, &t_target)).ok();
                 }

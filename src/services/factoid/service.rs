@@ -82,7 +82,7 @@ impl<'a> Node<'a> for Factoid {
             self.backend.add_factoid(&event.raw_event.sender, fact_kind, factoid_key, factoid_value);
         } else {
             let res = self.backend.match_factoids(body);
-            if res.len() > 0 {
+            if !res.is_empty() {
                 let i = self.rng.gen_range(0..res.len());
                 if let Some(f) = res.get(i) {
                     let msg = &f.value;

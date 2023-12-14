@@ -58,15 +58,15 @@ impl<'a> Node<'a> for KarmaTracker {
             let e = votes.entry(ent).or_insert(VoteCount{up: 0, down: 0});
 
             if &cap[2] == "++" {
-                (*e).up += 1;
+                e.up += 1;
             }
 
             if &cap[2] == "--" {
-                (*e).down += 1;
+                e.down += 1;
             }
 
             // Limit max karma per line to help prevent spam
-            if ((*e).up + (*e).down) >= self.max_per_message {
+            if (e.up + e.down) >= self.max_per_message {
                 break;
             }
         }

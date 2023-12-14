@@ -54,14 +54,11 @@ impl<'a> Node<'a> for TryFile {
                 return;
             }
 
-            match File::open(path) {
-                Ok(d) => {
-                    let reader = BufReader::new(d);
-                    if let Ok(v) = reservoir_sample(reader.lines(), &mut self.rng) {
-                        bot.reply(&event, &v).ok();
-                    }
-                },
-                Err(_) => (),
+            if let Ok(d) = File::open(path) {
+                let reader = BufReader::new(d);
+                if let Ok(v) = reservoir_sample(reader.lines(), &mut self.rng) {
+                    bot.reply(&event, &v).ok();
+                }
             };
         }
     }
