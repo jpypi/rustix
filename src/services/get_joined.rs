@@ -17,14 +17,16 @@ impl<'a> Node<'a> for GetJoined {
         if event.is_normal() {
             let body = &event.raw_event.content["body"].as_str().unwrap();
             if body.starts_with("joined") {
-                match bot.client().get_joined() {
+                let joined = bot.client().get_joined();
+                match joined {
                     Ok(rooms) => {
                         let room_names = rooms.joined_rooms.iter().map(|r|{
-                            match bot.client().get_room_name(&r) {
+                            let room_name = bot.client().get_room_name(r);
+                            match room_name {
                                 Ok(name) => name,
                                 Err(_) => {
-                                    let members = bot.client().get_members(&r).unwrap();
-                                    format!("{} ({})", r.to_string(), members.join(", "))
+                                    let members = bot.client().get_members(r).unwrap();
+                                    format!("{} ({})", r, members.join(", "))
                                 },
                             }
                         }).sorted().join("\n");
