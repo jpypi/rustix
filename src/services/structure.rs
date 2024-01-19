@@ -26,7 +26,7 @@ impl Structure {
 
         // Initialize the services stack and the N elements at depth D hashmap
         for rs in bot.get_root_services().iter() {
-            services.push((0, rs.clone()));
+            services.push((0, *rs));
 
             let old_value = at_depth_remaining.get(&0).unwrap_or(&0);
             at_depth_remaining.insert(0, old_value + 1);
@@ -83,7 +83,8 @@ impl Structure {
 }
 
 fn query(_: &Bot, n: &mut dyn Node) -> Box<dyn std::any::Any> {
-    let mut kids = Box::new(Vec::new());
+    let mut kids = Box::new(Vec::with_capacity(n.children().map_or(0, |c| c.len())));
+
     if let Some(children) = n.children() {
         for c in children.iter() {
             kids.push(c.to_string());

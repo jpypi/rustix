@@ -29,9 +29,9 @@ pub struct Bot {
 
 
 pub fn load_config(filename: &str) -> Config {
-    let mut f = File::open(filename).expect(&format!("Missing required file: {}", filename));
+    let mut f = File::open(filename).unwrap_or_else(|_| panic!("Missing required file: {}", filename));
     let mut config_data = String::new();
-    f.read_to_string(&mut config_data).expect(&format!("Could not read {}", filename));
+    f.read_to_string(&mut config_data).unwrap_or_else(|_| panic!("Could not read {}", filename));
 
     toml::from_str(&config_data).expect("Bad config file formatting")
 }

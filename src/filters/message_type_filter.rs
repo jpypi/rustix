@@ -30,3 +30,9 @@ impl<'a> Node<'a> for MessageTypeFilter<'a> {
         }
     }
 }
+
+impl<'a> Default for MessageTypeFilter<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
