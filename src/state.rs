@@ -14,7 +14,7 @@ pub fn save_state(service_name: &str, value: &str) {
     }
 
     path.push(service_name);
-    let mut f = File::create(path).expect(&format!("Unable to create save state file for {}.", service_name));
+    let mut f = File::create(path).unwrap_or_else(|_| panic!("Unable to create save state file for {}.", service_name));
     f.write_all(value.as_bytes()).expect("Failed to write state to save file.");
 }
 

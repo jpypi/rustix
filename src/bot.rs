@@ -33,13 +33,17 @@ impl<'a> RoomEvent<'a> {
     }
 }
 
+struct Query<'a> {
+    target: Option<String>,
+    func: Box<NodeProcessFn<'a>>
+}
 
 type NodeProcessFn<'a> = dyn Fn(&Bot, &mut dyn Node) -> Box<dyn Any> + 'a;
 pub struct Bot<'a, 'c> {
     p_client: Arc<RwLock<MatrixClient>>,
     root_services: Vec<&'a str>,
     all_services: HashMap<&'a str, RefCell<Box<dyn Node<'a>>>>,
-    delayed_queries: RefCell<HashMap<&'c str, (Option<String>, Box<NodeProcessFn<'c>>)>>,
+    delayed_queries: RefCell<HashMap<&'c str, Query<'c>>>,
     display_name: String,
 }
 
@@ -135,7 +139,7 @@ impl<'a, 'c> Bot<'a, 'c> {
 
     pub fn get_service_names(&self) -> Vec<&str> {
         let keys = self.all_services.keys();
-        keys.map(|k| *k).collect()
+        keys.copied().collect()
     }
 
     pub fn get_root_services(&self) -> &Vec<&str> {
@@ -144,11 +148,11 @@ impl<'a, 'c> Bot<'a, 'c> {
 
     // Two stage query all method
     pub fn delay_service_query<T: Fn(&Bot, &mut dyn Node) -> Box<dyn Any> + 'c>(&self, node: &'c str, target: Option<String>, func: T) {
-        self.delayed_queries.borrow_mut().insert(node, (target, Box::new(func)));
+        self.delayed_queries.borrow_mut().insert(node, Query{target, func: Box::new(func)});
     }
 
     fn process_delayed_queries(&mut self) {
-        for (query_service_name, (target, func)) in self.delayed_queries.borrow().iter() {
+        for (query_service_name, Query{target, func}) in self.delayed_queries.borrow().iter() {
             let mut results: Vec<(&str, Box<dyn Any>)> = Vec::new();
             if let Some(t) = target {
                 if let Some(mut service) = self.get_service(t) {

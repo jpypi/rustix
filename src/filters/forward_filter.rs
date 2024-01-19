@@ -39,3 +39,9 @@ impl<'a> Node<'a> for ForwardFilter<'a> {
         }
     }
 }
+
+impl<'a> Default for ForwardFilter<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
