@@ -1,11 +1,13 @@
 use rand::Rng;
 
-const K: usize = 5;
+const K: usize = 10;
 
 pub fn reservoir_sample<R: Rng, T: Clone + Default, E>(iterable: impl Iterator<Item=Result<T, E>>, rng: &mut R) -> Result<T, E> {
     let mut reservoir: [T;K] = Default::default();
 
+    let mut max = 0;
     for (i, row) in iterable.enumerate() {
+        max = i;
         if i < K {
             reservoir[i] = row?;
         } else {
@@ -16,7 +18,7 @@ pub fn reservoir_sample<R: Rng, T: Clone + Default, E>(iterable: impl Iterator<I
         }
     }
 
-    let n = rng.gen_range(0..K);
+    let n = rng.gen_range(0..(max + 1).min(K));
 
     Ok(reservoir[n].clone())
 }
