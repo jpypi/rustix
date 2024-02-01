@@ -88,7 +88,7 @@ impl Backend {
     }
 
     pub fn get_upvotes(&self, entity: &str) -> QueryResult<Option<Voteable>> {
-        let entity = &entity.to_lowercase();
+        let entity = entity.to_lowercase();
 
         let mut res = voteables.filter(value.eq(entity))
                                .load(&self.connection)?;

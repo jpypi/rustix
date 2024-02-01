@@ -177,8 +177,8 @@ impl<'a> Node<'a> for Voteremove {
         if let Some(state) = state::load_state(service_name) {
             let mut values = state.as_str().split('|');
             self.mode = match values.next() {
-                Some(v) if v == "kick" => RemovalMode::Kick,
-                Some(v) if v == "ban" => RemovalMode::Ban,
+                Some("kick") => RemovalMode::Kick,
+                Some("ban") => RemovalMode::Ban,
                 Some(_) => return Err("Invalid removal mode specified in voteremove state".to_string()),
                 None => return Err("Invalid voteremove state".to_string()),
             };

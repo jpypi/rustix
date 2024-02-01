@@ -33,9 +33,7 @@ impl Structure {
         }
 
         // let mut first = true;
-        while !services.is_empty() {
-            let (depth, service) = services.pop().unwrap();
-
+        while let Some((depth, service)) = services.pop() {
             /*
             // Optional. Add blank tree elongations between each child and the first child and the parent
             let mut lines = String::new();

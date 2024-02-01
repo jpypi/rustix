@@ -93,7 +93,7 @@ impl MatrixClient {
                   data: Option<&T>,
                   version: Option<&str>) -> Result<Response> {
 
-        let mut real_params = params.unwrap_or(HashMap::new());
+        let mut real_params = params.unwrap_or_default();
 
         match self.access_token {
             Some(ref v) => {

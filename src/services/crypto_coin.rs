@@ -34,7 +34,7 @@ impl<'a> Node<'a> for CryptoCoin {
 }
 
 fn price_string(sym: &str) -> String {
-    match get_ticker(&sym) {
+    match get_ticker(sym) {
         Some(values) => {
             format!(
                 "{} - Last Price: ${}, Bid/Ask: ${}/{}, Volume: {}",
