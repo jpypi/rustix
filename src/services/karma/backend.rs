@@ -111,6 +111,8 @@ impl Backend {
     }
 
     pub fn votes_rank(&self, item: &str, n: i64, top: bool) -> QueryResult<Vec<(String, i32, i32)>> {
+        let item = item.to_lowercase();
+
         /*
         SELECT votes.up,votes.down,users.user_id FROM
             votes
