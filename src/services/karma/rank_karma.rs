@@ -1,6 +1,6 @@
 use regex::Regex;
 
-use crate::bot::{Bot, Node, RoomEvent};
+use crate::{bot::{Bot, Node, RoomEvent}, utils::codeblock_format};
 
 use super::backend::Backend;
 
@@ -24,43 +24,36 @@ impl RankKarma {
     }
 }
 
+fn ranking_reply(bot: &Bot, event: &RoomEvent, header: &str, ranks: &Vec<String>) {
+    let plain_responsee = format!("{} {}", header, ranks.join("; "));
+    let fancy_msg = format!("{}\n{}", header, ranks.join("\n"));
+    let fancy_response = codeblock_format(&fancy_msg);
+    bot.reply_fmt(&event, &fancy_response, &plain_responsee).ok();
+}
+
 impl<'a> Node<'a> for RankKarma {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         let revent = &event.raw_event;
         if event.is_normal() {
             let body = revent.content["body"].as_str().unwrap().trim();
 
-            let mut response = String::new();
-
             if let Some(captures) = self.karmastats_re.captures(body) {
                 if let Some(query) = captures.get(1) {
                     let clean_query = query.as_str().trim();
                     if let Ok(rankings) = self.vote_db.votes_rank(clean_query, 10, true) {
-                        response += &format!("Top upvoters for '{}': ", clean_query);
-                        for (i, (user, up, down)) in rankings.iter().enumerate() {
-                            let item = format!("{}. {} with {} (+{}/-{})",
-                                               i + 1, user, up - down, up, down);
-                            if i > 0 {
-                                response += "; ";
-                            }
-                            response += &item;
-                        }
+                        let ranks = rankings.iter().enumerate().map(|(i, (user, up, down))| {
+                            format!("{}. {} with {} (+{}/-{})", i + 1, user, up - down, up, down)
+                        }).collect();
 
-                        bot.reply(&event, &response).ok();
+                        let header = format!("Top upvoters for '{}':", clean_query);
+                        ranking_reply(bot, &event, &header, &ranks);
                     }
                 } else if let Ok(rankings) = self.vote_db.voteables_rank_desc(10) {
-                    response += "All time most upvoted: ";
-                    for (i, r) in rankings.iter().enumerate() {
-                        let item = format!("{}. '{}' with {} (+{}/-{})",
-                                           i + 1, r.value, r.total_up - r.total_down,
-                                           r.total_up, r.total_down);
-                        if i > 0 {
-                            response += "; ";
-                        }
-                        response += &item;
-                    }
-
-                    bot.reply(&event, &response).ok();
+                    let header = "All time most upvoted:";
+                    let ranks = rankings.iter().enumerate().map(|(i, r)| {
+                        format!("{}. '{}' with {} (+{}/-{})", i + 1, r.value, r.total_up - r.total_down, r.total_up, r.total_down)
+                    }).collect();
+                    ranking_reply(bot, &event, &header, &ranks);
                 }
             }
 
@@ -69,31 +62,20 @@ impl<'a> Node<'a> for RankKarma {
                 if let Some(query) = captures.get(1) {
                     let clean_query = query.as_str().trim();
                     if let Ok(rankings) = self.vote_db.votes_rank(clean_query, 10, false) {
-                        response += &format!("Top downvoters for '{}': ", clean_query);
-                        for (i, (user, up, down)) in rankings.iter().enumerate() {
-                            let item = format!("{}. {} with {} (+{}/-{})",
-                                               i + 1, user, up - down, up, down);
-                            if i > 0 {
-                                response += "; ";
-                            }
-                            response += &item;
-                        }
+                        let header = format!("Top downvoters for '{}':", clean_query);
+                        let ranks = rankings.iter().enumerate().map(|(i, (user, up, down))| {
+                             format!("{}. {} with {} (+{}/-{})", i + 1, user, up - down, up, down)
+                        }).collect();
 
-                        bot.reply(&event, &response).ok();
+                        ranking_reply(bot, &event, &header, &ranks);
                     }
                 } else if let Ok(rankings) = self.vote_db.voteables_rank_asc(10) {
-                    response += "All time most downvoted: ";
-                    for (i, r) in rankings.iter().enumerate() {
-                        let item = format!("{}. '{}' with {} (+{}/-{})",
-                                           i + 1, r.value, r.total_up - r.total_down,
-                                           r.total_up, r.total_down);
-                        if i > 0 {
-                            response += "; ";
-                        }
-                        response += &item;
-                    }
+                    let header = "All time most downvoted:";
+                    let ranks = rankings.iter().enumerate().map(|(i, r)| {
+                        format!("{}. '{}' with {} (+{}/-{})", i + 1, r.value, r.total_up - r.total_down, r.total_up, r.total_down)
+                    }).collect();
 
-                    bot.reply(&event, &response).ok();
+                    ranking_reply(bot, &event, &header, &ranks);
                 }
             }
 
@@ -118,21 +100,15 @@ impl<'a> Node<'a> for RankKarma {
 
                 if let Ok(rankings) = self.vote_db.user_ranks(&user_query, 10) {
                     if rankings.is_empty() {
-                        response = format!("{} has not upvoted anything", user_query);
+                        bot.reply(&event, &format!("{} has not upvoted anything", user_query)).ok();
                     } else {
-                        response += &format!("Most upvoted by {}: ", user_query);
-                    }
+                        let header = format!("Most upvoted by {}:", user_query);
+                        let ranks = rankings.iter().enumerate().map(|(i, (item, up, down))| {
+                            format!("{}. '{}' with {} (+{}/-{})", i + 1, item, up - down, up, down)
+                        }).collect();
 
-                    for (i, (item, up, down)) in rankings.iter().enumerate() {
-                        let item = format!("{}. '{}' with {} (+{}/-{})",
-                                           i + 1, item, up - down, up, down);
-                        if i > 0 {
-                            response += "; ";
-                        }
-                        response += &item;
+                        ranking_reply(bot, &event, &header, &ranks);
                     }
-
-                    bot.reply(&event, &response).ok();
                 }
             }
 
@@ -157,21 +133,15 @@ impl<'a> Node<'a> for RankKarma {
 
                 if let Ok(rankings) = self.vote_db.user_ranks_asc(&user_query, 10) {
                     if rankings.is_empty() {
-                        response = format!("{} has not downvoted anything", user_query);
+                        bot.reply(&event, &format!("{} has not downvoted anything", user_query)).ok();
                     } else {
-                        response += &format!("Most downvoted by {}: ", user_query);
-                    }
+                        let header = format!("Most downvoted by {}:", user_query);
+                        let ranks = rankings.iter().enumerate().map(|(i, (item, up, down))| {
+                            format!("{}. '{}' with {} (+{}/-{})", i + 1, item, up - down, up, down)
+                        }).collect();
 
-                    for (i, (item, up, down)) in rankings.iter().enumerate() {
-                        let item = format!("{}. '{}' with {} (+{}/-{})",
-                                           i + 1, item, up - down, up, down);
-                        if i > 0 {
-                            response += "; ";
-                        }
-                        response += &item;
+                        ranking_reply(bot, &event, &header, &ranks);
                     }
-
-                    bot.reply(&event, &response).ok();
                 }
             }
         }
