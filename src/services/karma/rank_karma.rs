@@ -16,10 +16,10 @@ impl RankKarma {
     pub fn new() -> Self {
         Self {
             vote_db: Backend::new(),
-            karmastats_re: Regex::new(r"^karmastats(?: (.+))?$").unwrap(),
-            badkarmastats_re: Regex::new(r"^badkarmastats(?: (.+))?$").unwrap(),
-            nickstats_re: Regex::new(r"^nickstats(?: (.+))?$").unwrap(),
-            badnickstats_re: Regex::new(r"^badnickstats(?: (.+))?$").unwrap(),
+            karmastats_re: Regex::new(r"^(?:karmastats|ks)(?: (.+))?$").unwrap(),
+            badkarmastats_re: Regex::new(r"^(?:badkarmastats|bks)(?: (.+))?$").unwrap(),
+            nickstats_re: Regex::new(r"^(?:nickstats|ns)(?: (.+))?$").unwrap(),
+            badnickstats_re: Regex::new(r"^(?:badnickstats|bns)(?: (.+))?$").unwrap(),
         }
     }
 }
@@ -27,9 +27,7 @@ impl RankKarma {
 impl<'a> Node<'a> for RankKarma {
     fn handle(&mut self, bot: &Bot, event: RoomEvent) {
         let revent = &event.raw_event;
-        if revent.type_ == "m.room.message" &&
-            revent.content["msgtype"] == "m.text" {
-
+        if event.is_normal() {
             let body = revent.content["body"].as_str().unwrap().trim();
 
             let mut response = String::new();
@@ -181,9 +179,9 @@ impl<'a> Node<'a> for RankKarma {
 
     fn description(&self) -> Option<String> {
         Some("karma rankings:\n\
-              \tkarmastats <optional thing> - View kings of karma. Providing no argument will rank all things.\n\
-              \tbadkarmastats <optional thing> - View peasants of karma.\n\
-              \tnickstats <optional user id> - View ranking of things user has given karma.\n\
-              \tbadnickstats <optional user id> - View ranking of things user has given karma... but from the other end.".to_string())
+              \tkarmastats (alt: ks) <optional thing> - View kings of karma. Providing no argument will rank all things.\n\
+              \tbadkarmastats (alt: bks) <optional thing> - View peasants of karma.\n\
+              \tnickstats (alt: ns) <optional user id> - View ranking of things user has given karma.\n\
+              \tbadnickstats (alt: bns) <optional user id> - View ranking of things user has given karma... but from the other end.".to_string())
     }
 }
