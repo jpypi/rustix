@@ -1,5 +1,6 @@
 stages:
   - build
+  - test
   - deploy
   - publish
   - release
@@ -62,6 +63,18 @@ build-db-migration:
         - Cargo.lock
         - diesel.toml
         - migrations/**/*.sql
+
+test:
+  stage: test
+  image: rust:1.75-bookworm
+  script:
+    - rustup component add clippy
+    #- cargo fmt --check
+    - cargo clippy
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        - src/**/*.rs
 
 deploy:
   stage: deploy
