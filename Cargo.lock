@@ -1028,7 +1028,7 @@ checksum = "d626bb9dae77e28219937af045c257c28bfd3f69333c512553507f5f9798cb76"
 
 [[package]]
 name = "rustix"
-version = "0.0.6"
+version = "0.0.7"
 dependencies = [
  "base16ct",
  "chrono",
