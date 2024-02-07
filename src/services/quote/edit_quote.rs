@@ -12,7 +12,7 @@ impl EditQuote {
     pub fn new() -> Self {
         Self {
             quote_db: Backend::new(),
-            edit_re: Regex::new(r"^(?:editquote|eq) (\d+) (.+)$").unwrap(),
+            edit_re: Regex::new(r"(?s)^(?:editquote|eq) (\d+) (.+)$").unwrap(),
         }
     }
 }
