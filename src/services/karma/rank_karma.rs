@@ -24,11 +24,12 @@ impl RankKarma {
     }
 }
 
+#[allow(clippy::ptr_arg)]
 fn ranking_reply(bot: &Bot, event: &RoomEvent, header: &str, ranks: &Vec<String>) {
     let plain_responsee = format!("{} {}", header, ranks.join("; "));
     let fancy_msg = format!("{}\n{}", header, ranks.join("\n"));
     let fancy_response = codeblock_format(&fancy_msg);
-    bot.reply_fmt(&event, &fancy_response, &plain_responsee).ok();
+    bot.reply_fmt(event, &fancy_response, &plain_responsee).ok();
 }
 
 impl<'a> Node<'a> for RankKarma {
@@ -47,13 +48,12 @@ impl<'a> Node<'a> for RankKarma {
 
                         let header = format!("Top upvoters for '{}':", clean_query);
                         ranking_reply(bot, &event, &header, &ranks);
-                    }
-                } else if let Ok(rankings) = self.vote_db.voteables_rank_desc(10) {
+                    }                } else if let Ok(rankings) = self.vote_db.voteables_rank_desc(10) {
                     let header = "All time most upvoted:";
                     let ranks = rankings.iter().enumerate().map(|(i, r)| {
                         format!("{}. '{}' with {} (+{}/-{})", i + 1, r.value, r.total_up - r.total_down, r.total_up, r.total_down)
                     }).collect();
-                    ranking_reply(bot, &event, &header, &ranks);
+                    ranking_reply(bot, &event, header, &ranks);
                 }
             }
 
@@ -75,7 +75,7 @@ impl<'a> Node<'a> for RankKarma {
                         format!("{}. '{}' with {} (+{}/-{})", i + 1, r.value, r.total_up - r.total_down, r.total_up, r.total_down)
                     }).collect();
 
-                    ranking_reply(bot, &event, &header, &ranks);
+                    ranking_reply(bot, &event, header, &ranks);
                 }
             }
 
