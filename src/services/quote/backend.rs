@@ -55,6 +55,13 @@ impl Backend {
         )
     }
 
+    pub fn update_quote(&self, quote_id: i32, quote: &str) -> QueryResult<Quote> {
+        diesel::update(quotes.filter(qu::dsl::id.eq(quote_id)))
+            .set(value.eq(quote))
+            .get_result(&self.connection)
+    }
+
+
     pub fn get_quote(&self, quote_id: i32) -> QueryResult<(User, Quote)> {
         let qres: Quote = quotes.filter(qu::dsl::id.eq(quote_id))
                                         .first(&self.connection)?;

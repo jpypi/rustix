@@ -10,7 +10,7 @@ use rustix::{
     services::{
         echo::Echo,
         karma::{KarmaTracker, ShowKarma, RankKarma},
-        quote::{Quotes, DelQuote},
+        quote::{Quotes, DelQuote, EditQuote},
         prefix::Prefix,
         choose::Choose,
         roulette::Roulette,
@@ -138,6 +138,7 @@ fn main() {
     b.register_service("leave",        adm, Box::new(Leave::new()));
     b.register_service("emptycleanup", adm, Box::new(EmptyCleanup::new()));
     b.register_service("del_quote",    adm, Box::new(DelQuote::new()));
+    b.register_service("edit_quote",   adm, Box::new(EditQuote::new()));
     b.register_service("get_joined",   adm, Box::new(GetJoined::new()));
     b.register_service("nodectl",      adm, Box::new(Configure::new()));
 
