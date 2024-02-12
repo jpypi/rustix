@@ -25,7 +25,7 @@ impl Bonequest {
     pub fn new(config: &Value) -> Self {
         let cfg: Config = config.clone().try_into().expect("Bad bonequest config.");
         Self {
-            dialog_regex: Regex::new("(?s)<div class=\"acre\" style=\"margin-left: 40px; margin-right: 40px; font-family: monospace; white-space: pre-wrap; text-align: left;\">(.+?)</div>").unwrap(),
+            dialog_regex: Regex::new("(?s)<img  alt=\"(.+?)\".+?title=\".+?\".+?src=\".+?\".+?class=\"hitler\" style=\"margin-bottom: 4px\" /></a>").unwrap(),
             profanity: cfg.profanity.iter().map(|p| p.to_lowercase()).collect(),
         }
     }
