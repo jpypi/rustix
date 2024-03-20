@@ -21,5 +21,6 @@ pub mod nodectrl;
 pub mod bonequest;
 pub mod voteremove;
 pub mod roll;
+pub mod bf;
 
 mod db;

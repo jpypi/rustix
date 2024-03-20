@@ -22,9 +22,8 @@ base16ct = { version = "0.1.1", features = ["alloc"] }
 signal-hook = "0.3.17"
 itertools = "0.11.0"
 html-escape = "0.2"
-
+rand = { version = "0.8", features = ["small_rng"] }
 diesel = { version = "1.4.4", features = ["postgres"] }
 diesel-derive-enum = { version = "1.1.2", features = ["postgres"] }
 dotenv = "0.15.0"
-
-rand = { version = "0.8", features = ["small_rng"] }
+bf = { git = "https://gitlab.com/jpypi/bf-lang/" }
