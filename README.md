@@ -4,11 +4,12 @@
 
 
 Rustix is a [matrix](https://matrix.org) bot/library/framework written in
-[rust](https://www.rust-lang.org/). This project does not use a matrix client
-library, but rather contains one, with only the necessary API calls, within it.
-HTTP requests are made directly to a matrix server via the reqwest library.
+[rust](https://www.rust-lang.org/). This project does not depend on any 3rd
+party matrix client libraries, but rather, contains one with only the necessary
+API calls within.  HTTP requests are made directly to a matrix server via the
+reqwest library.
 
-*Note:* [The primary home for this project is on gitlab](https://gitlab.com/jpypi/rustix) anywhere else is just a mirror.
+*Note:* The primary home for [this project is on gitlab](https://gitlab.com/jpypi/rustix) anywhere else is just a mirror.
 
 # Running
 
@@ -17,10 +18,10 @@ docker can be found near the bottom of this document.*
 
 To run rustix there must be a matrix user account with a password set up. The
 username and password should be put in `config.toml`. Rustix uses a database to
-keep quotes and track "karma" (e.g. rust++ or cabbage--) to record likes and
-dislikes in a channel. To set up the database, first, create a file called
-`.env` which contains a database url to a PostgreSQL database. It should look
-something like this:
+keep quotes, track "karma" (e.g. rust++ or cabbage--) to record likes and
+dislikes in a channel, among other things. To set up the database, first, create
+a file called `.env` which contains a database url to a PostgreSQL database. It
+should look something like this:
 ```
 DATABASE_URL=postgres://user:password@localhost/rustix
 ```
@@ -35,14 +36,14 @@ $ cargo run
 
 # Architecture
 
-The command/plugin/service architecture of rustix can be thought of as a
+The command/filter/service architecture of rustix can be thought of as a
 directed graph. Service nodes are added to the graph and matrix events get
-propogated (or blocked) through child nodes. This makes rustix very flexible.
-Examples: "self" filter and prefix filter nodes are prebuilt and it is
+propogated (or blocked) through to child nodes. This makes rustix very flexible.
+For example: "self" filter and prefix filter nodes are prebuilt and it is
 recommended that new services be added under the prefix filter which is under
 the "self" filter. These filters only propagate events to child processing nodes
 if the message wasn't sent by the bot itself and the message starts with a
-prefix (which gets stripped off).
+prefix, which gets stripped off before being sent along.
 
 # Prebuilt commands
 The framework should be fairly flexible and not too difficult to use for your
@@ -70,6 +71,7 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - votekick \<username\>
 - voteban \<username\>
 - roll \<integer\>
+- bf \<code\>
 - \*join \<public channel display name\>
 - \*leave \<public channel display name\>
 - \*emptycleanup
@@ -87,9 +89,9 @@ The `node` command has two sub commands `config` and `help`, which can be used
 to configure nodes in the processing graph. The `help` sub command will be
 useful to understand what commands can be passed to the node when using the
 `config` sub command. Note that "service/node name" is the name of the
-service/node internal to the bot message processing graph, not the text string
-used to trigger a command. The names of the services/nodes are visible via the
-`structure` command.
+service/node internal to the bot message processing graph, which may not be the
+the text string used to trigger the command the node is associated with. The
+names of the services/nodes are visible via the `structure` command.
 
 ## Optional Commands (if configured)
 
