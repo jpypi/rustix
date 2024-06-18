@@ -31,6 +31,7 @@ use rustix::{
         voteremove::Voteremove,
         roll::Roll,
         bf::BFLang,
+        duel::Duel,
     },
     filters::{
         SelfFilter,
@@ -91,6 +92,8 @@ fn main() {
     b.register_service("choose",      pf, Box::new(Choose::new()));
     b.register_service("roulette",    pf, Box::new(Roulette::new(config::RemovalMode::Kick)));
     b.register_service("rroulette",   pf, Box::new(Roulette::new(config::RemovalMode::Ban)));
+    b.register_service("duel",        pf, Box::new(Duel::new(config::RemovalMode::Kick)));
+    b.register_service("dduel",       pf, Box::new(Duel::new(config::RemovalMode::Ban)));
     b.register_service("crypto_coin", pf, Box::new(CryptoCoin::new()));
     b.register_service("votekick",    pf, Box::new(Voteremove::new(4, 5, config::RemovalMode::Kick)));
     b.register_service("voteban",     pf, Box::new(Voteremove::new(9, 4, config::RemovalMode::Ban)));

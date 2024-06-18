@@ -59,6 +59,8 @@ be prefixed with the default prefix: `!`. (The prefix can be changed in
 - quoteby \<user nickname\>
 - roulette
 - rroulette
+- duel
+- dduel
 - choose \<item1\>, \<item2\>, ... \<itemN\>
 - echo \<string\>
 - structure

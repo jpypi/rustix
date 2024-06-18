@@ -22,5 +22,6 @@ pub mod bonequest;
 pub mod voteremove;
 pub mod roll;
 pub mod bf;
+pub mod duel;
 
 mod db;
