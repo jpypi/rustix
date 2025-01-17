@@ -4,8 +4,12 @@ FROM rust:1.76-alpine as build
 RUN apk add --no-cache openssl-dev libpq-dev musl-dev
 
 WORKDIR /usr/src/rustix
-COPY src src
 COPY Cargo.toml Cargo.lock diesel.toml ./
+RUN mkdir src &&\
+    echo "// dummy file" > src/lib.rs &&\
+    cargo build
+
+COPY src src
 
 # https://github.com/sfackler/rust-native-tls/issues/190
 RUN if [ "$BuildEnv" = "prod" ] ;then \
