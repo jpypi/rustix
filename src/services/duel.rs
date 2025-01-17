@@ -28,7 +28,7 @@ impl<'a> Node<'a> for Duel {
                (self.mode == RemovalMode::Kick && body.starts_with("duel")) {
 
                 match self.duels.get(event.room_id) {
-                    Some(ref d) => {
+                    Some(d) => {
                         let mut rng = rand::thread_rng();
                         let loser = match rng.gen_bool(0.55) {
                             true => d,

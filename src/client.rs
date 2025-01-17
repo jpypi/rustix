@@ -60,7 +60,7 @@ impl MatrixClient {
         let mut url = self.base_url.clone();
         url.path_segments_mut().map_err(|_| "Cannot be base")?
            .extend(["_matrix", "client", version.unwrap_or("v3")]);
-        url.set_path(&(url.path().to_string() + "/" + path.trim_start_matches("/")));
+        url.set_path(&(url.path().to_string() + "/" + path.trim_start_matches('/')));
 
         if let Some(v) = params {
             url.query_pairs_mut().extend_pairs(v);

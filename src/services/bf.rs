@@ -49,8 +49,8 @@ impl<'a> Node<'a> for BFLang {
                         Err(e) => {
                             let mut client = t_client.write().unwrap();
                             let raw = e.trim_start_matches('\n');
-                            let message = codeblock_format(&raw);
-                            client.send_msg_fmt(&t_room_id, &message, &raw).ok();
+                            let message = codeblock_format(raw);
+                            client.send_msg_fmt(&t_room_id, &message, raw).ok();
                         },
                         Ok(_) => {
                             if let Ok(s) = String::from_utf8(out.buffer().to_vec()) {
