@@ -15,6 +15,9 @@ update:
 	POSTGRES_PASSWORD=na docker compose down
 	@POSTGRES_PASSWORD=$(shell cat .pw_lock) docker compose up -d
 
+upd: rustix
+	@POSTGRES_PASSWORD=$(shell cat .pw_lock) docker compose up
+
 up:
 	@POSTGRES_PASSWORD=$(shell cat .pw_lock) docker compose up -d
 down:
