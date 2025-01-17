@@ -187,6 +187,24 @@ impl<'a, 'c> Bot<'a, 'c> {
         }
     }
 
+    fn handle_event_source<T: EventContainer>(&self, events: Option<HashMap<String, T>>, source: &str) {
+        let Some(room_events) = events else {
+            return
+        };
+
+        for (room_id, room) in room_events {
+            for raw_event in room.get_events() {
+                self.propagate_event(
+                    &RoomEvent {
+                        room_id: &room_id,
+                        from: source,
+                        raw_event: raw_event.clone(),
+                    }
+                );
+            }
+        }
+    }
+
     pub fn run(&mut self, exit_flag: &Arc<AtomicBool>) {
         let mut next_batch: String = self.p_client.read().unwrap().sync(None).unwrap().next_batch;
 
@@ -194,57 +212,25 @@ impl<'a, 'c> Bot<'a, 'c> {
 
         while !exit_flag.load(Ordering::Relaxed) {
             let sync = self.p_client.read().unwrap().sync(Some(&next_batch));
-
             match sync {
                 Ok(sync_data) => {
-                    for (room_id, room) in sync_data.rooms.join {
-                        for raw_event in &room.timeline.events {
-                            self.propagate_event(
-                                &RoomEvent{
-                                    room_id: &room_id,
-                                    from: "join",
-                                    raw_event: raw_event.clone()
-                                });
-                        }
-                    }
-
-                    for (room_id, room) in sync_data.rooms.invite {
-                        for raw_event in &room.invite_state.events {
-                            self.propagate_event(
-                                &RoomEvent{
-                                    room_id: &room_id,
-                                    from: "invite",
-                                    raw_event: raw_event.clone()
-                                });
-                        }
-                    }
-
-                    for (room_id, room) in sync_data.rooms.leave {
-                        for raw_event in &room.timeline.events {
-                            self.propagate_event(
-                                &RoomEvent{
-                                    room_id: &room_id,
-                                    from: "leave",
-                                    raw_event: raw_event.clone()
-                                });
-                        }
+                    if let Some(rooms) = sync_data.rooms {
+                        self.handle_event_source(rooms.join,   "join");
+                        self.handle_event_source(rooms.invite, "invite");
+                        self.handle_event_source(rooms.leave,  "leave");
                     }
 
                     self.process_delayed_queries();
 
                     next_batch = sync_data.next_batch;
                 },
-                Err(Error::Reqwest(e)) => {
-                    if e.is_timeout() {
-                        if let Some(url) = e.url() {
-                            println!("Request timed out for {}", url);
-                        } else {
-                            println!("Request timed out");
-                        }
-                    } else {
-                        println!("ReqwestError: {:?}", e);
+                Err(Error::Reqwest(e)) if e.is_timeout() => {
+                    match e.url() {
+                        Some(url) => println!("Request timed out for {}", url),
+                        None => println!("Request timed out"),
                     }
                 }
+                Err(Error::Reqwest(e)) => println!("ReqwestError: {:?}", e),
                 Err(e) => {
                     println!("Error: {:?}", e);
                 }

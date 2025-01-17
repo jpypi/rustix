@@ -18,7 +18,7 @@ type Result<T> = result::Result<T, Error>;
 
 
 pub struct MatrixClient {
-    base_url: String,
+    base_url: Url,
     encoding: String,
 
     access_token: Option<String>,
@@ -33,7 +33,7 @@ pub struct MatrixClient {
 impl MatrixClient {
     pub fn new(base_url: &str) -> Self {
         MatrixClient {
-            base_url: String::from(base_url),
+            base_url: Url::parse(base_url).expect("Base url should be properly formatted"),
             encoding: String::from("utf-8"),
             access_token: None,
             device_id: None,
@@ -57,16 +57,14 @@ impl MatrixClient {
              version: Option<&str>) -> Result<Response> {
 
         // Concat the path to the base url and constant string
-        let mut uri = self.base_url.clone();
-        uri += "/_matrix/client/";
-        uri += version.unwrap_or("r0");
-        uri += path;
+        let mut url = self.base_url.clone();
+        url.path_segments_mut().map_err(|_| "Cannot be base")?
+           .extend(["_matrix", "client", version.unwrap_or("v3")]);
+        url.set_path(&(url.path().to_string() + "/" + path.trim_start_matches("/")));
 
-        let url = match params {
-            // TODO: an unwrap ok here?
-            Some(v) => Url::parse_with_params(&uri, v).unwrap().into(),
-            None => uri
-        };
+        if let Some(v) = params {
+            url.query_pairs_mut().extend_pairs(v);
+        }
 
         let nothing = HashMap::<String, String>::new();
 
@@ -117,15 +115,17 @@ impl MatrixClient {
     }
 
     pub fn login(&mut self, username: &str, password: &str) -> Result<()> {
-        let params = hashmap!{
-            "user"     => username,
-            "password" => password,
-            "type"     => "m.login.password",
-            "initial_device_display_name" => "rustix",
+        let login = Login {
+            type_: "m.login.password",
+            identifier: LoginIdentifier {
+                type_: "m.id.user",
+                user: username,
+            },
+            password
         };
 
         // Parse response into client state
-        match self.query(Method::POST, "/login", Option::None, Some(&params), None)?.json::<Init>() {
+        match self.query(Method::POST, "/login", Option::None, Some(&login), None)?.json::<Init>() {
             Ok(v) => {
                 self.user_id = Some(v.user_id);
                 self.access_token = Some(v.access_token);
@@ -144,7 +144,7 @@ impl MatrixClient {
         }
 
         self.auth_get("/sync", Some(params), None)
-            .and_then(|r| r.json().map_err(|e| format!("Problem syncing: {:?}", e).into()) )
+            .and_then(|r| r.json().map_err(|e| format!("Problem syncing: {:?}", e).into()))
     }
 
     //TODO: Validate this

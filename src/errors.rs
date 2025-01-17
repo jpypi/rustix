@@ -3,6 +3,7 @@ pub enum Error {
     Serde(serde_json::Error),
     Reqwest(reqwest::Error),
     Generic(String),
+    UrlParse(url::ParseError),
 }
 
 impl From<reqwest::Error> for Error {
@@ -14,6 +15,12 @@ impl From<reqwest::Error> for Error {
 impl From<serde_json::Error> for Error {
     fn from(err: serde_json::Error) -> Error {
         Error::Serde(err)
+    }
+}
+
+impl From<url::ParseError> for Error {
+    fn from(err: url::ParseError) -> Self {
+        Error::UrlParse(err)
     }
 }
 

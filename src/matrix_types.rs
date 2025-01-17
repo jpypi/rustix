@@ -2,21 +2,35 @@
 extern crate serde;
 extern crate serde_json;
 
-/*
-#[macro_use]
-extern crate serde_derive;
-*/
-
 use std::collections::HashMap;
 
 use serde_json::Value;
 
 
+pub trait EventContainer {
+    fn get_events(&self) -> &Vec<Event>;
+}
+
+#[derive(Serialize)]
+pub struct LoginIdentifier<'a> {
+    #[serde(rename="type")]
+    pub type_: &'a str,
+    pub user: &'a str,
+}
+
+#[derive(Serialize)]
+pub struct Login<'a> {
+    #[serde(rename="type")]
+    pub type_: &'a str,
+    pub identifier: LoginIdentifier<'a>,
+    pub password: &'a str,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Init {
+    pub user_id: String,
     pub access_token: String,
     pub home_server: String,
-    pub user_id: String,
     pub device_id: String,
 }
 
@@ -28,15 +42,15 @@ pub struct MatrixSync {
     */
     pub next_batch: String,
     //presence: HashMap,
-    pub rooms: Rooms,
+    pub rooms: Option<Rooms>,
     //to_device: HashMap,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Rooms {
-    pub join: HashMap<String, Room>,
-    pub invite: HashMap<String, InviteRoom>,
-    pub leave: HashMap<String, LeaveRoom>,
+    pub join: Option<HashMap<String, Room>>,
+    pub invite: Option<HashMap<String, InviteRoom>>,
+    pub leave: Option<HashMap<String, LeaveRoom>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -48,15 +62,33 @@ pub struct Room {
     pub unread_notifications: Value
 }
 
+impl EventContainer for Room {
+    fn get_events(&self) -> &Vec<Event> {
+        &self.timeline.events
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct InviteRoom {
     pub invite_state: StateEvents,
+}
+
+impl EventContainer for InviteRoom {
+    fn get_events(&self) -> &Vec<Event> {
+        &self.invite_state.events
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LeaveRoom {
     pub state: StateEvents,
     pub timeline: Timeline,
+}
+
+impl EventContainer for LeaveRoom {
+    fn get_events(&self) -> &Vec<Event> {
+        &self.timeline.events
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
