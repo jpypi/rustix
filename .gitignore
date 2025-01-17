@@ -15,3 +15,8 @@
 var
 .pw_lock
 .rustix
+csv_quotes.csv
+
+# Deployment Secrets
+deploy_key
+deploy_key.pub
