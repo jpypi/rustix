@@ -48,7 +48,8 @@ impl<'a> Node<'a> for RankKarma {
 
                         let header = format!("Top upvoters for '{}':", clean_query);
                         ranking_reply(bot, &event, &header, &ranks);
-                    }                } else if let Ok(rankings) = self.vote_db.voteables_rank_desc(10) {
+                    }
+                } else if let Ok(rankings) = self.vote_db.voteables_rank_desc(10) {
                     let header = "All time most upvoted:";
                     let ranks = rankings.iter().enumerate().map(|(i, r)| {
                         format!("{}. '{}' with {} (+{}/-{})", i + 1, r.value, r.total_up - r.total_down, r.total_up, r.total_down)
