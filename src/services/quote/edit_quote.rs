@@ -41,6 +41,6 @@ impl<'a> Node<'a> for EditQuote {
     }
 
     fn description(&self) -> Option<String> {
-        Some("editquote (alt: eq) <quote id> <updated quote text> - Update text of uote with given id.".to_string())
+        Some("editquote (alt: eq) <quote id> <updated quote text> - Update text of quote with given id.".to_string())
     }
 }
