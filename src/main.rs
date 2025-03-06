@@ -138,12 +138,15 @@ fn main() {
 
     b.register_service("help", pf, Box::new(Help::new()));
 
+    let eq_f = b.register_service("edit_quote_filter", pf,
+                                  Box::new(UserFilter::new(config.bot.admins.clone(), true)));
+    b.register_service("edit_quote",   eq_f, Box::new(EditQuote::new()));
+
     let adm = b.register_service("admin", pf, Box::new(Admin::new(config.bot.admins)));
     b.register_service("join",         adm, Box::new(Join::new()));
     b.register_service("leave",        adm, Box::new(Leave::new()));
     b.register_service("emptycleanup", adm, Box::new(EmptyCleanup::new()));
     b.register_service("del_quote",    adm, Box::new(DelQuote::new()));
-    b.register_service("edit_quote",   adm, Box::new(EditQuote::new()));
     b.register_service("get_joined",   adm, Box::new(GetJoined::new()));
     b.register_service("nodectl",      adm, Box::new(Configure::new()));
 
