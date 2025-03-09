@@ -328,4 +328,8 @@ impl MatrixClient {
                            self.user_id.as_ref().expect("Must be logged in"));
         self.auth_query(Method::PUT, &path, None, Some(&data), None)
     }
+
+    pub fn get_user_id(&self) -> Option<&str> {
+        self.user_id.as_ref().map(|uid| uid.as_str())
+    }
 }

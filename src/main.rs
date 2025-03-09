@@ -53,6 +53,8 @@ fn main() {
     m.write().unwrap()
      .login(&config.connection.username,
             &config.connection.password).expect("login failed!");
+    // Collect the fully qualified username e.g. rustix@matrix.example.com which the server returns at login
+    let fq_username = m.read().unwrap().get_user_id().expect("Successful login should return a user id").to_string();
 
     // Create a new bot
     let mut b = bot::Bot::new(Arc::clone(&m));
@@ -60,10 +62,7 @@ fn main() {
 
     // Register services with the bot
     let sf = b.register_service("self_filter", None,
-                                Box::new(SelfFilter::new(
-                                        &config.connection.username,
-                                        &config.connection.server
-                                    )));
+                                Box::new(SelfFilter::new(fq_username)));
 
     let uf = b.register_service("user_filter", sf,
                                 Box::new(UserFilter::new(config.bot.ignore.clone(), false)));

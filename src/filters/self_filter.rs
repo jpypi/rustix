@@ -1,5 +1,4 @@
 use crate::bot::{Bot, Node, RoomEvent};
-use url::Url;
 
 pub struct SelfFilter<'a> {
     children: Vec<&'a str>,
@@ -7,13 +6,11 @@ pub struct SelfFilter<'a> {
 }
 
 impl<'a> SelfFilter<'a> {
-    pub fn new(username: &str, server: &str) -> Self {
-        let url = Url::parse(server).unwrap();
-        let sender = format!("@{}:{}", username, url.host_str().unwrap());
-        println!("Ignoring messages sent by self ({})", sender);
+    pub fn new(user_id: String) -> Self {
+        println!("Ignoring messages sent by self ({})", user_id);
         Self {
             children: Vec::new(),
-            sender,
+            sender: user_id,
         }
     }
 }
