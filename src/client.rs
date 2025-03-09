@@ -330,6 +330,6 @@ impl MatrixClient {
     }
 
     pub fn get_user_id(&self) -> Option<&str> {
-        self.user_id.as_ref().map(|uid| uid.as_str())
+        self.user_id.as_deref()
     }
 }
