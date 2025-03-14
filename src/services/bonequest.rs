@@ -1,18 +1,30 @@
-use std::time::Duration;
+use std::{collections::HashMap, time::Duration};
 
 use reqwest;
-use regex::Regex;
-use rand::seq::IteratorRandom;
-use html_escape;
+use rand::seq::SliceRandom;
 use toml::Value;
 
 use crate::bot::{Bot, Node, RoomEvent};
 
-const RANDOM_BQ_URL: &str = "https://www.bonequest.com/random/?_";
+const BQ_BASE_URL: &str = "https://www.bonequest.com";
+
+#[derive(Deserialize)]
+struct BqRandom {
+    episodes: Vec<BqEpisode>,
+}
+
+#[derive(Deserialize)]
+struct BqEpisode {
+    quote: String,
+}
+
+#[derive(Deserialize)]
+struct BqDialog {
+    dialog: HashMap<String, Vec<String>>,
+}
 
 
 pub struct Bonequest {
-    dialog_regex: Regex,
     profanity: Vec<String>
 }
 
@@ -25,34 +37,34 @@ impl Bonequest {
     pub fn new(config: &Value) -> Self {
         let cfg: Config = config.clone().try_into().expect("Bad bonequest config.");
         Self {
-            dialog_regex: Regex::new("(?s)<img  alt=\"(.+?)\".+?title=\".+?\".+?src=\".+?\".+?class=\"hitler\" style=\"margin-bottom: 4px\" /></a>").unwrap(),
             profanity: cfg.profanity.iter().map(|p| p.to_lowercase()).collect(),
         }
     }
 
-    fn get_line(&self) -> Result<String, reqwest::Error> {
-        let client = reqwest::blocking::Client::new();
-        let res = client.get(RANDOM_BQ_URL).timeout(Duration::new(30, 0))
-                        .send()?
-                        .text();
-
+    fn rand_character(&self, character: &str) -> Result<String, reqwest::Error> {
         let mut rng = rand::thread_rng();
 
-        res.map(|r| {
-            if let Some(captures) = self.dialog_regex.captures(&r) {
-                if let Some(content) = captures.get(1) {
-                    let lines = content.as_str().split('\n');
-                    let line = lines.choose(&mut rng)
-                                    .and_then(|l| l.split(": ").nth(1));
-                    return match line {
-                        Some(l) => l.to_string(),
-                        None => "Line parsing error".to_string(),
-                    }
-                }
-            }
+        let client = reqwest::blocking::Client::new();
+        let res = client.get(BQ_BASE_URL.to_string() + "/dialog.json")
+                        .header(reqwest::header::USER_AGENT, "rustix-matrix-bot")
+                        .timeout(Duration::new(30, 0))
+                        .send()?
+                        .json::<BqDialog>()?;
 
-            "Regex error".to_string()
-        })
+        Ok(res.dialog.get(character)
+                     .and_then(|lines| lines.choose(&mut rng).map(|s| s.to_string()))
+                     .unwrap_or_else(|| format!("Could not find character `{}`.", character)))
+    }
+
+    fn get_line(&self) -> Result<String, reqwest::Error> {
+        let client = reqwest::blocking::Client::new();
+        let res = client.get(BQ_BASE_URL.to_string() + "/api/v2/quote/random")
+                        .header(reqwest::header::USER_AGENT, "rustix-matrix-bot")
+                        .timeout(Duration::new(30, 0))
+                        .send()?
+                        .json::<BqRandom>()?;
+
+        Ok(res.episodes.get(0).map(|e| e.quote.to_string()).unwrap_or("Random quote API failed.".to_string()))
     }
 }
 
@@ -61,21 +73,25 @@ impl<'a> Node<'a> for Bonequest {
         let revent = &event.raw_event;
         let body = &revent.content["body"].as_str().unwrap();
 
-        if body.starts_with("bq") {
+        if let Some(p) = body.strip_prefix("bq") {
             bot.client().indicate_typing(event.room_id, Some(Duration::from_secs(10))).ok();
 
+            let line = if p.starts_with(' ') && p.trim().len() > 0 {
+                self.rand_character(p.trim())
+            } else {
+                self.get_line()
+            };
+
             'attempts: for _ in 0..10 {
-                match self.get_line() {
-                    Ok(l) => {
-                        let escaped = html_escape::decode_html_entities(&l);
-                        let lowered = escaped.to_lowercase();
+                match line {
+                    Ok(ref l) => {
+                        let lowered = l.to_lowercase();
                         for word in self.profanity.iter() {
                             if lowered.contains(word) {
                                 continue 'attempts;
                             }
                         }
-                        bot.reply(&event, &escaped).ok();
-                        break;
+                        bot.reply(&event, &l).ok();
                     },
                     Err(e) => {
                         if e.is_timeout() {
@@ -83,9 +99,9 @@ impl<'a> Node<'a> for Bonequest {
                         } else {
                             println!("{:?}", e);
                         }
-                        break;
                     }
                 }
+                break;
             }
 
             bot.client().indicate_typing(event.room_id, None).ok();
@@ -93,6 +109,6 @@ impl<'a> Node<'a> for Bonequest {
     }
 
     fn description(&self) -> Option<String> {
-        Some("bq - Fetch a random Bonequest line".to_string())
+        Some("bq <optional character name> - Fetch a random Bonequest line".to_string())
     }
 }

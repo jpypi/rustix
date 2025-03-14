@@ -21,7 +21,6 @@ sha3 = "0.10.6"
 base16ct = { version = "0.1.1", features = ["alloc"] }
 signal-hook = "0.3.17"
 itertools = "0.11.0"
-html-escape = "0.2"
 rand = { version = "0.8", features = ["small_rng"] }
 diesel = { version = "1.4.4", features = ["postgres"] }
 diesel-derive-enum = { version = "1.1.2", features = ["postgres"] }
