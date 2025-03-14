@@ -12,10 +12,14 @@ RUN mkdir src &&\
 COPY src src
 
 # https://github.com/sfackler/rust-native-tls/issues/190
-RUN if [ "$BuildEnv" = "prod" ] ;then \
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/src/rustix/target \
+    if [ "$BuildEnv" = "prod" ] ;then \
         RUSTFLAGS=-Ctarget-feature=-crt-static cargo build --release; \
+        mv target/release/rustix ./rustix-app;\
     else \
         RUSTFLAGS=-Ctarget-feature=-crt-static cargo build; \
+        mv target/debug/rustix ./rustix-app;\
     fi
 
 ######################
@@ -26,7 +30,7 @@ FROM alpine
 
 RUN apk add --no-cache openssl libpq libgcc
 
-COPY --from=build /usr/src/rustix/target/debug/rustix /usr/bin/rustix
+COPY --from=build /usr/src/rustix/rustix-app /usr/bin/rustix
 COPY merges.txt vocab.json ./
 
 CMD ["rustix"]
