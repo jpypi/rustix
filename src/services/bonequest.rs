@@ -1,10 +1,11 @@
 use std::{collections::HashMap, time::Duration};
 
+use itertools::Itertools;
 use reqwest;
 use rand::seq::SliceRandom;
 use toml::Value;
 
-use crate::bot::{Bot, Node, RoomEvent};
+use crate::{bot::{Bot, Node, RoomEvent}, utils::codeblock_format};
 
 const BQ_BASE_URL: &str = "https://www.bonequest.com";
 
@@ -41,6 +42,17 @@ impl Bonequest {
         }
     }
 
+    fn actors(&self) -> Result<String, reqwest::Error> {
+        let client = reqwest::blocking::Client::new();
+        let res = client.get(BQ_BASE_URL.to_string() + "/dialog.json")
+                        .header(reqwest::header::USER_AGENT, "rustix-matrix-bot")
+                        .timeout(Duration::new(30, 0))
+                        .send()?
+                        .json::<BqDialog>()?;
+
+        Ok(res.dialog.keys().join(", "))
+    }
+
     fn rand_character(&self, character: &str) -> Result<String, reqwest::Error> {
         let mut rng = rand::thread_rng();
 
@@ -73,7 +85,19 @@ impl<'a> Node<'a> for Bonequest {
         let revent = &event.raw_event;
         let body = &revent.content["body"].as_str().unwrap();
 
-        if let Some(p) = body.strip_prefix("bq") {
+        if body.eq(&"bqactors") {
+            if let Ok(c) = self.actors() {
+                bot.client().indicate_typing(event.room_id, Some(Duration::from_secs(10))).ok();
+
+
+                let message = codeblock_format(&c);
+                bot.reply_fmt(&event, &message, &c).ok();
+
+                bot.client().indicate_typing(event.room_id, None).ok();
+            } else {
+                bot.reply(&event, "Failed to fetch actor list.").ok();
+            }
+        } else if let Some(p) = body.strip_prefix("bq") {
             bot.client().indicate_typing(event.room_id, Some(Duration::from_secs(10))).ok();
 
             let line = if p.starts_with(' ') && p.trim().len() > 0 {
@@ -109,6 +133,6 @@ impl<'a> Node<'a> for Bonequest {
     }
 
     fn description(&self) -> Option<String> {
-        Some("bq <optional character name> - Fetch a random Bonequest line".to_string())
+        Some("bq <optional actor name> - Fetch a random Bonequest line\nbqactors - List all actors".to_string())
     }
 }
