@@ -58,13 +58,11 @@ impl<'a> Node<'a> for WebSearch {
             if let Some(query) = body.strip_prefix("s ") {
                 let mut res = self.search(query);
 
-                let mut tries: u32 = 0;
-                while res.is_ok() && tries < 2 {
+                for _ in 0..2 {
                     if let Ok(sr) = res.as_ref() {
                         // Might need to re-search due to spelling issue
                         if sr.items.is_none() && sr.spelling.is_some() {
                             res = self.search(&sr.spelling.as_ref().unwrap().correctedQuery);
-                            tries += 1;
                             continue;
                         }
 
